@@ -12,21 +12,30 @@ class SalesOfficerSerializer(serializers.ModelSerializer):
         model = m.SalesOfficer
         fields = '__all__'
 
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = m.Category
-        fields = '__all__'
-
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = m.Product
         fields = '__all__'
 
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = m.Category
+        fields = '__all__'
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        list = []
+        for i in response['products']:
+            ins = m.Product.objects.get(id=i)
+            list.append(ProductSerializer(ins).data)
+
+        response['products'] = list
+        return response
+
+
 class DiscountCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = m.DiscountCategory
         fields = '__all__'
-
 
 class SalesPersonSerializer(serializers.ModelSerializer):
     class Meta:

@@ -1,8 +1,6 @@
-import re
 from django.http.response import JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from rest_framework  import viewsets,generics,status
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from apis import models as m
 from apis import serializers as s
@@ -169,6 +167,87 @@ class SalesOfficerViewSet(viewsets.ViewSet):
             response_dict = {"error": True,
                                 "message": "Error During Updating Data"}
         return Response(response_dict)
+
+class BankViewSet(viewsets.ViewSet):
+    def list(self, request):
+        if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant :
+            data = m.Bank.objects.all()
+            serializer = s.BankSerializer(
+                data, many=True, context={"request": request})
+            response_dict = {
+                "error": False, "message": "All List Data", "data": serializer.data}
+        else:
+            response_dict = {
+                "error": False, "message": 'UnAuthenticated Person'}
+        return Response(response_dict)
+
+    def create(self, request):
+        if request.user.is_superuser :
+            try:
+                serializer = s.BankSerializer(
+                    data=request.data, context={"request": request})
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                dict_response = {"error": False,
+                                "message": "Data Save Successfully"}
+            except ValueError as err:
+                dict_response = {"error": True, "message": err}
+            except:
+                dict_response = {"error": True,
+                                "message": "Error During Saving Data"}
+        else:
+            response_dict = {
+                "error": False, "message": 'UnAuthenticated Person'}
+        return JsonResponse(dict_response)
+
+    def retrieve(self, request, pk=None):
+        if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant :
+            queryset = m.Bank.objects.all()
+            query = get_object_or_404(queryset, pk=pk)
+            serializer = s.BankSerializer(
+                query, context={"request": request})
+            serializer_data = serializer.data
+        
+            return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
+        else:
+            response_dict = {
+                "error": False, "message": 'UnAuthenticated Person'}
+        return Response(response_dict)
+    def update(self, request, pk=None):
+        if request.user.is_superuser:
+            try:
+                queryset = m.Bank.objects.all()
+                query = get_object_or_404(queryset, pk=pk)
+                serializer = s.BankSerializer(
+                    query, data=request.data, context={"request": request})
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                dict_response = {"error": False,
+                                "message": "Successfully Updated Data"}
+            except:
+                dict_response = {"error": True,
+                                "message": "Error During Updating Data"}
+
+            return Response(dict_response)
+        else:
+            response_dict = {
+                "error": False, "message": 'UnAuthenticated Person'}
+        return Response(response_dict)
+
+    def delete(self, request, pk=None):
+        if request.user.is_superuser :
+            try:
+                m.Bank.objects.get(id=pk).delete()
+                response_dict = {"error": False,
+                                "message": "Successfully Deleted"}
+            except:
+                response_dict = {"error": True,
+                                "message": "Error During Deleted Data "}
+        else:
+            response_dict = {
+                "error": False, "message": 'UnAuthenticated Person'}
+        return Response(response_dict)
+
 
 class CategoryViewSet(viewsets.ViewSet):
 
@@ -529,7 +608,7 @@ class PartyLedgerFilter(generics.ListAPIView):
         f_date = self.kwargs['FromDate']
         t_date = self.kwargs['ToDate']
         party = self.kwargs['party']
-        return m.PartyLedger.objects.filter(driver=party, date__lte=t_date, date__gte=f_date)
+        return m.PartyLedger.objects.filter(party=party, date__lte=t_date, date__gte=f_date)
 
 class SalesOfficerLedgerFilter(generics.ListAPIView):
     serializer_class = s.SalesOfficerLedgerSerializer
@@ -594,3 +673,17 @@ class DiscountLedgerFilter(generics.ListAPIView):
         discount_person = self.kwargs['discount_person']
         return m.DiscountLedger.objects.filter(discount_person=discount_person, date__lte=t_date, date__gte=f_date)
 
+# Test
+
+def Test(request):
+    party = m.PartyLedger.objects.all()
+    salesofficer = m.SalesOfficerLedger.objects.all()
+    sales = m.SalesLedger.objects.all()
+    bank = m.BankLedger.objects.all()
+    freight = m.FreightLedger.objects.all()
+    discount = m.DiscountLedger.objects.all()
+    cleariing = m.ClearingLedger.objects.all()
+    cash = m.CashLedger.objects.all()
+    response_dict = {'Party':party,'SalesOfficer':salesofficer,'Sales':sales,'Bank':bank,'Freight':freight
+                    ,'Discount':discount,'Cash':cash,'Clearing':cleariing }
+    return render(request,'test.html',response_dict)
