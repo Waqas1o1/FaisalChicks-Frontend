@@ -9,7 +9,9 @@ router.register("Product", views.ProductViewSet, basename="Product")
 router.register("DiscountCategory", views.DiscountCategoryViewSet, basename="DiscountCategory")
 router.register("PartyOrder", views.PartyOrderViewSet, basename="PartyOrder")
 router.register("Recovery", views.RecoveryViewSet, basename="Recovery")
+# Authentication
+
 
 urlpatterns = [
-    path('', include(router.urls))
+    path('', include(router.urls)),
 ]
