@@ -760,6 +760,7 @@ def Test(request):
     discount = m.DiscountLedger.objects.all()
     cleariing = m.ClearingLedger.objects.all()
     cash = m.CashLedger.objects.all()
+    incentive = m.IncentiveLedger.objects.all()
     response_dict = {'Party':party,'SalesOfficer':salesofficer,'Sales':sales,'Bank':bank,'Freight':freight
-                    ,'Discount':discount,'Cash':cash,'Clearing':cleariing }
+                    ,'Discount':discount,'Cash':cash,'Clearing':cleariing,'Incentive':incentive }
     return render(request,'test.html',response_dict)
