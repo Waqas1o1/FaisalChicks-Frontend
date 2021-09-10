@@ -67,6 +67,11 @@ class CashPersonSerializer(serializers.ModelSerializer):
         model = m.CashPerson
         fields = '__all__'
 
+class IncentivePersonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = m.IncentivePerson
+        fields = '__all__'
+
 
 # Ledger
 class PartyLedgerSerializer(serializers.ModelSerializer):
@@ -92,6 +97,7 @@ class SalesOfficerLedgerSerializer(serializers.ModelSerializer):
         response['sales_officer'] = SalesOfficerSerializer(instance.sales_officer).data
         response['category'] = CategorySerializer(instance.category).data
         response['product'] = ProductSerializer(instance.product).data
+        response['party_order'] = m.PartyOrder.objects.get(id=instance.party_order)
         return response
 
 class SalesLedgerSerializer(serializers.ModelSerializer):
@@ -160,6 +166,17 @@ class CashLedgerSerializer(serializers.ModelSerializer):
         response['cash_person'] = ClearingPersonSerializer(instance.clearing_person).data
         return response
 
+class IncentiveLedgerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = m.IncentiveLedger
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['cash_person'] = ClearingPersonSerializer(instance.clearing_person).data
+        return response
+
+
 # UI
 
 class PartyOrderSerializer(serializers.ModelSerializer):
@@ -185,6 +202,17 @@ class RecoverySerializer(serializers.ModelSerializer):
         response = super().to_representation(instance)
         response['party'] = PartyLedgerSerializer(instance.party).data
         response['party_order'] = PartyOrderSerializer(instance.party_order).data
+        response['sales_officer'] = SalesOfficerSerializer(instance.sales_officer).data
+        return response
+
+
+class SalesOfficerReceivingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = m.SalesOfficerReceiving
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
         response['sales_officer'] = SalesOfficerSerializer(instance.sales_officer).data
         return response
 

@@ -577,6 +577,72 @@ class RecoveryViewSet(viewsets.ViewSet):
 
             return Response(dict_response)
 
+class SalesOfficerReceivingViewSet(viewsets.ViewSet):
+
+    def list(self, request):
+        if request.user.is_superuser:
+            data = m.SalesOfficerReceiving.objects.all()
+            serializer = s.SalesOfficerReceivingSerializer(
+                data, many=True, context={"request": request})
+            response_dict = {
+                "error": False, "message": "All List Data", "data": serializer.data}
+            return Response(response_dict)
+
+    def create(self, request):
+        if request.user.is_superuser :
+            try:
+                serializer = s.SalesOfficerReceivingSerializer(
+                    data=request.data, context={"request": request})
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                dict_response = {"error": False,
+                                "message": "Data Save Successfully"}
+            except ValueError as err:
+                dict_response = {"error": True, "message": err}
+            except:
+                dict_response = {"error": True,
+                                "message": "Error During Saving Data"}
+
+        return JsonResponse(dict_response)
+
+    def retrieve(self, request, pk=None):
+        if request.user.is_superuser:
+            queryset = m.SalesOfficerReceiving.objects.all()
+            query = get_object_or_404(queryset, pk=pk)
+            serializer = s.SalesOfficerReceivingSerializer(
+                query, context={"request": request})
+            serializer_data = serializer.data
+            return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
+
+    def update(self, request, pk=None):
+        if request.user.is_superuser :
+            try:
+                queryset = m.SalesOfficerReceiving.objects.all()
+                query = get_object_or_404(queryset, pk=pk)
+                serializer = s.SalesOfficerReceivingSerializer(
+                    query, data=request.data, context={"request": request})
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                dict_response = {"error": False,
+                                "message": "Successfully Updated Data"}
+            except:
+                dict_response = {"error": True,
+                                "message": "Error During Updating Data"}
+
+            return Response(dict_response)
+
+    def delete(self, request, pk=None):
+        if request.user.is_superuser:
+            try:
+                m.SalesOfficerReceiving.objects.get(id=pk).delete()
+                dict_response = {"error": False,
+                                "message": "Successfully Deleted"}
+            except:
+                dict_response = {"error": True,
+                                "message": "Error During Deleted Data "}
+
+            return Response(dict_response)
+
 # Change Status
 
 def ChangePartyOrderStatus(request,id):
@@ -672,6 +738,16 @@ class DiscountLedgerFilter(generics.ListAPIView):
         t_date = self.kwargs['ToDate']
         discount_person = self.kwargs['discount_person']
         return m.DiscountLedger.objects.filter(discount_person=discount_person, date__lte=t_date, date__gte=f_date)
+
+class IncentiveLedgerFilter(generics.ListAPIView):
+    serializer_class = s.IncentiveLedgerSerializer
+
+    def get_queryset(self):
+        f_date = self.kwargs['FromDate']
+        t_date = self.kwargs['ToDate']
+        incentive_person = self.kwargs['incentive_person']
+        return m.IncentiveLedger.objects.filter(incentive_person=incentive_person, date__lte=t_date, date__gte=f_date)
+
 
 # Test
 

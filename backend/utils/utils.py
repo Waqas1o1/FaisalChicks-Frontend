@@ -29,6 +29,9 @@ def updateCurrentBalance(type,last):
     elif type == 'Clearing':
         last.clearing_person.current_Balance = last.net_Balancse
         last.clearing_person.save()
+    elif type == 'Incentive':
+        last.incentive_person.current_Balance = last.net_Balancse
+        last.incentive_person.save()
    
 
 
@@ -57,6 +60,10 @@ def updateCurrentBalanceToOpeniing(type,last):
     elif type == 'Clearing':
         last.clearing_person.current_Balance = last.clearing_person.opening_Balance
         last.clearing_person.save()
+    elif type == 'Incentive':
+        last.incentive_person.current_Balance = last.clearing_person.opening_Balance
+        last.incentive_person.save()
+
 
 def GetReliventLeadger(type,l,obj):
     if type == 'Party':
@@ -75,6 +82,9 @@ def GetReliventLeadger(type,l,obj):
         l =l.filter(cash_person=obj.party)
     elif type == 'Clearing':
         l =l.filter(clearing_person=obj.party)
+    elif type == 'Inceentive':
+        l =l.filter(incentive_person=obj.party)
+
     return l
 
 
