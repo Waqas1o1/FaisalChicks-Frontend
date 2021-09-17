@@ -3,7 +3,7 @@ from django.utils import timezone
 from utils.utils import UpdateLeadgers,DeleteLeadgers
 # Users
 
-# Create your models here.
+# ~~~~~~~~~~~
 class SalesOfficer(models.Model):
     name = models.CharField(max_length=200,unique=True)
     commission = models.FloatField(default=0.0)
@@ -22,16 +22,12 @@ class SalesOfficer(models.Model):
     def __str__(self):
         return self.name
 
-
-
 class DiscountCategory(models.Model):
     name = models.CharField(max_length=50)
     discount = models.FloatField()
 
     def __str__(self):
         return self.name + ' : ' + str(self.discount)
-
-
 
 class Party(models.Model):
     name = models.CharField(max_length=30, unique=True)
@@ -84,7 +80,7 @@ class Bank(models.Model):
     def __str__(self):
         return self.name
 
-  
+# ~~~~~~~~  
 class SalesPerson(models.Model):
     name = models.CharField(max_length=30, unique=True)
 
@@ -201,6 +197,7 @@ class IncentivePerson(models.Model):
 
     def __str__(self):
         return self.name
+
 # Ledgers
 class Ledger(models.Model):
     date = models.DateField(default=timezone.now, blank=True)
@@ -217,12 +214,7 @@ class PartyLedger(Ledger):
     party = models.ForeignKey(Party,on_delete=models.CASCADE)
     sales_officer = models.ForeignKey(SalesOfficer, on_delete=models.CASCADE)
     freight = models.FloatField(blank=True,null=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
-    qty = models.IntegerField(null=True)
-    rate = models.FloatField(null=True)
 
-    
     def __str__(self):
         return self.party.name + str(self.id)
 
@@ -241,10 +233,6 @@ class PartyLedger(Ledger):
             obj = self
             if up == {}:
                 obj = UpdateLeadgers(self, PartyLedger, 'Party', True)
-                obj.qty = self.qty
-                obj.rate = self.rate
-                obj.category = self.category
-                obj.product = self.product
                 obj.total_amount = self.total_amount
 
             super(PartyLedger, obj).save(*args, **kwargs)
@@ -258,14 +246,8 @@ class PartyLedger(Ledger):
 
 class SalesOfficerLedger(Ledger):
     sales_officer = models.ForeignKey(SalesOfficer, on_delete=models.CASCADE)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
-    qty = models.IntegerField(null=True)
-    rate = models.FloatField(null=True)
-
-    party_order = models.IntegerField(null=True)
-
-
+    party_order = models.IntegerField(null=True,blank=True)
+    
     def __str__(self):
         return self.sales_officer.name + str(self.id)
 
@@ -285,10 +267,6 @@ class SalesOfficerLedger(Ledger):
             obj = self
             if up == {}:
                 obj = UpdateLeadgers(self, SalesOfficerLedger, 'SalesOfficer', True)
-                obj.qty = self.qty
-                obj.rate = self.rate
-                obj.category = self.category
-                obj.product = self.product
                 obj.description = self.description
                 obj.total_amount = self.total_amount
 
@@ -335,11 +313,7 @@ class BankLedger(Ledger):
 
 class SalesLedger(Ledger):
     sales_person = models.ForeignKey(SalesPerson,on_delete=models.CASCADE)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
-
-    qty = models.IntegerField(null=True)
-    rate = models.FloatField(null=True)
+   
     def __str__(self):
         return self.sales_person.name 
     
@@ -359,10 +333,6 @@ class SalesLedger(Ledger):
             obj = self
             if up == {}:
                 obj = UpdateLeadgers(self, SalesLedger, 'Sales', True)
-                obj.qty = self.qty
-                obj.rate = self.rate
-                obj.category = self.category
-                obj.product = self.product
                 obj.total_amount = self.total_amount
 
             super(SalesLedger, obj).save(*args, **kwargs)
@@ -377,10 +347,6 @@ class SalesLedger(Ledger):
 class FreightLedger(Ledger):
     freight_person = models.ForeignKey(FreightPerson,on_delete=models.CASCADE)
     freight = models.FloatField()
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
-    qty = models.IntegerField(null=True)
-    rate = models.FloatField(null=True)
     def __str__(self):
         return self.freight_person.name   
     
@@ -400,10 +366,6 @@ class FreightLedger(Ledger):
             obj = self
             if up == {}:
                 obj = UpdateLeadgers(self, FreightLedger, 'Freight', True)
-                obj.qty = self.qty
-                obj.rate = self.rate
-                obj.category = self.category
-                obj.product = self.product
                 obj.total_amount = self.total_amount
 
             super(FreightLedger, obj).save(*args, **kwargs)
@@ -418,10 +380,6 @@ class FreightLedger(Ledger):
 class DiscountLedger(Ledger):
     discount_person = models.ForeignKey(DiscountPerson,on_delete=models.CASCADE)
     discounted_amount = models.FloatField()
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
-    qty = models.IntegerField(null=True)
-    rate = models.FloatField(null=True)
     
     def __str__(self):
         return self.discount_person.name 
@@ -442,10 +400,6 @@ class DiscountLedger(Ledger):
             obj = self
             if up == {}:
                 obj = UpdateLeadgers(self, DiscountLedger, 'Discount', True)
-                obj.qty = self.qty
-                obj.rate = self.rate
-                obj.category = self.category
-                obj.product = self.product
                 obj.total_amount = self.total_amount
 
             super(DiscountLedger, obj).save(*args, **kwargs)
@@ -563,7 +517,7 @@ class PartyOrder(models.Model):
     sale_officer = models.ForeignKey(SalesOfficer,on_delete=models.CASCADE)
     status = models.CharField(max_length=50, choices=[('Pending', 'Pending'), ('Approved','Approved')], default='Pending')
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ManyToManyField(Product)
     description = models.CharField(max_length=50)
     freight = models.FloatField(default=0)
     qty = models.IntegerField()
@@ -597,24 +551,19 @@ class PartyOrder(models.Model):
             # If Approved
             if self.status == 'Approved':
                 pl = PartyLedger(party=self.party,sales_officer=self.sale_officer, 
-                                category=self.category,product=self.product,
-                                freight = self.freight,
-                                qty=self.qty, rate=self.rate, transaction_type='Debit',
+                                freight = self.freight,transaction_type='Debit',
                                 description=self.description,
                                 total_amount=self.total_amount)
                 pl.save()
                 self.pl = pl
                 pl = PartyLedger(party=self.party,sales_officer=self.sale_officer, 
-                                category=self.category,product=self.product,
-                                freight = self.freight,
-                                qty=self.qty, rate=self.rate, transaction_type='Credit',
+                                freight = self.freight,transaction_type='Credit',
                                 description=self.description,
                                 total_amount=self.freight)
                 pl.save()
                 self.plc1 = pl
-                pl = PartyLedger(party=self.party,sales_officer=self.sale_officer, 
-                                category=self.category,product=self.product,
-                                qty=self.qty, rate=self.rate, transaction_type='Credit',
+                pl = PartyLedger(party=self.party,sales_officer=self.sale_officer,
+                                transaction_type='Credit',
                                 description=self.description,
                                 total_amount=self.discounted_amount)
                 pl.save()
@@ -622,8 +571,7 @@ class PartyOrder(models.Model):
 
 
                 # --------------------
-                sl = SalesLedger(total_amount=self.qty*self.rate,transaction_type='Credit',qty=self.qty,rate=self.rate,
-                                    category=self.category,product=self.product)
+                sl = SalesLedger(total_amount=self.qty*self.rate,transaction_type='Credit')
 
                 sl.save()
                 self.sl = sl
@@ -631,9 +579,6 @@ class PartyOrder(models.Model):
                 sl = SalesOfficerLedger(sales_officer=self.sale_officer,transaction_type='Credit',
                                         description = self.description,
                                         party_order = self.id,
-                                        qty = self.qty,
-                                        rate = self.rate,
-                                        product=self.product,
                                         total_amount =(self.qty * self.rate) *(self.sale_officer.commission/100))
                 sl.save()
                 self.sol = sl
@@ -642,13 +587,12 @@ class PartyOrder(models.Model):
                 il.save()
                 self.il = il
                 # --------------------
-                fl = FreightLedger(total_amount=self.freight,freight=self.freight,transaction_type='Debit',qty=self.qty,rate=self.rate,
-                                    category=self.category,product=self.product)
+                fl = FreightLedger(total_amount=self.freight,freight=self.freight,transaction_type='Debit')
                 fl.save()
                 self.fl = fl
                 # -------------------
-                dl = DiscountLedger(total_amount=self.discounted_amount,transaction_type='Debit',qty=self.qty,rate=self.rate,
-                                    category=self.category,product=self.product,discounted_amount=self.total_amount)
+                dl = DiscountLedger(total_amount=self.discounted_amount,transaction_type='Debit'
+                                    ,discounted_amount=self.total_amount)
                 dl.save()
                 self.dl = dl
                 # ##################
@@ -682,9 +626,7 @@ class Recovery(models.Model):
             if self.status == 'Approved':
                 if self.party_order:
                     pl = PartyLedger(party=self.party,sales_officer=self.sale_officer, 
-                                category=self.party_order.category,product=self.party_order.product,
-                                freight = self.party_order.freight,
-                                qty=self.party_order.qty, rate=self.party_order.rate, transaction_type='Credit',
+                                freight = self.party_order.freight,transaction_type='Credit',
                                 description=self.description,
                                 total_amount=self.amount)
                     pl.save()
@@ -692,22 +634,22 @@ class Recovery(models.Model):
                     
                 else:
                     pl = PartyLedger(party=self.party,sales_officer=self.sale_officer, 
-                                transaction_type='Credit',
-                                description=self.description,
-                                total_amount=self.total_amount)
+                                    transaction_type='Credit',
+                                    description=self.description,
+                                    total_amount=self.total_amount)
                     pl.save()
                 self.pl = pl
                 
                 if self.payment_method == 'Bank':
                     bl = BankLedger(bank=self.bank,transaction_type='Debit',
-                                description=self.description,
-                                total_amount=(self.amount))
+                                    description=self.description,
+                                    total_amount=(self.amount))
                     bl.save()
                     self.bl = bl
                 elif self.payment_method == 'Cash':
                     cl = CashLedger(transaction_type='Debit',
-                                description=self.description,
-                                total_amount=(self.amount))
+                                    description=self.description,
+                                    total_amount=(self.amount))
                     cl.save()
                     self.cl = cl
                 elif self.payment_method == 'Clearing':
@@ -767,3 +709,25 @@ class SalesOfficerReceiving(models.Model):
                     ccl.save()
                     self.cll = ccl
             super(SalesOfficerReceiving, self).save(*args, **kwargs)  
+
+class ExpectedCustomers(models.Model):
+    customer = models.CharField(max_length=300)
+    location = models.CharField(max_length=1000)
+    category = models.CharField(choices=(('Farmer','Farmer'),('Dealer','Dealer'),('Distributer','Distributer')),max_length=15)
+    status = models.CharField(max_length=50, choices=[('Pending', 'Pending'), ('Approved','Approved')], default='Pending')
+    monthly_rage = models.IntegerField()
+    attached_company = models.CharField(max_length=300)
+    response = models.CharField(max_length=1000)
+
+    discount = models.ForeignKey(DiscountCategory,on_delete=models.SET_NULL,null=True,blank=True)
+    contact = models.CharField(max_length=20,blank=True,null=True)
+
+    def __str__(self):
+        return self.customer
+    
+    def save(self,*args,**kwargs):
+        if self.status == 'Approved':
+            p = Party(name=self.customer,opening_Balance=0,discount=self.discount,contact=self.contact)
+            p.save()
+            print(p)
+        super(ExpectedCustomers,self).save(*args,**kwargs)

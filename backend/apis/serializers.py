@@ -38,6 +38,18 @@ class ProductSerializer(serializers.ModelSerializer):
         response['category'] = CategorySerializer(instance.category).data
         return response
 
+class SalesOfficerLedgerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = m.SalesOfficerLedger
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['sales_officer'] = SalesOfficerSerializer(instance.sales_officer).data
+        response['category'] = CategorySerializer(instance.category).data
+        response['product'] = ProductSerializer(instance.product).data
+        response['party_order'] = 'sended'
+        return response
 
 
 class SalesPersonSerializer(serializers.ModelSerializer):
@@ -86,8 +98,6 @@ class PartyLedgerSerializer(serializers.ModelSerializer):
         response = super().to_representation(instance)
         response['party'] = PartySerializer(instance.party).data
         response['sales_officer'] = SalesOfficerSerializer(instance.sales_officer).data
-        response['category'] = CategorySerializer(instance.category).data
-        response['product'] = ProductSerializer(instance.product).data
         return response
 
 class SalesLedgerSerializer(serializers.ModelSerializer):
@@ -159,25 +169,15 @@ class PartyOrderSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['party'] = PartyLedgerSerializer(instance.party).data
-        response['sales_officer'] = SalesOfficerSerializer(instance.sales_officer).data
+        response['party'] = PartySerializer(instance.party).data
+        response['sale_officer'] = SalesOfficerSerializer(instance.sale_officer).data
         response['category'] = CategorySerializer(instance.category).data
-        response['product'] = ProductSerializer(instance.product).data
+        products = []
+        for p in response['product']:
+            products.append(ProductSerializer(m.Product.objects.get(id=p)).data)
+        response['product'] = products
         return response
 
-class SalesOfficerLedgerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = m.SalesOfficerLedger
-        fields = '__all__'
-
-    def to_representation(self, instance):
-        response = super().to_representation(instance)
-        response['sales_officer'] = SalesOfficerSerializer(instance.sales_officer).data
-        response['category'] = CategorySerializer(instance.category).data
-        response['product'] = ProductSerializer(instance.product).data
-        # response['party_order'] = PartyOrderSerializer(instance.party_order).data
-        response['party_order'] = 'sended'
-        return response
 
 class RecoverySerializer(serializers.ModelSerializer):
     class Meta:
