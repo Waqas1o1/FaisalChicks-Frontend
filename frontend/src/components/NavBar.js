@@ -16,8 +16,11 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import { InputBase } from '@material-ui/core';
-import SearchIcon from '@material-ui/icons/Search';
+import FindReplaceOutlinedIcon from '@material-ui/icons/FindReplaceOutlined';
+
+
 import { Link } from 'react-router-dom';
+
 
 const drawerWidth = 240;
 
@@ -115,7 +118,7 @@ export default function NavBar(props) {
           [classes.appBarShift]: open,
         })}
       >
-        <Toolbar>
+      <Toolbar>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -133,7 +136,7 @@ export default function NavBar(props) {
             inputProps={{ 'aria-label': 'search google maps' }}
         />
         <IconButton type="submit"  className={classes.white} aria-label="search">
-            <SearchIcon />
+            <FindReplaceOutlinedIcon />
         </IconButton>
         </Toolbar>
       </AppBar>
@@ -166,6 +169,8 @@ export default function NavBar(props) {
         </List>
        
       </Drawer>
+      
+      {/* <Message/> */}
       <main className={classes.content}>
         <div className={classes.toolbar} />
             {props.children}

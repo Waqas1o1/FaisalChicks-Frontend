@@ -6,10 +6,11 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
-import TablePagination from '@material-ui/core/TablePagination';
+// import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
-
-
+import { Button, Grid, IconButton } from '@material-ui/core';
+import DeleteIcon from '@material-ui/icons/Delete';
+import CreateIcon from '@material-ui/icons/Create';
 
 const useStyles = makeStyles({
   root: {
@@ -20,9 +21,9 @@ const useStyles = makeStyles({
   },
 });
 
-export default function StickyHeadTable(props) {
+export default function GetTable(props) {
   const classes = useStyles();
-  const {rows,columns} = props;
+  const {rows,columns,onDelete, onUpdate} = props;
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
@@ -34,9 +35,8 @@ export default function StickyHeadTable(props) {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
-
+  
   return (
-    <>
     <Paper className={classes.root} elevation={3}>
       <TableContainer className={classes.container}>
         <Table stickyHeader aria-label="sticky table">
@@ -51,35 +51,49 @@ export default function StickyHeadTable(props) {
                   {column}
                 </TableCell>
               ))}
+              <TableCell
+                  key={'action'}
+                  align="center"
+                >
+                  Action
+                </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {/* {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+            
+            {rows.map((row) => {
               return (
-                <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
-                  {columns.map((column) => {
-                    const value = row[column.id];
-                    return (
-                      <TableCell key={column.id} align={column.align}>
-                        {column.format && typeof value === 'number' ? column.format(value) : value}
-                      </TableCell>
-                    );
+                <TableRow key={row.id}>
+                  {Object.entries(row).map(([key, value]) =>{
+                    return(
+                      <TableCell align="center" key={key}>{value}</TableCell>
+                    )
                   })}
-                </TableRow>
-              );
-            })} */}
-            {rows.map((row) => (
-            <TableRow key={row.id}>
-              <TableCell align="center" >{row.name}</TableCell>
-              <TableCell align="center">{row.contact}</TableCell>
-              <TableCell align="center">{row.discount}</TableCell>
-              <TableCell align="center">{row.opening_Balance}</TableCell>
-            </TableRow>
-          ))}
+               <TableCell align="center" key='0' >
+                  <Grid  container
+                        direction="row"
+                        justifyContent="space-evenly"
+                        alignItems="center"
+                        spacing={1}
+                        >
+                    <Grid item xs={6}>
+                      <Button aria-label="delete" color="secondary" size='small' onClick={onDelete} id={row.id}>
+                        <DeleteIcon />
+                      </Button>
+                    </Grid>
+                    <Grid item xs={6} onClick={onUpdate} id={row.id}>
+                      <IconButton aria-label="edit" size='small' key={row.id}>
+                        <CreateIcon />
+                      </IconButton>
+                    </Grid>
+                  </Grid>
+                </TableCell>
+              </TableRow>)
+            })}
           </TableBody>
         </Table>
       </TableContainer>
-      <TablePagination
+      {/* <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component="div"
         count={rows.length}
@@ -87,8 +101,7 @@ export default function StickyHeadTable(props) {
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
-      />
+      /> */}
     </Paper>
-    </>
   );
 }

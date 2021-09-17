@@ -18,7 +18,7 @@ def Accountant(request):
     for i in groups:
         if 'accountant' == i.name:
             return True
-
+    return False
 
 
 

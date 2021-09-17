@@ -1,4 +1,5 @@
-from django.http.response import JsonResponse
+import re
+from django.http.response import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from rest_framework  import viewsets,generics,status
 from rest_framework.response import Response
@@ -23,22 +24,23 @@ class PartyViewSet(viewsets.ViewSet):
         return Response(response_dict)
 
     def create(self, request):
-        if request.user.is_superuser :
-            try:
-                serializer = s.PartySerializer(
-                    data=request.data, context={"request": request})
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
-                dict_response = {"error": False,
-                                "message": "Data Save Successfully"}
-            except ValueError as err:
-                dict_response = {"error": True, "message": err}
-            except:
-                dict_response = {"error": True,
-                                "message": "Error During Saving Data"}
-        else:
-            response_dict = {
-                "error": False, "message": 'UnAuthenticated Person'}
+        # if request.user.is_superuser:
+        try:
+            print(request.data)
+            serializer = s.PartySerializer(
+                data=request.data, context={"request": request})
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            dict_response = {"error": False,
+                            "message": "Data Save Successfully"}
+        except ValueError as err:
+            dict_response = {"error": True, "message": err}
+        except:
+            dict_response = {"error": True,
+                            "message": "Error During Saving Data"}
+        # else:
+        #     dict_response = {
+        #         "error": True, "message": 'UnAuthenticated Person'}
         return JsonResponse(dict_response)
 
     def retrieve(self, request, pk=None):
@@ -55,7 +57,8 @@ class PartyViewSet(viewsets.ViewSet):
                 "error": False, "message": 'UnAuthenticated Person'}
         return Response(response_dict)
     def update(self, request, pk=None):
-        if request.user.is_superuser:
+        # if request.user.is_superuser:
+        if request:
             try:
                 queryset = m.Party.objects.all()
                 query = get_object_or_404(queryset, pk=pk)
@@ -72,11 +75,12 @@ class PartyViewSet(viewsets.ViewSet):
             return Response(dict_response)
         else:
             response_dict = {
-                "error": False, "message": 'UnAuthenticated Person'}
+                "error": True, "message": 'UnAuthenticated Person'}
         return Response(response_dict)
 
     def delete(self, request, pk=None):
-        if request.user.is_superuser :
+        # if request.user.is_superuser :
+        if request:
             try:
                 m.Party.objects.get(id=pk).delete()
                 response_dict = {"error": False,
@@ -86,13 +90,14 @@ class PartyViewSet(viewsets.ViewSet):
                                 "message": "Error During Deleted Data "}
         else:
             response_dict = {
-                "error": False, "message": 'UnAuthenticated Person'}
+                "error": True, "message": 'UnAuthenticated Person'}
         return Response(response_dict)
 
 class SalesOfficerViewSet(viewsets.ViewSet):
 
     def list(self, request):
-        if request.user.is_superuser or p.Accountant(request):
+        # if request.user.is_superuser or p.Accountant(request):
+        if request: 
             data = m.SalesOfficer.objects.all()
             serializer = s.SalesOfficerSerializer(
                 data, many=True, context={"request": request})
@@ -170,7 +175,8 @@ class SalesOfficerViewSet(viewsets.ViewSet):
 
 class BankViewSet(viewsets.ViewSet):
     def list(self, request):
-        if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant :
+        # if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant :
+        if request:
             data = m.Bank.objects.all()
             serializer = s.BankSerializer(
                 data, many=True, context={"request": request})
@@ -182,7 +188,8 @@ class BankViewSet(viewsets.ViewSet):
         return Response(response_dict)
 
     def create(self, request):
-        if request.user.is_superuser :
+        # if request.user.is_superuser :
+        if request:
             try:
                 serializer = s.BankSerializer(
                     data=request.data, context={"request": request})
@@ -201,7 +208,8 @@ class BankViewSet(viewsets.ViewSet):
         return JsonResponse(dict_response)
 
     def retrieve(self, request, pk=None):
-        if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant :
+        # if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant :
+        if request:
             queryset = m.Bank.objects.all()
             query = get_object_or_404(queryset, pk=pk)
             serializer = s.BankSerializer(
@@ -213,8 +221,10 @@ class BankViewSet(viewsets.ViewSet):
             response_dict = {
                 "error": False, "message": 'UnAuthenticated Person'}
         return Response(response_dict)
+    
     def update(self, request, pk=None):
-        if request.user.is_superuser:
+        # if request.user.is_superuser:
+        if request:
             try:
                 queryset = m.Bank.objects.all()
                 query = get_object_or_404(queryset, pk=pk)
@@ -235,7 +245,8 @@ class BankViewSet(viewsets.ViewSet):
         return Response(response_dict)
 
     def delete(self, request, pk=None):
-        if request.user.is_superuser :
+        # if request.user.is_superuser :
+        if request:
             try:
                 m.Bank.objects.get(id=pk).delete()
                 response_dict = {"error": False,
@@ -252,7 +263,8 @@ class BankViewSet(viewsets.ViewSet):
 class CategoryViewSet(viewsets.ViewSet):
 
     def list(self, request):
-        if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
+        # if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
+        if request:
             data = m.Category.objects.all()
             serializer = s.CategorySerializer(
                 data, many=True, context={"request": request})
@@ -261,7 +273,8 @@ class CategoryViewSet(viewsets.ViewSet):
             return Response(response_dict)
         
     def create(self, request):
-        if request.user.is_superuser :
+        # if request.user.is_superuser :
+        if request:
             try:
                 serializer = s.CategorySerializer(
                     data=request.data, context={"request": request})
@@ -278,7 +291,8 @@ class CategoryViewSet(viewsets.ViewSet):
         return JsonResponse(dict_response)
 
     def retrieve(self, request, pk=None):
-        if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
+        # if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
+        if request:
             queryset = m.Category.objects.all()
             query = get_object_or_404(queryset, pk=pk)
             serializer = s.CategorySerializer(
@@ -287,7 +301,8 @@ class CategoryViewSet(viewsets.ViewSet):
             return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
 
     def update(self, request, pk=None):
-        if request.user.is_superuser :
+        # if request.user.is_superuser :
+        if request:
             try:
                 queryset = m.Category.objects.all()
                 query = get_object_or_404(queryset, pk=pk)
@@ -304,7 +319,8 @@ class CategoryViewSet(viewsets.ViewSet):
         return Response(dict_response)
 
     def delete(self, request, pk=None):
-        if request.user.is_superuser:
+        # if request.user.is_superuser:
+        if request:
             try:
                 m.Category.objects.get(id=pk).delete()
                 dict_response = {"error": False,
@@ -317,16 +333,20 @@ class CategoryViewSet(viewsets.ViewSet):
 
 class ProductViewSet(viewsets.ViewSet):
     def list(self, request):
-        if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
+        # if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
+        if request:
             data = m.Product.objects.all()
             serializer = s.ProductSerializer(
                 data, many=True, context={"request": request})
             response_dict = {
                 "error": False, "message": "All List Data", "data": serializer.data}
             return Response(response_dict)
+        else:
+            HttpResponse('{"error": False, "message": "All List Data"}')
 
     def create(self, request):
-        if request.user.is_superuser :
+        # if request.user.is_superuser :
+        if request:
             try:
                 serializer = s.ProductSerializer(
                     data=request.data, context={"request": request})
@@ -343,7 +363,8 @@ class ProductViewSet(viewsets.ViewSet):
         return JsonResponse(dict_response)
 
     def retrieve(self, request, pk=None):
-        if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
+        # if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
+        if request:  
             queryset = m.Product.objects.all()
             query = get_object_or_404(queryset, pk=pk)
             serializer = s.ProductSerializer(
@@ -352,7 +373,8 @@ class ProductViewSet(viewsets.ViewSet):
             return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
 
     def update(self, request, pk=None):
-        if request.user.is_superuser:
+        # if request.user.is_superuser:
+        if request:
             try:
                 queryset = m.Product.objects.all()
                 query = get_object_or_404(queryset, pk=pk)
@@ -369,7 +391,8 @@ class ProductViewSet(viewsets.ViewSet):
             return Response(dict_response)
 
     def delete(self, request, pk=None):
-        if request.user.is_superuser :
+        # if request.user.is_superuser :
+        if request:
             try:
                 m.Product.objects.get(id=pk).delete()
                 dict_response = {"error": False,
@@ -382,16 +405,18 @@ class ProductViewSet(viewsets.ViewSet):
 class DiscountCategoryViewSet(viewsets.ViewSet):
 
     def list(self, request):
-        if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
-            data = m.DiscountCategory.objects.all()
-            serializer = s.DiscountCategorySerializer(
-                data, many=True, context={"request": request})
-            response_dict = {
-                "error": False, "message": "All List Data", "data": serializer.data}
-            return Response(response_dict)
-
+        # if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
+        data = m.DiscountCategory.objects.all()
+        serializer = s.DiscountCategorySerializer(
+            data, many=True, context={"request": request})
+        response_dict = {"error": False, "message": "All List Data", "data": serializer.data}
+        return Response(response_dict)
+        # else:
+        #     HttpResponse('{"error": False, "message": "No Authenticated"}')
+    
     def create(self, request):
-        if request.user.is_superuser:
+        # if request.user.is_superuser:
+        if request:
             try:
                 serializer = s.DiscountCategorySerializer(
                     data=request.data, context={"request": request})
@@ -408,7 +433,8 @@ class DiscountCategoryViewSet(viewsets.ViewSet):
             return JsonResponse(dict_response)
 
     def retrieve(self, request, pk=None):
-        if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
+        # if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
+        if request:
             queryset = m.DiscountCategory.objects.all()
             query = get_object_or_404(queryset, pk=pk)
             serializer = s.DiscountCategorySerializer(
@@ -417,7 +443,8 @@ class DiscountCategoryViewSet(viewsets.ViewSet):
             return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
 
     def update(self, request, pk=None):
-        if request.user.is_superuser:
+        # if request.user.is_superuser:
+        if request:
             try:
                 queryset = m.DiscountCategory.objects.all()
                 query = get_object_or_404(queryset, pk=pk)
@@ -431,10 +458,11 @@ class DiscountCategoryViewSet(viewsets.ViewSet):
                 dict_response = {"error": True,
                                 "message": "Error During Updating Data"}
 
-        return Response(dict_response)
+            return Response(dict_response)
 
     def delete(self, request, pk=None):
-        if request.user.is_superuser:
+        # if request.user.is_superuser:
+        if request:
             try:
                 m.DiscountCategory.objects.get(id=pk).delete()
                 dict_response = {"error": False,
@@ -683,7 +711,23 @@ class SalesOfficerLedgerFilter(generics.ListAPIView):
         f_date = self.kwargs['FromDate']
         t_date = self.kwargs['ToDate']
         sales_officer = self.kwargs['sales_officer']
-        return m.SalesOfficer.objects.filter(sales_officer=sales_officer, date__lte=t_date, date__gte=f_date)
+        return m.SalesOfficerLedger.objects.filter(sales_officer=sales_officer, date__lte=t_date, date__gte=f_date)
+
+class ClearingLedgerFilter(generics.ListAPIView):
+    serializer_class = s.ClearingLedgerSerializer
+
+    def get_queryset(self):
+        f_date = self.kwargs['FromDate']
+        t_date = self.kwargs['ToDate']
+        return m.ClearingLedger.objects.filter(date__lte=t_date, date__gte=f_date)
+
+class CashLedgerFilter(generics.ListAPIView):
+    serializer_class = s.CashLedgerSerializer
+
+    def get_queryset(self):
+        f_date = self.kwargs['FromDate']
+        t_date = self.kwargs['ToDate']
+        return m.CashLedger.objects.filter(date__lte=t_date, date__gte=f_date)
 
 class SalesLedgerFilter(generics.ListAPIView):
     serializer_class = s.SalesLedgerSerializer
@@ -691,8 +735,7 @@ class SalesLedgerFilter(generics.ListAPIView):
     def get_queryset(self):
         f_date = self.kwargs['FromDate']
         t_date = self.kwargs['ToDate']
-        sales_person = self.kwargs['sales_person']
-        return m.SalesLedger.objects.filter(sales_person=sales_person, date__lte=t_date, date__gte=f_date)
+        return m.SalesLedger.objects.filter(date__lte=t_date, date__gte=f_date)
 
 class FreightLedgerFilter(generics.ListAPIView):
     serializer_class = s.FreightLedgerSerializer
@@ -700,8 +743,7 @@ class FreightLedgerFilter(generics.ListAPIView):
     def get_queryset(self):
         f_date = self.kwargs['FromDate']
         t_date = self.kwargs['ToDate']
-        freight_person = self.kwargs['freight_person']
-        return m.FreightLedger.objects.filter(freight_person=freight_person, date__lte=t_date, date__gte=f_date)
+        return m.FreightLedger.objects.filter(date__lte=t_date, date__gte=f_date)
 
 class DiscountLedgerFilter(generics.ListAPIView):
     serializer_class = s.DiscountLedgerSerializer
@@ -709,8 +751,7 @@ class DiscountLedgerFilter(generics.ListAPIView):
     def get_queryset(self):
         f_date = self.kwargs['FromDate']
         t_date = self.kwargs['ToDate']
-        discount_person = self.kwargs['discount_person']
-        return m.DiscountLedger.objects.filter(discount_person=discount_person, date__lte=t_date, date__gte=f_date)
+        return m.DiscountLedger.objects.filter(date__lte=t_date, date__gte=f_date)
 
 class BankLedgerFilter(generics.ListAPIView):
     serializer_class = s.BankLedgerSerializer
@@ -718,26 +759,8 @@ class BankLedgerFilter(generics.ListAPIView):
     def get_queryset(self):
         f_date = self.kwargs['FromDate']
         t_date = self.kwargs['ToDate']
-        Bank_person = self.kwargs['Bank_person']
-        return m.BankLedger.objects.filter(Bank_person=Bank_person, date__lte=t_date, date__gte=f_date)
-
-class DiscountLedgerFilter(generics.ListAPIView):
-    serializer_class = s.DiscountLedgerSerializer
-
-    def get_queryset(self):
-        f_date = self.kwargs['FromDate']
-        t_date = self.kwargs['ToDate']
-        discount_person = self.kwargs['discount_person']
-        return m.DiscountLedger.objects.filter(discount_person=discount_person, date__lte=t_date, date__gte=f_date)
-
-class DiscountLedgerFilter(generics.ListAPIView):
-    serializer_class = s.DiscountLedgerSerializer
-
-    def get_queryset(self):
-        f_date = self.kwargs['FromDate']
-        t_date = self.kwargs['ToDate']
-        discount_person = self.kwargs['discount_person']
-        return m.DiscountLedger.objects.filter(discount_person=discount_person, date__lte=t_date, date__gte=f_date)
+        bank = self.kwargs['bank']
+        return m.BankLedger.objects.filter(bank=bank, date__lte=t_date, date__gte=f_date)
 
 class IncentiveLedgerFilter(generics.ListAPIView):
     serializer_class = s.IncentiveLedgerSerializer
@@ -745,8 +768,7 @@ class IncentiveLedgerFilter(generics.ListAPIView):
     def get_queryset(self):
         f_date = self.kwargs['FromDate']
         t_date = self.kwargs['ToDate']
-        incentive_person = self.kwargs['incentive_person']
-        return m.IncentiveLedger.objects.filter(incentive_person=incentive_person, date__lte=t_date, date__gte=f_date)
+        return m.IncentiveLedger.objects.filter(date__lte=t_date, date__gte=f_date)
 
 
 # Test

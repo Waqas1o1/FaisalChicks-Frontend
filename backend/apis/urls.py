@@ -16,7 +16,15 @@ router.register("Recovery", views.RecoveryViewSet, basename="Recovery")
 urlpatterns = [
     path('', include(router.urls)),
     # Ledgers
-    path('PartyLedger/<party>/<str:FromDate>/<str:ToDate>',views.PartyLedgerFilter.as_view()),
+    path('PartyLedger/<int:party>/<str:FromDate>/<str:ToDate>',views.PartyLedgerFilter.as_view()),
+    path('SalesOfficerLedger/<int:sales_officer>/<str:FromDate>/<str:ToDate>',views.SalesOfficerLedgerFilter.as_view()),
+    path('ClearingLedger/<str:FromDate>/<str:ToDate>',views.ClearingLedgerFilter.as_view()),
+    path('CashLedger/<str:FromDate>/<str:ToDate>',views.CashLedgerFilter.as_view()),
+    path('SalesLedger/<str:FromDate>/<str:ToDate>',views.SalesLedgerFilter.as_view()),
+    path('FreightLedger/<str:FromDate>/<str:ToDate>',views.FreightLedgerFilter.as_view()),
+    path('DiscountLedger/<str:FromDate>/<str:ToDate>',views.DiscountLedgerFilter.as_view()),
+    path('BankLedger/<int:bank>/<str:FromDate>/<str:ToDate>',views.BankLedgerFilter.as_view()),
+    path('IncentiveLedger/<str:FromDate>/<str:ToDate>',views.IncentiveLedgerFilter.as_view()),
     # Test
     path('test',views.Test)
 ]
