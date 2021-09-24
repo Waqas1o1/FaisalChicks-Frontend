@@ -40,6 +40,7 @@ const data2 = [
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
+    padding:theme.spacing(2),
     '@media only screen and (max-width: 600px)': {
        width:'380px',
        marginLeft:'-10px',

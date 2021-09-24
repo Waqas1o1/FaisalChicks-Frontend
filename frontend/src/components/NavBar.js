@@ -14,8 +14,6 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
 import AddToPhotosIcon from '@material-ui/icons/AddToPhotos';
 import { Collapse, InputBase } from '@material-ui/core';
 import FindReplaceOutlinedIcon from '@material-ui/icons/FindReplaceOutlined';
@@ -80,7 +78,7 @@ const useStyles = makeStyles((theme) => ({
   },
   content: {
     flexGrow: 1,
-    padding: theme.spacing(3),
+    padding: theme.spacing(1),
     transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
@@ -332,10 +330,7 @@ export default function NavBar(props) {
         
       </Drawer>
       <main
-        className={clsx(classes.content, {
-          [classes.contentShift]: open,
-        })}
-      >
+        className={clsx(classes.content, {[classes.contentShift]: open})}>
         <div className={classes.drawerHeader} />
         {props.children}
       </main>

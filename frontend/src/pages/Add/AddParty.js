@@ -17,8 +17,17 @@ import EditIcon from '@material-ui/icons/Edit';
 
 const useStyles = makeStyles((theme) => ({
     formRoot: {
-      flexGrow: 1
+      flexGrow: 1,
+      '@media only screen and (max-width: 600px)': {
+        width:'300px',
+        marginLeft:'-10px',
+       },
     },
+    table:{
+        '@media only screen and (max-width: 600px)': {
+            marginLeft:'-30px',
+        },
+    }
 }))
 
 const AddParty = () => {
@@ -34,7 +43,6 @@ const AddParty = () => {
     const [fields,setFields] = useState(initialFields);
     const [isUpdate,setIsUpdate] = useState(false);
     const [choices,setChoices] = useState([]);
-    const [discount, setDisount] = useState('Select Disocunt mode');
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
@@ -201,9 +209,6 @@ const AddParty = () => {
     };
 
     const FiledChange = (event) => {
-        if (event.target.name === 'discount'){
-            setDisount(event.target.value);
-        }
         setFields({
             ...fields,
             [event.target.name] : event.target.value,
@@ -279,14 +284,14 @@ const AddParty = () => {
                     </Grid>
 
                     <Grid item xs>
-                     <Selecter
-                     title={fields.discount}
-                     handleChange={FiledChange}
-                     value={fields.discount}
-                     onOpen={selecterOpen}
-                     choises={choices}
-                     name='discount'
-                     />
+                        <Selecter
+                        title={fields.discount}
+                        handleChange={FiledChange}
+                        value={fields.discount}
+                        onOpen={selecterOpen}
+                        choises={choices}
+                        name='discount'
+                        />
                     </Grid>
 
                     <Grid item container  >
@@ -300,16 +305,16 @@ const AddParty = () => {
                         />
                     </Grid>
                 </Grid>
-           </Grid>
+            </Grid>
             {/* Right */}
-           <Grid item xs={12} md={9} lg={9}>
+            <Grid item xs={12} md={9} lg={9} className={classes.table}>
                 <GetTable 
                     rows={rows} 
                     columns={['ID','Name','Contact','Discounted Amount','Opening Balance']}
                     onDelete={onDelete}
                     onUpdate={onUpdate}
                 />
-           </Grid>
+            </Grid>
         
         {/* // Model */}
             <Dialog
@@ -334,6 +339,7 @@ const AddParty = () => {
                 </DialogActions>
             </Dialog>
         </Grid>
+
     );
 }
 

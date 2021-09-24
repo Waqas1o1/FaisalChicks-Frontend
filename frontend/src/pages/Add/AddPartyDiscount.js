@@ -16,9 +16,17 @@ import EditIcon from '@material-ui/icons/Edit';
 
 const useStyles = makeStyles((theme) => ({
     formRoot: {
-      flexGrow: 1,
-      padding : theme.spacing(2),
-    },
+        flexGrow: 1,
+        '@media only screen and (max-width: 600px)': {
+          width:'330px',
+          marginLeft:'-10px',
+         },
+      },
+    table:{
+          '@media only screen and (max-width: 600px)': {
+              marginLeft:'-30px',
+             },
+      }
 }))
 
 const AddPartyDiscount = () => {
@@ -246,7 +254,7 @@ const AddPartyDiscount = () => {
                 </Grid>
            </Grid>
             {/* Right */}
-           <Grid item xs={12} md={9} lg={9}>
+           <Grid item xs={12} md={9} lg={9} className={classes.table}>
                 <GetTable 
                     rows={rows} 
                     columns={['ID','Name','Discounted Amount']}
