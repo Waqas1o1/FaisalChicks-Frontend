@@ -17,8 +17,7 @@ import EditIcon from '@material-ui/icons/Edit';
 
 const useStyles = makeStyles((theme) => ({
     formRoot: {
-      flexGrow: 1,
-      padding : theme.spacing(2),
+      flexGrow: 1
     },
 }))
 

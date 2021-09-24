@@ -516,14 +516,11 @@ class PartyOrder(models.Model):
     party = models.ForeignKey(Party,on_delete=models.CASCADE)
     sale_officer = models.ForeignKey(SalesOfficer,on_delete=models.CASCADE)
     status = models.CharField(max_length=50, choices=[('Pending', 'Pending'), ('Approved','Approved')], default='Pending')
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    product = models.ManyToManyField(Product)
     description = models.CharField(max_length=50)
     freight = models.FloatField(default=0)
-    qty = models.IntegerField()
-    rate = models.IntegerField()
+   
     
-    total_amount = models.FloatField(null=True, blank=True)
+    total_amount = models.FloatField()
     discounted_amount = models.FloatField(null=True, blank=True)
 
 
@@ -542,10 +539,7 @@ class PartyOrder(models.Model):
 
     def save(self, *args, **kwargs):
         if self.id == None:
-            total = (self.rate * self.qty)
-            self.discounted_amount = total * (self.party.discount.discount/100)
-            self.total_amount = (self.qty * self.rate)
-            
+            self.discounted_amount = self.total_amount * (self.party.discount.discount/100) 
             super(PartyOrder, self).save(*args, **kwargs)
         else:
             # If Approved
@@ -571,7 +565,7 @@ class PartyOrder(models.Model):
 
 
                 # --------------------
-                sl = SalesLedger(total_amount=self.qty*self.rate,transaction_type='Credit')
+                sl = SalesLedger(total_amount=self.total_amount,transaction_type='Credit')
 
                 sl.save()
                 self.sl = sl
@@ -579,11 +573,11 @@ class PartyOrder(models.Model):
                 sl = SalesOfficerLedger(sales_officer=self.sale_officer,transaction_type='Credit',
                                         description = self.description,
                                         party_order = self.id,
-                                        total_amount =(self.qty * self.rate) *(self.sale_officer.commission/100))
+                                        total_amount =self.total_amount *(self.sale_officer.commission/100))
                 sl.save()
                 self.sol = sl
                 # --------------------
-                il = IncentiveLedger(total_amount=(self.qty * self.rate) *(self.sale_officer.commission/100),transaction_type='Debit',description=self.description)
+                il = IncentiveLedger(total_amount=self.total_amount *(self.sale_officer.commission/100),transaction_type='Debit',description=self.description)
                 il.save()
                 self.il = il
                 # --------------------
@@ -598,7 +592,15 @@ class PartyOrder(models.Model):
                 # ##################
             super(PartyOrder, self).save(*args, **kwargs)
 
-
+class PartyOrderProduct(models.Model):
+    party_order = models.ForeignKey(PartyOrder,on_delete=models.CASCADE)
+    product = models.ForeignKey(Product,on_delete=models.CASCADE)
+    qty = models.IntegerField()
+    rate = models.IntegerField()
+    
+    def __str__(self):
+        return str(self.party_order.id)
+      
 class Recovery(models.Model):
     date = models.DateField(default=timezone.now, blank=True)
     party = models.ForeignKey(Party,on_delete=models.CASCADE,null=True,blank=True)

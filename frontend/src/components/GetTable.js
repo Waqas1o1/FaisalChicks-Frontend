@@ -8,13 +8,16 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 // import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
-import { Button, Grid, IconButton } from '@material-ui/core';
+import { Button, Grid, IconButton, TablePagination } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import CreateIcon from '@material-ui/icons/Create';
 
 const useStyles = makeStyles({
   root: {
-    width: '100%',
+    flexGrow:1,
+    '@media only screen and (max-width: 600px)': {
+      width:'400px',
+     },
   },
   container: {
     maxHeight: 440,
@@ -93,7 +96,7 @@ export default function GetTable(props) {
           </TableBody>
         </Table>
       </TableContainer>
-      {/* <TablePagination
+      <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component="div"
         count={rows.length}
@@ -101,7 +104,7 @@ export default function GetTable(props) {
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
-      /> */}
+      />
     </Paper>
   );
 }

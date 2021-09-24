@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const columns = ['Date','Description','Category','Product','Qty','Rate','Freight','Transaction Type','Total Amount','Net Balance']
+const columns = ['Date','Description','Freight','Transaction Type','Total Amount','Net Balance']
 
 export default function SalesLedger() {
     var date = new Date();
@@ -75,10 +75,6 @@ export default function SalesLedger() {
                 }
                 else{
                     let data = res.data;
-                    for (var p in data){
-                        data[p].category = data[p].product.category.name
-                        data[p].product = data[p].product.name
-                    }
                     setRows(data);
                     setLoading(false);
                     localStorage.removeItem('FreightLedger');
@@ -200,10 +196,6 @@ export default function SalesLedger() {
                                 <StyledTableRow key={row.id}>
                                     <StyledTableCell component="th" scope="row">{row.date}</StyledTableCell>
                                     <StyledTableCell align='center' >{row.description}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.category}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.product}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.qty}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.rate}</StyledTableCell>
                                     <StyledTableCell align='center' >{row.freight}</StyledTableCell>
                                     <StyledTableCell align='center' >{row.transaction_type}</StyledTableCell>
                                     <StyledTableCell align='center' >{row.total_amount}</StyledTableCell>

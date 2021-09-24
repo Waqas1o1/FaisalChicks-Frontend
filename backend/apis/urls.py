@@ -9,12 +9,15 @@ router.register("Category", views.CategoryViewSet, basename="Category")
 router.register("Product", views.ProductViewSet, basename="Product")
 router.register("DiscountCategory", views.DiscountCategoryViewSet, basename="DiscountCategory")
 router.register("PartyOrder", views.PartyOrderViewSet, basename="PartyOrder")
+router.register("PartyOrderProduct", views.PartyOrderProductViewSet, basename="PartyOrderProduct")
 router.register("Recovery", views.RecoveryViewSet, basename="Recovery")
+router.register("GenratePartyOrder", views.GenratePreOrder, basename="GenratePartyOrder")
 # Authentication
 
 
 urlpatterns = [
     path('', include(router.urls)),
+    # Genraet Party Order
     # Ledgers
     path('PartyLedger/<int:party>/<str:FromDate>/<str:ToDate>',views.PartyLedgerFilter.as_view()),
     path('SalesOfficerLedger/<int:sales_officer>/<str:FromDate>/<str:ToDate>',views.SalesOfficerLedgerFilter.as_view()),
@@ -25,6 +28,8 @@ urlpatterns = [
     path('DiscountLedger/<str:FromDate>/<str:ToDate>',views.DiscountLedgerFilter.as_view()),
     path('BankLedger/<int:bank>/<str:FromDate>/<str:ToDate>',views.BankLedgerFilter.as_view()),
     path('IncentiveLedger/<str:FromDate>/<str:ToDate>',views.IncentiveLedgerFilter.as_view()),
+    # Status Change
+    path('AproveRecovery/<int:id>',views.RecoveryStatusChange),
     # Test
     path('test',views.Test)
 ]

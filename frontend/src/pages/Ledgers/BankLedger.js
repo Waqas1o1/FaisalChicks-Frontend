@@ -107,10 +107,7 @@ export default function BankLedger() {
                 else{
                     let data = res.data;
                     for (var p in data){
-                        
-                        data[p].category = data[p].product.category.name
                         data[p].bank = data[p].bank.name
-                        data[p].product = data[p].product.name
                     }
                     setRows(data);
                     setLoading(false);

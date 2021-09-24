@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const columns = ['Date','Description','Category','Product','Qty','Rate','Transaction Type','Total Amount','Net Balance']
+const columns = ['Date','Description','Transaction Type','Total Amount','Net Balance']
 
 export default function SalesOfficerLedger() {
     var date = new Date();
@@ -86,9 +86,9 @@ export default function SalesOfficerLedger() {
                     localStorage.setItem('SalesOfficer',JSON.stringify(d));
                 }
             })
-            // .catch(error=>{
-            //     alert(`Somethin wrong: ${error}`);
-            // })
+            .catch(error=>{
+                alert(`Somethin wrong: ${error}`);
+            })
         }
         else{
             setSalesOfficers(JSON.parse(localStorage.getItem('SalesOfficer')));
@@ -107,10 +107,7 @@ export default function SalesOfficerLedger() {
                 else{
                     let data = res.data;
                     for (var p in data){
-                        
-                        data[p].category = data[p].product.category.name
                         data[p].sales_officer = data[p].sales_officer.name
-                        data[p].product = data[p].product.name
                     }
                     setRows(data);
                     setLoading(false);
@@ -260,10 +257,6 @@ export default function SalesOfficerLedger() {
                                 <StyledTableRow key={row.id}>
                                     <StyledTableCell component="th" scope="row">{row.date}</StyledTableCell>
                                     <StyledTableCell align='center' >{row.description}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.category}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.product}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.qty}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.rate}</StyledTableCell>
                                     <StyledTableCell align='center' >{row.transaction_type}</StyledTableCell>
                                     <StyledTableCell align='center' >{row.total_amount}</StyledTableCell>
                                     <StyledTableCell align='center' >{row.net_balance}</StyledTableCell>

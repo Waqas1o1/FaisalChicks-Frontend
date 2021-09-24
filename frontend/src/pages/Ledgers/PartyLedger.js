@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const columns = ['Date','Description','Category','Product','Qty','Rate','Freight','Transaction Type','Total Amount','Net Balance']
+const columns = ['Date','Description','Freight','Transaction Type','Total Amount','Net Balance']
 
 export default function PartyLedger() {
     var date = new Date();
@@ -108,10 +108,8 @@ export default function PartyLedger() {
                 else{
                     let parties = data;
                     for (var p in parties){
-                        parties[p].category = parties[p].category.name
                         parties[p].party = parties[p].party.name 
                         parties[p].sales_officer = parties[p].sales_officer.name
-                        parties[p].product = parties[p].product.name
                     }
                     console.log(parties);
                     setRows(parties);
@@ -240,6 +238,8 @@ export default function PartyLedger() {
                      startIcon={(loading? <HourglassFullRoundedIcon/>:<StorageRoundedIcon />)}
                     />
             </Grid>
+            
+            
             {/* TAble */}
             <Grid item xs={12}>
                 <TableContainer component={Paper}>
@@ -262,10 +262,6 @@ export default function PartyLedger() {
                                 <StyledTableRow key={row.id}>
                                     <StyledTableCell component="th" scope="row">{row.date}</StyledTableCell>
                                     <StyledTableCell align='center' >{row.description}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.category}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.product}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.qty}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.rate}</StyledTableCell>
                                     <StyledTableCell align='center' >{row.freight}</StyledTableCell>
                                     <StyledTableCell align='center' >{row.transaction_type}</StyledTableCell>
                                     <StyledTableCell align='center' >{row.total_amount}</StyledTableCell>

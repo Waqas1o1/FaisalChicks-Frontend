@@ -1,11 +1,11 @@
-import re
 from django.http.response import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
-from rest_framework  import viewsets,generics,status
+from rest_framework  import viewsets,generics
 from rest_framework.response import Response
 from apis import models as m
 from apis import serializers as s
 from apis import permisions as p
+from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
 # Authentication
 
@@ -476,7 +476,8 @@ class DiscountCategoryViewSet(viewsets.ViewSet):
 class PartyOrderViewSet(viewsets.ViewSet):
 
     def list(self, request):
-        if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
+        # if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
+        if request:
             data = m.PartyOrder.objects.all()
             serializer = s.PartyOrderSerializer(
                 data, many=True, context={"request": request})
@@ -485,14 +486,15 @@ class PartyOrderViewSet(viewsets.ViewSet):
             return Response(response_dict)
 
     def create(self, request):
-        if request.user.is_superuser or p.SalesOfficer(request):
+        # if request.user.is_superuser or p.SalesOfficer(request):
+        if request:
             try:
                 serializer = s.PartyOrderSerializer(
                     data=request.data, context={"request": request})
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
                 dict_response = {"error": False,
-                                "message": "Data Save Successfully"}
+                                "message": "Data Save Successfully","data":serializer.data}
             except ValueError as err:
                 dict_response = {"error": True, "message": err}
             except:
@@ -539,10 +541,78 @@ class PartyOrderViewSet(viewsets.ViewSet):
 
             return Response(dict_response)
 
-class RecoveryViewSet(viewsets.ViewSet):
+class PartyOrderProductViewSet(viewsets.ViewSet):
 
     def list(self, request):
         if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
+            data = m.PartyOrderProduct.objects.all()
+            serializer = s.PartyOrderProductSerializer(
+                data, many=True, context={"request": request})
+            response_dict = {
+                "error": False, "message": "All List Data", "data": serializer.data}
+            return Response(response_dict)
+
+    def create(self, request):
+        # if request.user.is_superuser or p.SalesOfficer(request):
+        if request:
+            try:
+                serializer = s.PartyOrderProductSerializer(
+                    data=request.data, context={"request": request})
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                dict_response = {"error": False,
+                                "message": "Data Save Successfully"}
+            except ValueError as err:
+                dict_response = {"error": True, "message": err}
+            except:
+                dict_response = {"error": True,
+                                "message": "Error During Saving Data"}
+
+        return JsonResponse(dict_response)
+
+    def retrieve(self, request, pk=None):
+        if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
+            queryset = m.PartyOrderProduct.objects.all()
+            query = get_object_or_404(queryset, pk=pk)
+            serializer = s.PartyOrderProductSerializer(
+                query, context={"request": request})
+            serializer_data = serializer.data
+            return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
+
+    def update(self, request, pk=None):
+        if request.user.is_superuser or p.SalesOfficer(request):
+            try:
+                queryset = m.PartyOrderProduct.objects.all()
+                query = get_object_or_404(queryset, pk=pk)
+                serializer = s.PartyOrderProductSerializer(
+                    query, data=request.data, context={"request": request})
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                dict_response = {"error": False,
+                                "message": "Successfully Updated Data"}
+            except:
+                dict_response = {"error": True,
+                                "message": "Error During Updating Data"}
+
+            return Response(dict_response)
+
+    def delete(self, request, pk=None):
+        if request.user.is_superuser or p.SalesOfficer(request):
+            try:
+                m.PartyOrderProduct.objects.get(id=pk).delete()
+                dict_response = {"error": False,
+                                "message": "Successfully Deleted"}
+            except:
+                dict_response = {"error": True,
+                                "message": "Error During Deleted Data "}
+
+            return Response(dict_response)
+
+class RecoveryViewSet(viewsets.ViewSet):
+
+    def list(self, request):
+        # if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
+        if request:
             data = m.Recovery.objects.all()
             serializer = s.RecoverySerializer(
                 data, many=True, context={"request": request})
@@ -551,7 +621,8 @@ class RecoveryViewSet(viewsets.ViewSet):
             return Response(response_dict)
 
     def create(self, request):
-        if request.user.is_superuser or p.SalesOfficer(request):
+        # if request.user.is_superuser or p.SalesOfficer(request):
+        if request:
             try:
                 serializer = s.RecoverySerializer(
                     data=request.data, context={"request": request})
@@ -568,7 +639,8 @@ class RecoveryViewSet(viewsets.ViewSet):
         return JsonResponse(dict_response)
 
     def retrieve(self, request, pk=None):
-        if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
+        # if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
+        if request:
             queryset = m.Recovery.objects.all()
             query = get_object_or_404(queryset, pk=pk)
             serializer = s.RecoverySerializer(
@@ -577,7 +649,8 @@ class RecoveryViewSet(viewsets.ViewSet):
             return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
 
     def update(self, request, pk=None):
-        if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
+        # if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
+        if request:
             try:
                 queryset = m.Recovery.objects.all()
                 query = get_object_or_404(queryset, pk=pk)
@@ -594,7 +667,8 @@ class RecoveryViewSet(viewsets.ViewSet):
             return Response(dict_response)
 
     def delete(self, request, pk=None):
-        if request.user.is_superuser or p.SalesOfficer(request) :
+        # if request.user.is_superuser or p.SalesOfficer(request) :
+        if request: 
             try:
                 m.Recovery.objects.get(id=pk).delete()
                 dict_response = {"error": False,
@@ -671,6 +745,45 @@ class SalesOfficerReceivingViewSet(viewsets.ViewSet):
 
             return Response(dict_response)
 
+# Post Party_order
+class GenratePreOrder(viewsets.ViewSet):
+    def create(self, request):
+        try:
+            party_order = request.data['party_order']
+            serializer = s.PartyOrderSerializer(
+                    data=party_order, context={"request": request})
+            serializer.is_valid(raise_exception=True)
+            pt = serializer.save()
+            print('Party Order Save',pt.id)
+            products = request.data['products']
+            for product in products:
+                save_dict = {
+                    'party_order': pt.id,
+                    'product': product['product_id'],
+                    'qty':  product['qty'],
+                    'rate': product['rate']
+                }
+                try:
+                    serializer = s.PartyOrderProductSerializer(
+                            data=save_dict, context={"request": request})
+                    serializer.is_valid(raise_exception=True)
+                    serializer.save()
+                except:
+                    m.PartyOrderProduct.objects.get(party_order__id=save_dict['party_order']).delete()
+                    dict_response = {"error": True,
+                            "message": "Error in Saving Product"}
+    
+            
+            dict_response = {"error": False,
+                            "message": "Data Save Successfully"}
+        except ValueError as err:
+            dict_response = {"error": True, "message": err}
+        except:
+            dict_response = {"error": True,
+                            "message": "Error During Saving Data"}
+
+        return Response(dict_response)
+
 # Change Status
 
 def ChangePartyOrderStatus(request,id):
@@ -684,7 +797,8 @@ def ChangePartyOrderStatus(request,id):
             return JsonResponse({'error':True,'data':'Something went"s wrong'})
     
 def RecoveryStatusChange(request,id):
-    if request.user.is_superuser or p.Accountant(request):
+    # if request.user.is_superuser or p.Accountant(request):
+    if request:
         try:
             r = m.Recovery.objects.get(id=id)
             r.status = 'Approved'

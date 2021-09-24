@@ -6,7 +6,10 @@ const InputField = (props) => {
     return (
         <div>
             <TextField size={size} name={name}  
-                        label={label} type={type} variant="outlined" required={required}  {...other}/>
+                        label={label} type={type} 
+                        variant="outlined" 
+                        required={required} 
+                        {...other}/>
         </div>
     );
 }

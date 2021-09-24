@@ -17,12 +17,12 @@ const useStyles = makeStyles((theme) => ({
   },
   formControl: {
     margin: theme.spacing(1),
-    minWidth: 120,
+    // minWidth: 10,
   },
 }));
 
 export default function Selecter(props) {
-  const { title,handleChange,onOpen,value,choises,name } = props;
+  const { title,handleChange,onOpen,value,choises,name,disabled=false } = props;
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
   
@@ -39,26 +39,26 @@ export default function Selecter(props) {
 
   return (
     <div>
-      <Button onClick={handleClickOpen} variant="outlined" >{title}</Button>
+      <Button onClick={handleClickOpen} disabled={disabled} variant="outlined" fullWidth >{title}</Button>
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Select From Following</DialogTitle>
         <DialogContent>
           <form className={classes.container}>
-            <FormControl className={classes.formControl}>
+            <FormControl className={classes.formControl} fullWidth>
               <InputLabel htmlFor="demo-dialog-native">Select</InputLabel>
               <Select
                 native
                 value={value}
                 onChange={handleChange}
                 input={<Input id='Selecter' />}
-                name={name}>
-                <option aria-label="None" value='Select Value' />
+                name={name}
+                >
+                <option aria-label="None" value='Select Value' /> 
                 {choises.map((item)=>{
-                  return <option value={item.id} id={item.name} key={item.id}>{item.name} : {item.discount}</option>
+                  return <option value={item.id} id={JSON.stringify(item)} key={item.id}>{item.name} : {item.discount}</option>
                 })}
               </Select>
-            </FormControl>
-         
+            </FormControl>  
           </form>
         </DialogContent>
         <DialogActions>

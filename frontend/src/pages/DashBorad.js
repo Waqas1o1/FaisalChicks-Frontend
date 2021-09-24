@@ -136,7 +136,9 @@ const DashBorad = () => {
             <Paper className={`${classes.paper} ${classes.bgBlue}`}>
               <VisibilityRoundedIcon fontSize='large' className={`${classes.textWhite} ${classes.f60}`}/>
               <Typography variant="button" display="block" gutterBottom className={classes.textWhite}>
-                Recovery
+                <Link className={`${classes.textWhite} ${classes.link}`} to='/Recovery'>
+                  Recovery
+                </Link>
               </Typography>
             </Paper>
           </Grid>
@@ -145,7 +147,9 @@ const DashBorad = () => {
             <Paper className={`${classes.paper} ${classes.bgBlue}`}>
               <VisibilityRoundedIcon fontSize='large' className={`${classes.textWhite} ${classes.f60}`}/>
               <Typography variant="button" display="block" gutterBottom className={classes.textWhite}>
-                View Orders
+                <Link className={`${classes.textWhite} ${classes.link}`} to='/ViewOrder'>
+                  View Order
+                </Link>
               </Typography>
             </Paper>
           </Grid>
