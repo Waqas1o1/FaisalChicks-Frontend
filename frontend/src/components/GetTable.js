@@ -12,17 +12,18 @@ import { Button, Grid, IconButton, TablePagination } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import CreateIcon from '@material-ui/icons/Create';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme=>({
   root: {
     flexGrow:1,
     '@media only screen and (max-width: 600px)': {
-      width:'400px',
+      width:'50vh',
+      padding: theme.spacing(2),
      },
   },
   container: {
     maxHeight: 440,
   },
-});
+}));
 
 export default function GetTable(props) {
   const classes = useStyles();

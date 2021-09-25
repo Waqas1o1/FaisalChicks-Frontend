@@ -46,6 +46,7 @@ const AddParty = () => {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
+    const [discountTitle, setdiscountTitle] = useState('Select Discount');
     const [selectedObjId, setSelectedObjId] = useState(0);
 
 
@@ -209,6 +210,9 @@ const AddParty = () => {
     };
 
     const FiledChange = (event) => {
+        if (event.target.name === 'discount'){
+            setdiscountTitle(event.target.value);
+        }
         setFields({
             ...fields,
             [event.target.name] : event.target.value,
@@ -243,11 +247,11 @@ const AddParty = () => {
     return (
         <Grid container spacing={2} className={classes.formRoot}>
             {/* Title */}
-            <Grid item xs={11} >     
+            <Grid item xs={10} lg={11}>     
                 <Typography variant="h4" gutterBottom  color='primary'>Add Party</Typography>
             </Grid>
             {/* Left */}
-            <Grid item xs={1}>
+            <Grid item xs={2} lg={1}>
                 <Button onClick={fetchParties}>
                     <CachedIcon ></CachedIcon>
                 </Button>     
@@ -285,7 +289,7 @@ const AddParty = () => {
 
                     <Grid item xs>
                         <Selecter
-                        title={fields.discount}
+                        title={discountTitle}
                         handleChange={FiledChange}
                         value={fields.discount}
                         onOpen={selecterOpen}
