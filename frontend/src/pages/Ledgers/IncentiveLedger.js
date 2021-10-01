@@ -1,5 +1,5 @@
 import { Grid, makeStyles, Typography } from '@material-ui/core'
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import DateFnsUtils from '@date-io/date-fns';
 import axiosInstance  from '../../apisConfig'
 import SpineerButton from '../../components/SpineerButton';
@@ -66,7 +66,7 @@ export default function IncentiveLedger() {
 
     async function fetchLedger(){
         if (navigator.onLine){
-            return await axiosInstance.get(`IncentiveLedger/${fields.FromDate}/${fields.ToDate}`)
+            return await axiosInstance.get(`apis/IncentiveLedger/${fields.FromDate}/${fields.ToDate}`)
             .then(res=>{
                 let data  = res;
                 if (data['error'] === true){
@@ -92,18 +92,18 @@ export default function IncentiveLedger() {
     }
 
     const handleFromDateChange = (date) => {
-        var date =  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+        var d =  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
         setFields({
             ...fields,
-            'FromDate' : String(date)
+            'FromDate' : String(d)
         })
     };
 
     const handleToDateChange = (date) => {
-        var date =  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+        var d =  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
         setFields({
             ...fields,
-            'ToDate' : String(date)
+            'ToDate' : String(d)
         })
     };
 

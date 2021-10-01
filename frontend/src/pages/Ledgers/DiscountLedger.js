@@ -1,5 +1,5 @@
 import { Grid, makeStyles, Typography } from '@material-ui/core'
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import DateFnsUtils from '@date-io/date-fns';
 import axiosInstance  from '../../apisConfig'
 import SpineerButton from '../../components/SpineerButton';
@@ -95,18 +95,18 @@ export default function DiscountLedger() {
     }
 
     const handleFromDateChange = (date) => {
-        var date =  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+        var d =  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
         setFields({
             ...fields,
-            'FromDate' : String(date)
+            'FromDate' : String(d)
         })
     };
 
     const handleToDateChange = (date) => {
-        var date =  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+        var d =  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
         setFields({
             ...fields,
-            'ToDate' : String(date)
+            'ToDate' : String(d)
         })
     };
 

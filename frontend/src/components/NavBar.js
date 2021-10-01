@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import clsx from 'clsx';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
@@ -35,6 +35,12 @@ import ReceiptIcon from '@material-ui/icons/Receipt';
 import AssignmentLateIcon from '@material-ui/icons/AssignmentLate';
 import HdrStrongIcon from '@material-ui/icons/HdrStrong';
 import AccountBalanceWalletIcon from '@material-ui/icons/AccountBalanceWallet';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import VpnKeyIcon from '@material-ui/icons/VpnKey';
+import { connect } from 'react-redux';
+import { authCheckState, authLogout } from '../store/actions/auth';
+
+
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
@@ -103,14 +109,20 @@ const useStyles = makeStyles((theme) => ({
   },
   linkText:{
     color:'#6b6b6b'
+  },
+  flexGrow:{
+    flexGrow:1,
   }
 }));
 
-export default function NavBar(props) {
+function NavBar(props) {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-
+  useEffect(() => {
+    props.onLoad()
+  }, [] )
+  
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -138,22 +150,39 @@ export default function NavBar(props) {
         })}
       >
         <Toolbar>
-          <IconButton
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            className={`${clsx(classes.menuButton, open && classes.hide )} ${classes.white}`}
-          >
-            <MenuIcon />
-          </IconButton>
-          <InputBase
-            className={classes.input}
-            placeholder="Search Google Maps"
-            inputProps={{ 'aria-label': 'search google maps' }}
-          />
-          <IconButton type="submit"  className={classes.white} aria-label="search">
-            <FindReplaceOutlinedIcon />
-          </IconButton>
+          <div className={classes.flexGrow}>
+            <IconButton
+              aria-label="open drawer"
+              onClick={handleDrawerOpen}
+              edge="start"
+              className={`${clsx(classes.menuButton, open && classes.hide )} ${classes.white}`}
+            >
+              <MenuIcon />
+            </IconButton>
+            <InputBase
+                className={classes.input}
+                placeholder="Search Components"
+                inputProps={{ 'aria-label': 'search components' }}
+              />
+            <IconButton type="submit"  className={classes.white} aria-label="search">
+                <FindReplaceOutlinedIcon />
+            </IconButton>
+          </div>
+          <div >
+                {(props.authenticated?
+                 <Link to='/Sginup' >
+                    <IconButton aria-label="Logout" onClick={props.logout} className={classes.white} >
+                      <ExitToAppIcon />
+                    </IconButton>
+                  </Link>
+                  :
+                  <Link to='/login'>
+                    <IconButton aria-label="Login" className={classes.white} >
+                      <VpnKeyIcon />
+                    </IconButton>
+                  </Link>
+                )}
+          </div>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -224,7 +253,7 @@ export default function NavBar(props) {
                   <ListItemText primary="Add Category" />
                 </ListItem>
               </Link>
-              <Link to='/addBank' className={`${classes.link} ${classes.linkText}`} > 
+              <Link to='/addProduct' className={`${classes.link} ${classes.linkText}`} > 
                 <ListItem button className={classes.nested} onClick={handleDrawerClose}>
                   <ListItemIcon>
                     <AccountTreeIcon />
@@ -232,7 +261,7 @@ export default function NavBar(props) {
                   <ListItemText primary="Add product" />
                 </ListItem>
               </Link>
-              <Link to='/addProduct' className={`${classes.link} ${classes.linkText}`} > 
+              <Link to='/addBank' className={`${classes.link} ${classes.linkText}`} > 
                 <ListItem button className={classes.nested} onClick={handleDrawerClose}>
                   <ListItemIcon>
                     <AccountBalanceIcon />
@@ -337,3 +366,16 @@ export default function NavBar(props) {
     </div>
   );
 }
+
+const mapStateToProps = state =>{
+  return {
+    authenticated: state.token !== null,
+  };
+}
+const mapDispacthToProps = dispacth =>{
+  return {
+    onLoad : ()=>dispacth(authCheckState()),
+    logout : ()=>dispacth(authLogout)
+  }
+}
+export default connect(mapStateToProps, mapDispacthToProps)(NavBar);

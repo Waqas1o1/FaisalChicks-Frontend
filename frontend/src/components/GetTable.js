@@ -11,12 +11,12 @@ import TableRow from '@material-ui/core/TableRow';
 import { Button, Grid, IconButton, TablePagination } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import CreateIcon from '@material-ui/icons/Create';
-
+import GetAppIcon from '@material-ui/icons/GetApp';
 const useStyles = makeStyles(theme=>({
   root: {
     flexGrow:1,
     '@media only screen and (max-width: 600px)': {
-      width:'50vh',
+      width:'90vh',
       padding: theme.spacing(2),
      },
   },
@@ -39,7 +39,15 @@ export default function GetTable(props) {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
-  
+  function validURL(str) {
+    var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+      '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+      '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+      '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+    return !!pattern.test(str);
+  }
   return (
     <Paper className={classes.root} elevation={3}>
       <TableContainer className={classes.container}>
@@ -70,7 +78,17 @@ export default function GetTable(props) {
                 <TableRow key={row.id}>
                   {Object.entries(row).map(([key, value]) =>{
                     return(
-                      <TableCell align="center" key={key}>{value}</TableCell>
+                      (validURL(value)?
+                      <TableCell align="center" key={key}>
+                        <IconButton aria-label="edit" size='small' key={row.id} href={value} download target='blank'>
+                          <GetAppIcon />
+                        </IconButton>
+                      </TableCell>
+                      :
+                      <TableCell align="center" key={key}>
+                        {value}
+                      </TableCell>
+                      )
                     )
                   })}
                <TableCell align="center" key='0' >

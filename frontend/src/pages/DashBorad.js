@@ -6,7 +6,6 @@ import HomeRoundedIcon from '@material-ui/icons/HomeRounded';
 import VisibilityRoundedIcon from '@material-ui/icons/VisibilityRounded';
 import PersonPinCircleRoundedIcon from '@material-ui/icons/PersonPinCircleRounded';
 import PersonAddRoundedIcon from '@material-ui/icons/PersonAddRounded';
-import AddShoppingCartRoundedIcon from '@material-ui/icons/AddShoppingCartRounded';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
 import AccountBalanceIcon from '@material-ui/icons/AccountBalance';
 import CategoryIcon from '@material-ui/icons/Category';

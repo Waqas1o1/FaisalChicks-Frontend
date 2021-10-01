@@ -62,14 +62,14 @@ export default function SalesOfficerLedger() {
     const classes = useStyles();
     const [fields,setFields] = useState(initialFields);    
     const [salesOfficers,setSalesOfficers] = useState([]);    
+    const [salesOfficerTitle,setSalesOfficerTitle] = useState('Select Sales Officer');
     const [loading,setLoading] = useState(false);    
-    const [choice,setChoice] = useState(initialFields.salesOfficer);
     const [rows,setRows] = useState([]);
     
 
     async function fetchSalesOfficers(){
         if (navigator.onLine){
-            return await axiosInstance.get('SalesOfficer/')
+            return await axiosInstance.get('apis/SalesOfficer/')
             .then(res=>{
                 let data  = res.data;
                 if (data['error'] === true){
@@ -97,7 +97,7 @@ export default function SalesOfficerLedger() {
     
     async function fetchLedger(){
         if (navigator.onLine){
-            return await axiosInstance.get(`SalesOfficerLedger/${fields.salesOfficer}/${fields.FromDate}/${fields.ToDate}`)
+            return await axiosInstance.get(`apis/SalesOfficerLedger/${fields.salesOfficer}/${fields.FromDate}/${fields.ToDate}`)
             .then(res=>{
                 let data  = res;
                 if (data['error'] === true){
@@ -126,18 +126,18 @@ export default function SalesOfficerLedger() {
     }
 
     const handleFromDateChange = (date) => {
-        var date =  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+        var d =  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
         setFields({
             ...fields,
-            'FromDate' : String(date)
+            'FromDate' : String(d)
         })
     };
 
     const handleToDateChange = (date) => {
-        var date =  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+        var d =  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
         setFields({
             ...fields,
-            'ToDate' : String(date)
+            'ToDate' : String(d)
         })
     };
 
@@ -150,7 +150,11 @@ export default function SalesOfficerLedger() {
     
     const FiledChange = (event) => {
         if (event.target.name === 'salesOfficer'){
-            setChoice(event.target.value);
+            const index = event.target.selectedIndex;
+            const optionElement = event.target.childNodes[index];
+            const optionElementId = optionElement.getAttribute('id');
+            const obj = JSON.parse(optionElementId);
+            setSalesOfficerTitle(obj.name);
         }
         setFields({
             ...fields,
@@ -183,7 +187,7 @@ export default function SalesOfficerLedger() {
             
            <Grid item  xs={12} md={3} lg={2} className={classes.selecter}>
                 <Selecter
-                     title={choice}
+                     title={salesOfficerTitle}
                      handleChange={FiledChange}
                      value={fields.salesOfficer}
                      onOpen={selecterOpen}

@@ -16,12 +16,13 @@ export const authStart =  (state, action) => {
 export const authSuccess =  (state, action) => {
     return updateObject(state,{
         loading: false,
-        token: action.token 
+        token: action.token,
     });
 };
 export const authFail =  (state, action) => {
     return updateObject(state,{
         error: action.error,
+        loading: false
     });
 };
 export const authLogout =  (state, action) => {

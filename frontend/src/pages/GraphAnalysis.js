@@ -139,7 +139,7 @@ const GraphAnalysis = () => {
                                     type='string' size='small' 
                                     name='FromDate'
                                     value={'2021-09-10'}
-                                    color='green'
+                                    color='#64C1A4'
                                     onChange={()=>{}}
                                     
                                 />

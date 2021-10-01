@@ -7,7 +7,7 @@ import axiosInstance  from '../../apisConfig';
 import InputField from '../../components/InputField';
 import AutoSuggestField from '../../components/AutoSuggestField';
 import ReceiptIcon from '@material-ui/icons/Receipt';
-import id from 'date-fns/esm/locale/id/index.js';
+
 
 
 const useStyles = makeStyles((theme) => ({
@@ -112,7 +112,7 @@ export default function PartyOrder() {
 
   async function fetchParoducts(){
     if (navigator.onLine){
-        return await axiosInstance.get('Product/')
+        return await axiosInstance.get('apis/Product/')
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){

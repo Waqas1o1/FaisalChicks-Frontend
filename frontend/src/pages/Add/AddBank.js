@@ -48,7 +48,7 @@ const AddBank = () => {
 
     async function fetchBank(){
         if (navigator.onLine){
-            return await axiosInstance.get('Bank/')
+            return await axiosInstance.get('apis/Bank/')
             .then(res=>{
                 let data  = res.data;
                 if (data['error'] === true){
@@ -76,7 +76,7 @@ const AddBank = () => {
 
     async function saveBank(){
         if (!isUpdate){
-            return await axiosInstance.post('Bank/',{...fields})
+            return await axiosInstance.post('apis/Bank/',{...fields})
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
@@ -98,7 +98,7 @@ const AddBank = () => {
             }
         else{
             console.log(fields);
-            return await axiosInstance.put(`Bank/${selectedObjId}/`,{...fields})
+            return await axiosInstance.put(`apis/Bank/${selectedObjId}/`,{...fields})
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
@@ -123,7 +123,7 @@ const AddBank = () => {
 
     async function ConfirmDelete(e){
         console.log(selectedObjId);
-        return await axiosInstance.delete(`Bank/${selectedObjId}/`)
+        return await axiosInstance.delete(`apis/Bank/${selectedObjId}/`)
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
@@ -144,7 +144,7 @@ const AddBank = () => {
     }
 
     async function GetBankForUpdate(){
-        return await axiosInstance.get(`Bank/${selectedObjId}/`)
+        return await axiosInstance.get(`apis/Bank/${selectedObjId}/`)
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){

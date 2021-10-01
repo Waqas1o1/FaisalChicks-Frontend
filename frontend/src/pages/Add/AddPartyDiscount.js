@@ -39,8 +39,6 @@ const AddPartyDiscount = () => {
     const [rows,setRows] = useState([]);
     const [fields,setFields] = useState(initialFields);
     const [isUpdate,setIsUpdate] = useState(false);
-    // const [choices,setChoices] = useState([]);
-    // const [discount, setDisount] = useState('Select Disocunt mode');
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
@@ -49,7 +47,7 @@ const AddPartyDiscount = () => {
 
     async function fetchDiscounts(){
         if (navigator.onLine){
-            return await axiosInstance.get('DiscountCategory/')
+            return await axiosInstance.get('apis/DiscountCategory/')
             .then(res=>{
                 let data  = res.data;
                 if (data['error'] === true){
@@ -74,7 +72,7 @@ const AddPartyDiscount = () => {
 
     async function saveDiscount(){
         if (!isUpdate){
-            return await axiosInstance.post('DiscountCategory/',{...fields})
+            return await axiosInstance.post('apis/DiscountCategory/',{...fields})
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
@@ -96,7 +94,7 @@ const AddPartyDiscount = () => {
             }
         else{
             console.log(fields);
-            return await axiosInstance.put(`DiscountCategory/${selectedObjId}/`,{...fields})
+            return await axiosInstance.put(`apis/DiscountCategory/${selectedObjId}/`,{...fields})
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
@@ -120,7 +118,7 @@ const AddPartyDiscount = () => {
     }
 
     async function ConfirmDelete(e){
-        return await axiosInstance.delete(`DiscountCategory/${selectedObjId}/`)
+        return await axiosInstance.delete(`apis/DiscountCategory/${selectedObjId}/`)
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
@@ -140,8 +138,8 @@ const AddPartyDiscount = () => {
     
     }
 
-    async function GetDiscountForUpdate(){
-        return await axiosInstance.get(`DiscountCategory/${selectedObjId}/`)
+    async function GetDiscountForUpdate(id){
+        return await axiosInstance.get(`apis/DiscountCategory/${id}/`)
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
@@ -164,10 +162,6 @@ const AddPartyDiscount = () => {
         })
     }
 
-    const selecterOpen = (event)=>{
-        // fetchDiscounts();
-        
-    }
 
     const handleButtonClick = () => {
         if (!loading) {
@@ -194,7 +188,7 @@ const AddPartyDiscount = () => {
         let id  = event.currentTarget.getAttribute('id');
         setSelectedObjId(id);
         setIsUpdate(true);
-        GetDiscountForUpdate();
+        GetDiscountForUpdate(id);
     }
 
     const handleClose = () => {

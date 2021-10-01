@@ -22,15 +22,15 @@ import FreightLedger from './pages/Ledgers/FreightLeadger';
 import DiscountLedger from './pages/Ledgers/DiscountLedger';
 import IncentiveLedger from './pages/Ledgers/IncentiveLedger';
 import BankLedger from './pages/Ledgers/BankLedger';
+// UI
 import PartyOrder from './pages/Records/PartyOrder';
 import OrderView from './pages/Records/OrderView';
 import Recovery from './pages/Records/Recovery';
-import Sginin from './pages/Authentications/Sginin';
+import Login from './pages/Authentications/Login';
+import Signup from './pages/Authentications/Signup';
+
 import { ToastContainer } from "react-toastify";
 
-// 
-import { connect } from 'react-redux';
-import { authCheckState } from './store/actions/auth';
 
 const theme = createTheme({
   palette: {
@@ -66,9 +66,6 @@ const theme = createTheme({
 
 
 const App = (props) => {
-  useEffect(() => {
-    props.onLoad()
-  }, [] )
 
   return(
     <ThemeProvider theme={theme}>
@@ -98,7 +95,8 @@ const App = (props) => {
                         <Route exact path='/ViewOrder' component={OrderView} />
                         <Route exact path='/Recovery' component={Recovery} />
                         {/* Authentication */}
-                        <Route exact path='/Login' component={Sginin} />
+                        <Route exact path='/Login' component={Login} />
+                        <Route exact path='/Sginup' component={Signup} />
                       
                     </Switch>
                 </Layout>
@@ -106,14 +104,5 @@ const App = (props) => {
     </ThemeProvider>
 )};
 
-const mapStateToProps = state =>{
-  return {
-    authenticated: state.token !== null,
-  };
-}
-const mapDispacthToProps = dispacth =>{
-  return {
-    onLoad : ()=>dispacth(authCheckState())
-  }
-}
-export default connect(mapStateToProps, mapDispacthToProps)(App);
+
+export default App;

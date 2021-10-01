@@ -63,13 +63,13 @@ export default function PartyLedger() {
     const [fields,setFields] = useState(initialFields);    
     const [parties,setParties] = useState([]);    
     const [loading,setLoading] = useState(false);    
-    const [choice,setChoice] = useState(initialFields.party);
+    const [partyTitle,setPartyTitle] = useState('Select Party');
     const [rows,setRows] = useState([]);
     
 
     async function fetchParties(){
         if (navigator.onLine){
-            return await axiosInstance.get('Party/')
+            return await axiosInstance.get('apis/Party/')
             .then(res=>{
                 let data  = res.data;
                 if (data['error'] === true){
@@ -98,7 +98,7 @@ export default function PartyLedger() {
     
     async function fetchLedger(){
         if (navigator.onLine){
-            return await axiosInstance.get(`PartyLedger/${fields.party}/${fields.FromDate}/${fields.ToDate}`)
+            return await axiosInstance.get(`apis/PartyLedger/${fields.party}/${fields.FromDate}/${fields.ToDate}`)
             .then(res=>{
                 let data  = res.data;
                 if (data['error'] === true){
@@ -111,7 +111,6 @@ export default function PartyLedger() {
                         parties[p].party = parties[p].party.name 
                         parties[p].sales_officer = parties[p].sales_officer.name
                     }
-                    console.log(parties);
                     setRows(parties);
                     setLoading(false);
                     localStorage.removeItem('PartyLedger');
@@ -129,18 +128,18 @@ export default function PartyLedger() {
     }
 
     const handleFromDateChange = (date) => {
-        var date =  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+        var d =  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
         setFields({
             ...fields,
-            'FromDate' : String(date)
+            'FromDate' : String(d)
         })
     };
 
     const handleToDateChange = (date) => {
-        var date =  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+        var d =  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
         setFields({
             ...fields,
-            'ToDate' : String(date)
+            'ToDate' : String(d)
         })
     };
 
@@ -153,7 +152,11 @@ export default function PartyLedger() {
     
     const FiledChange = (event) => {
         if (event.target.name === 'party'){
-            setChoice(event.target.value);
+            const index = event.target.selectedIndex;
+            const optionElement = event.target.childNodes[index];
+            const optionElementId = optionElement.getAttribute('id');
+            const obj = JSON.parse(optionElementId);
+            setPartyTitle(obj.name);
         }
         setFields({
             ...fields,
@@ -186,7 +189,7 @@ export default function PartyLedger() {
             
            <Grid item  xs={12} md={3} lg={2} className={classes.selecter}>
                 <Selecter
-                     title={choice}
+                     title={partyTitle}
                      handleChange={FiledChange}
                      value={fields.party}
                      onOpen={selecterOpen}

@@ -45,7 +45,7 @@ const AddCategory = () => {
 
     async function fetchCategory(){
         if (navigator.onLine){
-            return await axiosInstance.get('Category/')
+            return await axiosInstance.get('apis/Category/')
             .then(res=>{
                 let data  = res.data;
                 if (data['error'] === true){
@@ -73,7 +73,7 @@ const AddCategory = () => {
 
     async function saveCategory(){
         if (!isUpdate){
-            return await axiosInstance.post('Category/',{...fields})
+            return await axiosInstance.post('apis/Category/',{...fields})
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
@@ -94,7 +94,7 @@ const AddCategory = () => {
                 })
             }
         else{
-            return await axiosInstance.put(`Category/${selectedObjId}/`,{...fields})
+            return await axiosInstance.put(`apis/Category/${selectedObjId}/`,{...fields})
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
@@ -118,7 +118,7 @@ const AddCategory = () => {
     }
 
     async function ConfirmDelete(e){
-        return await axiosInstance.delete(`Category/${selectedObjId}/`)
+        return await axiosInstance.delete(`apis/Category/${selectedObjId}/`)
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
@@ -138,8 +138,8 @@ const AddCategory = () => {
     
     }
 
-    async function GetCategoryForUpdate(){
-        return await axiosInstance.get(`Category/${selectedObjId}/`)
+    async function GetCategoryForUpdate(id){
+        return await axiosInstance.get(`apis/Category/${id}/`)
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
@@ -191,7 +191,7 @@ const AddCategory = () => {
         let id  = event.currentTarget.getAttribute('id');
         setSelectedObjId(id);
         setIsUpdate(true);
-        GetCategoryForUpdate();
+        GetCategoryForUpdate(id);
     }
 
     const handleClose = () => {

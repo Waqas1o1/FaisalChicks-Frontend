@@ -19,10 +19,15 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(1),
     // minWidth: 10,
   },
+  textSize:{
+    '& .MuiButton-label':{
+        fontSize:'12px'
+    }
+}
 }));
 
 export default function Selecter(props) {
-  const { title,handleChange,onOpen,value,choises,name,disabled=false } = props;
+  const { title,handleChange,onOpen,value,choises,name,disabled=false, other } = props;
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
   
@@ -39,7 +44,7 @@ export default function Selecter(props) {
 
   return (
     <div>
-      <Button onClick={handleClickOpen} disabled={disabled} variant="outlined" fullWidth >{title}</Button>
+      <Button onClick={handleClickOpen} disabled={disabled} variant="contained" color="secondary" {...other} className={classes.textSize}>{title}</Button>
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Select From Following</DialogTitle>
         <DialogContent>

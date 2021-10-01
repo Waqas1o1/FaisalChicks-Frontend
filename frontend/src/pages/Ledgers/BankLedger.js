@@ -63,13 +63,13 @@ export default function BankLedger() {
     const [fields,setFields] = useState(initialFields);    
     const [banks,setBanks] = useState([]);    
     const [loading,setLoading] = useState(false);    
-    const [choice,setChoice] = useState(initialFields.bank);
+    const [bankTitle,setBankTitle] = useState(initialFields.bank);
     const [rows,setRows] = useState([]);
     
 
     async function fetchBanks(){
         if (navigator.onLine){
-            return await axiosInstance.get('Bank/')
+            return await axiosInstance.get('apis/Bank/')
             .then(res=>{
                 let data  = res.data;
                 if (data['error'] === true){
@@ -97,7 +97,7 @@ export default function BankLedger() {
     
     async function fetchLedger(){
         if (navigator.onLine){
-            return await axiosInstance.get(`BankLedger/${fields.bank}/${fields.FromDate}/${fields.ToDate}`)
+            return await axiosInstance.get(`apis/BankLedger/${fields.bank}/${fields.FromDate}/${fields.ToDate}`)
             .then(res=>{
                 let data  = res;
                 if (data['error'] === true){
@@ -126,18 +126,18 @@ export default function BankLedger() {
     }
 
     const handleFromDateChange = (date) => {
-        var date =  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+        var d =  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
         setFields({
             ...fields,
-            'FromDate' : String(date)
+            'FromDate' : String(d)
         })
     };
 
     const handleToDateChange = (date) => {
-        var date =  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+        var d =  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
         setFields({
             ...fields,
-            'ToDate' : String(date)
+            'ToDate' : String(d)
         })
     };
 
@@ -150,7 +150,11 @@ export default function BankLedger() {
     
     const FiledChange = (event) => {
         if (event.target.name === 'bank'){
-            setChoice(event.target.value);
+            const index = event.target.selectedIndex;
+            const optionElement = event.target.childNodes[index];
+            const optionElementId = optionElement.getAttribute('id');
+            const obj = JSON.parse(optionElementId);
+            setBankTitle(obj.name);
         }
         setFields({
             ...fields,
@@ -183,7 +187,7 @@ export default function BankLedger() {
             
            <Grid item  xs={12} md={3} lg={2} className={classes.selecter}>
                 <Selecter
-                     title={choice}
+                     title={bankTitle}
                      handleChange={FiledChange}
                      value={fields.salesOfficer}
                      onOpen={selecterOpen}

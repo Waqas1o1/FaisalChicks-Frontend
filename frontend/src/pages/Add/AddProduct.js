@@ -1,4 +1,4 @@
-import { Button, Grid, Typography } from '@material-ui/core';
+import { Button, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import React, { useEffect, useState } from 'react';
 import GetTable from '../../components/GetTable';
@@ -33,31 +33,42 @@ const useStyles = makeStyles((theme) => ({
 const AddProduct = () => {
     const initialFields = {
         name:'',
-        default_price:'',
-        category:'Select Product',
+        type:'',
+        pakage_weight:'',
+        sales_price:'',
+        cost_price:'',
+        category:'',
     };
     const classes = useStyles();
     const [rows,setRows] = useState([]);
     const [fields,setFields] = useState(initialFields);
     const [isUpdate,setIsUpdate] = useState(false);
-    const [choices,setChoices] = useState([]);
-    const [category, setCategory] = useState('Select product mode');
+    const [category, setCategory] = useState([]);
+    const [categoryTitle, setCategoryTitle] = useState('Select product mode');
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedObjId, setSelectedObjId] = useState(0);
 
+    const Reset = () =>{
+        setFields(initialFields);
+        setLoading(false);
+        setSuccess(false);
+        setIsUpdate(false);
+        setCategoryTitle('Select Category');
+        fetchProduct();
+    }
 
     async function fetchCategory(){
         if (navigator.onLine){
-            return await axiosInstance.get('Category/')
+            return await axiosInstance.get('apis/Category/')
             .then(res=>{
                 let data  = res.data;
                 if (data['error'] === true){
                 alert(`Error Occures ${data['message']}`);
             }
             else{
-                setChoices(data['data']);
+                setCategory(data['data']);
                 localStorage.removeItem('Category');
                 localStorage.setItem('Category',JSON.stringify(data['data']));
             }
@@ -67,13 +78,13 @@ const AddProduct = () => {
             })
         }
         else{
-            setChoices(JSON.parse(localStorage.getItem('Category')));
+            setCategory(JSON.parse(localStorage.getItem('Category')));
         }
     }
 
     async function fetchProduct(){
         if (navigator.onLine){
-            return await axiosInstance.get('Product/')
+            return await axiosInstance.get('apis/Product/')
             .then(res=>{
                 let data  = res.data;
                 if (data['error'] === true){
@@ -101,54 +112,46 @@ const AddProduct = () => {
 
     async function saveProduct(){
         if (!isUpdate){
-            return await axiosInstance.post('Product/',{...fields})
+            return await axiosInstance.post('apis/Product/',{...fields})
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
                         alert(`Error Occures ${data['message']}`);
-                        setSuccess(false);
-                        setLoading(false);
+                        Reset();
                     }
                     else{
-                        setLoading(false);
-                        fetchProduct();
-                        setFields(initialFields);
+                        Reset();
                     }
                 })
                 .catch(error=>{
                     alert(`Somethin wrong: ${error}`);
-                    setSuccess(false);
-                    setLoading(false);
+                    Reset();
+                    setSuccess(true);
                 })
             }
         else{
-            console.log(fields);
-            return await axiosInstance.put(`Product/${selectedObjId}/`,{...fields})
+            return await axiosInstance.put(`apis/Product/${selectedObjId}/`,{...fields})
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
                         alert(`Error Occures ${data['message']}`);
-                        setSuccess(false);
-                        setLoading(false);
+                        Reset();
                     }
                     else{
-                        fetchProduct();
-                        setFields(initialFields);
-                        setLoading(false);
-                        setIsUpdate(false);
+                       Reset();
+                       setSuccess(true);
                     }
                 })
                 .catch(error=>{
                     alert(`Somethin wrong: ${error}`);
-                    setSuccess(false);
-                    setLoading(false);
+                    Reset();
                 })
             }
     }
 
     async function ConfirmDelete(e){
         console.log(selectedObjId);
-        return await axiosInstance.delete(`Product/${selectedObjId}/`)
+        return await axiosInstance.delete(`apis/Product/${selectedObjId}/`)
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
@@ -169,7 +172,7 @@ const AddProduct = () => {
     }
 
     async function GetCategoryForUpdate(id = selectedObjId){
-        return await axiosInstance.get(`Product/${id}/`)
+        return await axiosInstance.get(`apis/Product/${id}/`)
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
@@ -177,10 +180,14 @@ const AddProduct = () => {
             }
             else{
                 let setData = {
-                    name:data.data.name,
-                    default_price:data.data.default_price,
                     category:data.data.category.id,
+                    type:data.data.type,
+                    name:data.data.name,
+                    pakage_weight:data.data.pakage_weight,
+                    sales_price:data.data.sales_price,
+                    cost_price:data.data.cost_price,
                 }
+                setCategoryTitle(data.data.category.name);
                 setFields(setData);
                 setIsUpdate(true);
             }
@@ -208,7 +215,11 @@ const AddProduct = () => {
 
     const FiledChange = (event) => {
         if (event.target.name === 'category'){
-            setCategory(event.target.value);
+            const index = event.target.selectedIndex;
+            const optionElement = event.target.childNodes[index];
+            const optionElementId = optionElement.getAttribute('id');
+            const obj = JSON.parse(optionElementId);
+            setCategoryTitle(obj.name);
         }
         setFields({
             ...fields,
@@ -256,8 +267,32 @@ const AddProduct = () => {
             <Grid item xs={12} md={3} lg={3}>
                 <Grid container item direction='column' spacing={3}>
                     <Grid item xs>
-                        <InputField  label='Name' tyep='string' size='small' 
-                        name='name' type="string" 
+                        <Selecter
+                        title={categoryTitle}
+                        handleChange={FiledChange}
+                        value={fields.category}
+                        onOpen={selecterOpen}
+                        choises={category}
+                        name='category'
+                        />
+                    </Grid>
+                    <Grid item xs>
+                        <FormControl  style={{minWidth:220}} color='primary'>
+                            <InputLabel >Type</InputLabel>
+                            <Select
+                            labelId="Type"
+                            name='type'
+                            value={fields.type}
+                            onChange={FiledChange}
+                            >
+                            <MenuItem value={'Pellet'}>Pellet</MenuItem>
+                            <MenuItem value={'CRUMSS'}>CRUMSS</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs>
+                        <InputField  label='Name' size='small' 
+                        name='name' type="string" fullWidth
                         required={true} 
                         value={fields.name}
                         onChange={FiledChange}
@@ -265,34 +300,45 @@ const AddProduct = () => {
                         />
                     </Grid>
                     <Grid item xs>
-                        <InputField  size='small' label="Default Price"
-                        type="number"
-                        name='default_price'
-                        required={true}
-                        value={fields.default_price}
+                        <InputField  label='Pakage Weight'  
+                        size='small' fullWidth
+                        name='pakage_weight' type="string" 
+                        required={true} 
+                        value={fields.pakage_weight}
                         onChange={FiledChange}
-                        />  
+                        autoFocus
+                        />
                     </Grid>
-        
-                    <Grid item xs>
-                     <Selecter
-                     title={fields.category}
-                     handleChange={FiledChange}
-                     value={fields.category}
-                     onOpen={selecterOpen}
-                     choises={choices}
-                     name='category'
-                     />
+                    <Grid item container spacing={3}>
+                        <Grid item xs>
+                            <InputField  size='small' label="Sales Price"
+                            type="number"
+                            name='sales_price'
+                            required={true}
+                            value={fields.sales_price}
+                            onChange={FiledChange}
+                            />  
+                        </Grid>
+                        <Grid item xs>
+                            <InputField  size='small' label="Cost Price"
+                            type="number"
+                            name='cost_price'
+                            required={true}
+                            value={fields.cost_price}
+                            onChange={FiledChange}
+                            />  
+                        </Grid>
                     </Grid>
+                   
 
                     <Grid item container  >
                         <SpineerButton
-                        handleButtonClick={handleButtonClick} 
-                        label={(isUpdate?'Update':'Save')}
-                        loading={loading}
-                        success={success}
-                        size="large"
-                        startIcon={(isUpdate? <EditIcon/>:<AddBoxOutlinedIcon />)}
+                            handleButtonClick={handleButtonClick} 
+                            label={(isUpdate?'Update':'Save')}
+                            loading={loading}
+                            success={success}
+                            size="large"
+                            startIcon={(isUpdate? <EditIcon/>:<AddBoxOutlinedIcon />)}
                         />
                     </Grid>
                 </Grid>
@@ -301,7 +347,7 @@ const AddProduct = () => {
            <Grid item xs={12} md={9} lg={9} className={classes.table}>
                 <GetTable 
                     rows={rows} 
-                    columns={['ID','Name','Default Price','Category']}
+                    columns={['ID','Name','Type','Pakage','Sales Price','Cost Price','Category']}
                     onDelete={onDelete}
                     onUpdate={onUpdate}
                 />

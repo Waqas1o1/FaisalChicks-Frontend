@@ -35,11 +35,11 @@ const useStyles = makeStyles((theme) => ({
 
 const Recovery = () => {
     const initialFields = {
-        party: null,
-        party_order:null,
-        sale_officer:null,
+        party: '',
+        party_order:'',
+        sale_officer:'',
         payment_method:'Cash',
-        bank: null,
+        bank: '',
         amount: 0,
         description: ''
     };
@@ -76,11 +76,12 @@ const Recovery = () => {
         setBankTitle('Select Banks');
         setSelectedOption('Cash');
         setBankDisabled(true);
+        fetchRecovery();
     }
 
     async function fetchParties(){
         if (navigator.onLine){
-            return await axiosInstance.get('Party/')
+            return await axiosInstance.get('apis/Party/')
             .then(res=>{
                 let data  = res.data;
                 if (data['error'] === true){
@@ -110,7 +111,7 @@ const Recovery = () => {
   
     async function fetchBank(){
         if (navigator.onLine){
-            return await axiosInstance.get('Bank/')
+            return await axiosInstance.get('apis/Bank/')
             .then(res=>{
                 let data  = res.data;
                 if (data['error'] === true){
@@ -137,9 +138,8 @@ const Recovery = () => {
     }
 
     async function fetchRecovery(){
-        console.log('Hree')
         if (navigator.onLine){
-            return await axiosInstance.get('Recovery/')
+            return await axiosInstance.get('apis/Recovery/')
             .then(res=>{
                 let data  = res.data;
                 if (data['error'] === true){
@@ -168,7 +168,7 @@ const Recovery = () => {
     }
     async function fetchPartyOrders(){
         if (navigator.onLine){
-            return await axiosInstance.get('PartyOrder/')
+            return await axiosInstance.get('apis/PartyOrder/')
             .then(res=>{
                 let data  = res.data;
                 if (data['error'] === true){
@@ -197,7 +197,7 @@ const Recovery = () => {
     }
     async function fetchSalesOfficers(){
         if (navigator.onLine){
-            return await axiosInstance.get('SalesOfficer/')
+            return await axiosInstance.get('apis/SalesOfficer/')
             .then(res=>{
                 let data  = res.data;
                 if (data['error'] === true){
@@ -223,10 +223,9 @@ const Recovery = () => {
         }
     }
 
-
     async function saveRecovery(){
         if (!isUpdate){
-            return await axiosInstance.post('Recovery/',{...fields})
+            return await axiosInstance.post('apis/Recovery/',{...fields})
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
@@ -249,7 +248,7 @@ const Recovery = () => {
                 })
             }
         else{
-            return await axiosInstance.put(`Recovery/${selectedObjId}/`,{...fields})
+            return await axiosInstance.put(`apis/Recovery/${selectedObjId}/`,{...fields})
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
@@ -277,7 +276,7 @@ const Recovery = () => {
 
 
     async function ConfirmDelete(e){
-        return await axiosInstance.delete(`Recovery/${selectedObjId}/`)
+        return await axiosInstance.delete(`apis/Recovery/${selectedObjId}/`)
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
@@ -299,7 +298,7 @@ const Recovery = () => {
     }
 
     async function GetRecoveryForUpdate(id = selectedObjId){
-        return await axiosInstance.get(`Recovery/${id}/`)
+        return await axiosInstance.get(`apis/Recovery/${id}/`)
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
@@ -309,8 +308,7 @@ const Recovery = () => {
             else{
                 var bank = '';
                 if (data.data.payment_method === 'Bank'){
-                    bank = data.data.bank.name;
-                    console.log(data.data);
+                    bank = data.data.bank.id;
                     setBankTitle(data.data.bank.name);
                     setBankDisabled(false);
                 }
@@ -318,9 +316,13 @@ const Recovery = () => {
                     setBankTitle('Select Bank');
                     setBankDisabled(true);
                 }
+                var party_order = '';
+                if (data.data.party_order){
+                    party_order = data.data.party_order.id;
+                }
                 let setData = {
                     party: data.data.party.id,
-                    party_order: data.data.party_order.id,
+                    party_order: party_order,
                     sale_officer: data.data.sale_officer.id,
                     payment_method: data.data.payment_method,
                     bank: bank,
@@ -409,7 +411,7 @@ const Recovery = () => {
     const onActive = async (event)=>{
         let id  = event.currentTarget.getAttribute('id');
         setSelectedObjId(id);
-        await axiosInstance.get(`AproveRecovery/${id}`)
+        await axiosInstance.get(`apis/AproveRecovery/${id}`)
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
@@ -422,6 +424,7 @@ const Recovery = () => {
         .catch(error=>{
             alert(`Somethin wrong: ${error}`);
         })
+        fetchRecovery();
 
     }
 
@@ -552,30 +555,31 @@ const Recovery = () => {
             
             <Grid item xs={12} md={3} lg={3}>
                 <Grid container item direction='column' spacing={3}>
-                    <Grid item xs>
-                        <Selecter
-                            title={partyTitle}
-                            handleChange={FiledChange}
-                            value={fields.party}
-                            onOpen={selecterOpen}
-                            choises={parties}
-                            name='party'
-                            />
-                    </Grid>
-                    {/* Sales Ofiicer Select */}
-                    <Grid item xs>
-                        <Selecter
-                            title={salesOfficerTitle}
-                            handleChange={FiledChange}
-                            value={fields.sale_officer}
-                            onOpen={selecterOpen}
-                            choises={salesOfficer}
-                            name='sale_officer'
-                            />
-                    </Grid>
-                    
-                    {/* PartyOrder */}
-                    <Grid item xs>
+                    <Grid container  spacing={3}>
+                        <Grid item xs>
+                            <Selecter
+                                title={partyTitle}
+                                handleChange={FiledChange}
+                                value={fields.party}
+                                onOpen={selecterOpen}
+                                choises={parties}
+                                name='party'
+                                />
+                        </Grid>
+                        {/* Sales Ofiicer Select */}
+                        <Grid item xs>
+                            <Selecter
+                                title={salesOfficerTitle}
+                                handleChange={FiledChange}
+                                value={fields.sale_officer}
+                                onOpen={selecterOpen}
+                                choises={salesOfficer}
+                                name='sale_officer'
+                                />
+                        </Grid>
+                        
+                        {/* PartyOrder */}
+                        <Grid item xs>
                         <Selecter
                             title={partyOrderTitle}
                             handleChange={FiledChange}
@@ -586,6 +590,8 @@ const Recovery = () => {
                             />
                     </Grid>
                     
+                    </Grid>
+
                     {/* Description */}
                     <Grid item xs>
                         <InputField  size='small'

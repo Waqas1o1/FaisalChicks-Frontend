@@ -14,6 +14,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import EditIcon from '@material-ui/icons/Edit';
+import axios from 'axios';
 
 const useStyles = makeStyles((theme) => ({
     formRoot: {
@@ -24,42 +25,57 @@ const useStyles = makeStyles((theme) => ({
        },
     },
     table:{
+        width:'100vh',
         '@media only screen and (max-width: 600px)': {
             marginLeft:'-30px',
         },
-    }
+    },
+    upperCase:{
+        textTransform : 'uppercase'
+    },
 }))
 
 const AddParty = () => {
     const initialFields = {
         name:'',
+        email:'',
+        creditLimit:'',
+        salesTarget:'',
+        area:'',
         contact:'',
         opening_Balance:'',
         discount:'0',
-
+        sales_Officer:'',
+        TOR:'',
+        SCI:'',
+        category:'',
     };
     const classes = useStyles();
     const [rows,setRows] = useState([]);
     const [fields,setFields] = useState(initialFields);
     const [isUpdate,setIsUpdate] = useState(false);
-    const [choices,setChoices] = useState([]);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
-    const [discountTitle, setdiscountTitle] = useState('Select Discount');
+    const [discountTitle, setDiscountTitle] = useState('Discount');
+    const [discount, setDiscount] = useState([]);
+    const [categoryTitle, setCategoryTitle] = useState('Catagory');
+    const [category, setCategory] = useState([]);
+    const [salesOfficer, setSalesOfficers] = useState([]);
+    const [salesOfficerTitle, setSalesOfficersTitle] = useState('S-Officer');
     const [selectedObjId, setSelectedObjId] = useState(0);
 
 
     async function fetchDiscounts(){
         if (navigator.onLine){
-            return await axiosInstance.get('DiscountCategory/')
+            return await axiosInstance.get('apis/DiscountCategory/')
             .then(res=>{
                 let data  = res.data;
                 if (data['error'] === true){
                 alert(`Error Occures ${data['message']}`);
             }
             else{
-                setChoices(data['data']);
+                setDiscount(data['data']);
                 localStorage.removeItem('Discounts');
                 localStorage.setItem('Discounts',JSON.stringify(data['data']));
             }
@@ -69,13 +85,65 @@ const AddParty = () => {
             })
         }
         else{
-            setChoices(JSON.parse(localStorage.getItem('Discounts')));
+            setDiscount(JSON.parse(localStorage.getItem('Discounts')));
         }
     }
+    
+    async function fetchSalesOfficers(){
+        if (navigator.onLine){
+            return await axiosInstance.get('apis/SalesOfficer/')
+            .then(res=>{
+                let data  = res.data;
+                if (data['error'] === true){
+                    alert(`Error Occures ${data['message']}`);
+                }
+                else{
+                    var d = data['data'];
+                    for (let p in d){
+                        delete d[p].date
+                        delete d[p].current_Balance
+                    }
+                    setSalesOfficers(d);
+                    localStorage.removeItem('SalesOfficer');
+                    localStorage.setItem('SalesOfficer',JSON.stringify(d));
+                }
+            })
+            .catch(error=>{
+                alert(`Somethin wrong: ${error}`);
+            })
+        }
+        else{
+            setSalesOfficers(JSON.parse(localStorage.getItem('SalesOfficer')));
+        }
+    }
+    
+    async function fetchCategory(){
+        if (navigator.onLine){
+            return await axiosInstance.get('apis/Category/')
+            .then(res=>{
+                let data  = res.data;
+                if (data['error'] === true){
+                alert(`Error Occures ${data['message']}`);
+            }
+            else{
+                setCategory(data['data']);
+                localStorage.removeItem('Category');
+                localStorage.setItem('Category',JSON.stringify(data['data']));
+            }
+            })
+            .catch(error=>{
+                alert(`Somethin wrong: ${error}`);
+            })
+        }
+        else{
+            setCategory(JSON.parse(localStorage.getItem('Category')));
+        }
+    }
+    
 
     async function fetchParties(){
         if (navigator.onLine){
-            return await axiosInstance.get('Party/')
+            return await axiosInstance.get('apis/Party/')
             .then(res=>{
                 let data  = res.data;
                 if (data['error'] === true){
@@ -87,6 +155,8 @@ const AddParty = () => {
                         parties[p].discount = parties[p].discount.discount;
                         delete parties[p].date
                         delete parties[p].current_Balance
+                        parties[p].category = parties[p].category.name 
+                        parties[p].sales_Officer = parties[p].sales_Officer.name 
                     }
                     setRows(parties);
                     localStorage.removeItem('Parties');
@@ -101,77 +171,96 @@ const AddParty = () => {
             setRows(JSON.parse(localStorage.getItem('Parties')));
         }
     }
+    function Reset(){
+        setCategoryTitle('Select Catagory');
+        setDiscountTitle('Select Discount');
+        setSalesOfficersTitle('Select SalesOfficer');
+        setFields(initialFields);
+        setLoading(false);
+        setSuccess(false);
+        fetchParties();
+        setIsUpdate(false);
+
+    }
 
     async function saveParty(){
         if (!isUpdate){
-            return await axiosInstance.post('Party/',{...fields})
+            let form_data = new FormData();
+            for (let i in fields){
+                form_data.append(i, fields[i]);
+            }
+            
+            return await axios.post('http://127.0.0.1:8000/apis/Party/',form_data,
+            { headers: {
+                'content-type': 'multipart/form-data',
+                'Authorization': `Token ${localStorage.getItem('token')}`
+              }})
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
                         alert(`Error Occures ${data['message']}`);
-                        setSuccess(false);
-                        setLoading(false);
+                        Reset();
                     }
                     else{
-                        setLoading(false);
-                        fetchParties();
-                        setFields(initialFields);
+                        Reset();
                     }
                 })
                 .catch(error=>{
                     alert(`Somethin wrong: ${error}`);
-                    setSuccess(false);
-                    setLoading(false);
+                    Reset();
                 })
             }
         else{
-            console.log(fields);
-            return await axiosInstance.put(`Party/${selectedObjId}/`,{...fields})
+            let form_data = new FormData();
+            for (let i in fields){
+                if (i === 'sales_Officer' || i === 'SCI' || i === 'TOR'){
+                    console.log('not Set ',i);
+                }
+                else{
+                    form_data.append(i, fields[i]);
+                }
+            }
+            return await axiosInstance.put(`apis/Party/${selectedObjId}/`,form_data)
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
                         alert(`Error Occures ${data['message']}`);
-                        setSuccess(false);
-                        setLoading(false);
+                        Reset();
                     }
                     else{
-                        fetchParties();
-                        setFields(initialFields);
-                        setLoading(false);
-                        setIsUpdate(false);
+                        Reset();
                     }
                 })
                 .catch(error=>{
                     alert(`Somethin wrong: ${error}`);
-                    setSuccess(false);
-                    setLoading(false);
+                    Reset();
                 })
             }
     }
 
     async function ConfirmDelete(e){
-        return await axiosInstance.delete(`Party/${selectedObjId}/`)
+        return await axiosInstance.delete(`apis/Party/${selectedObjId}/`)
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
                 alert(`Error Occures ${data['message']}`);
             }
             else{
-                fetchParties();
-                setFields(initialFields);
+                Reset();
                 setOpenDialog(false);
             }
         })
         .catch(error=>{
             alert(`Somethin wrong: ${error}`);
             setOpenDialog(false);
+            Reset();
         })
         
     
     }
 
     async function GetPartyForUpdate(id = selectedObjId){
-        return await axiosInstance.get(`Party/${id}/`)
+        return await axiosInstance.get(`apis/Party/${id}/`)
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
@@ -179,12 +268,21 @@ const AddParty = () => {
             }
             else{
                 let setData = {
+                    creditLimit:data.data.creditLimit,
+                    salesTarget:data.data.salesTarget,
+                    sales_Officer:data.data.sales_Officer,
+                    category:data.data.category.id,
                     name:data.data.name,
+                    email:data.data.email,
+                    area:data.data.area,
                     contact:data.data.contact,
                     opening_Balance:data.data.opening_Balance,
                     discount:data.data.discount.id,
                 }
                 setFields(setData);
+                setCategoryTitle(data.data.category.name);
+                setSalesOfficersTitle(data.data.sales_Officer.name);
+                setDiscountTitle(data.data.discount.name);
                 setIsUpdate(true);
             }
         })
@@ -192,7 +290,6 @@ const AddParty = () => {
             alert(`Somethin wrong: ${error}`);
             setSuccess(false);
             setLoading(false);
-
         })
     }
 
@@ -211,7 +308,25 @@ const AddParty = () => {
 
     const FiledChange = (event) => {
         if (event.target.name === 'discount'){
-            setdiscountTitle(event.target.value);
+            const index = event.target.selectedIndex;
+            const optionElement = event.target.childNodes[index];
+            const optionElementId = optionElement.getAttribute('id');
+            const obj = JSON.parse(optionElementId);
+            setDiscountTitle(`${obj.name} : ${obj.discount}`);
+        }
+        if (event.target.name === 'sales_officer'){
+            const index = event.target.selectedIndex;
+            const optionElement = event.target.childNodes[index];
+            const optionElementId = optionElement.getAttribute('id');
+            const obj = JSON.parse(optionElementId);
+            setSalesOfficersTitle(obj.name);
+        }
+        if (event.target.name === 'category'){
+            const index = event.target.selectedIndex;
+            const optionElement = event.target.childNodes[index];
+            const optionElementId = optionElement.getAttribute('id');
+            const obj = JSON.parse(optionElementId);
+            setCategoryTitle(obj.name);
         }
         setFields({
             ...fields,
@@ -229,7 +344,6 @@ const AddParty = () => {
         let id  = event.currentTarget.getAttribute('id');
         console.log(id);
         setSelectedObjId(id);
-        console.log(selectedObjId);
         setIsUpdate(true);
         GetPartyForUpdate(id);
     }
@@ -237,11 +351,20 @@ const AddParty = () => {
     const handleClose = () => {
         setOpenDialog(false);
     };
+    const handleInputChange =(event) => {
+        setFields({
+            ...fields,
+          [event.target.name]: event.target.files[0]
+        });
+
+      };
     
         
     useEffect(() => {
             fetchParties();
             fetchDiscounts();
+            fetchSalesOfficers();
+            fetchCategory();
         }, []);
     
     return (
@@ -259,15 +382,93 @@ const AddParty = () => {
             
             <Grid item xs={12} md={3} lg={3}>
                 <Grid container item direction='column' spacing={3}>
-                    <Grid item xs>
-                        <InputField  label='Name' tyep='string' size='small' 
-                        name='name' type="string" 
-                        required={true} 
-                        value={fields.name}
-                        onChange={FiledChange}
-                        autoFocus
-                        />
+                    <Grid item container spacing={1}>
+                        <Grid item xs >
+                            <Selecter
+                                title={discountTitle}
+                                handleChange={FiledChange}
+                                value={fields.discount}
+                                onOpen={selecterOpen}
+                                choises={discount}
+                                name='discount'
+                            />
+                        </Grid>
+                        
+                        <Grid item xs >
+                            <Selecter
+                            title={salesOfficerTitle}
+                            handleChange={FiledChange}
+                            value={fields.sales_officer}
+                            onOpen={selecterOpen}
+                            choises={salesOfficer}
+                            name='sales_Officer'
+                            />
+                        </Grid>
+                        
+                        <Grid item xs >
+                            <Selecter
+                            title={categoryTitle}
+                            handleChange={FiledChange}
+                            value={fields.catagory}
+                            onOpen={selecterOpen}
+                            choises={category}
+                            name='category'
+                            />
+                        </Grid>
+                        
                     </Grid>
+                    <Grid item container spacing={3}>
+                        <Grid item xs={6}>
+                            <InputField  label='Credit Limit' 
+                                type='number' size='small' 
+                                name='creditLimit'
+                                required={true} 
+                                value={fields.creditLimit}
+                                onChange={FiledChange}
+                                />
+                        </Grid>
+                            <Grid item xs={6}>
+                                <InputField  label='Sales Target' 
+                                    type='number' size='small' 
+                                    name='salesTarget'
+                                    required={true} 
+                                    value={fields.salesTarget}
+                                    onChange={FiledChange}
+                                    />
+                            </Grid>
+                    </Grid>
+                    <Grid item container spacing={3}>
+                        <Grid item xs={6}>
+                            <InputField  label='Name' 
+                                type='string' size='small' 
+                                name='name'
+                                required={true} 
+                                value={fields.name}
+                                onChange={FiledChange}
+                                inputProps={{ style: {textTransform: "uppercase" }}}
+                            
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <InputField  label='Email' type='email' size='small' 
+                                name='email'
+                                required={true} 
+                                value={fields.email}
+                                onChange={FiledChange}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid item xs>
+                        <InputField  label='Area' 
+                            type='string' size='small' 
+                            name='area'
+                            required={true} 
+                            value={fields.area}
+                            onChange={FiledChange}
+                            fullWidth
+                        
+                        />
+                    </Grid>             
                     <Grid item xs>
                         <InputField  size='small' label="Contact"
                         type="number"
@@ -286,18 +487,16 @@ const AddParty = () => {
                         disabled={(isUpdate? true:false)}
                         />
                     </Grid>
-
-                    <Grid item xs>
-                        <Selecter
-                        title={discountTitle}
-                        handleChange={FiledChange}
-                        value={fields.discount}
-                        onOpen={selecterOpen}
-                        choises={choices}
-                        name='discount'
-                        />
-                    </Grid>
-
+                    <Grid item container spacing={3}>
+                        <Grid item xs={6}>
+                            <Typography variant='body2'>Security Check Image</Typography>
+                            <input type="file" disabled={(isUpdate?true:false)} name='SCI' onChange={handleInputChange}/>
+                        </Grid>
+                        <Grid item xs={6}>
+                        <Typography variant='body2'>Term OF Services Image</Typography>
+                            <input type="file"  disabled={(isUpdate?true:false)} name='TOR' onChange={handleInputChange}/>
+                        </Grid>
+                    </Grid>         
                     <Grid item container  >
                         <SpineerButton
                         handleButtonClick={handleButtonClick} 
@@ -314,7 +513,7 @@ const AddParty = () => {
             <Grid item xs={12} md={9} lg={9} className={classes.table}>
                 <GetTable 
                     rows={rows} 
-                    columns={['ID','Name','Contact','Discounted Amount','Opening Balance']}
+                    columns={['ID','Name','Email','Area','Contact','Credit Limit','Sales Target','Discounted Amount','SCI','TOR','Opening Balance','SalesOfficer','Category']}
                     onDelete={onDelete}
                     onUpdate={onUpdate}
                 />
@@ -327,7 +526,7 @@ const AddParty = () => {
                     aria-labelledby="alert-dialog-title"
                     aria-describedby="alert-dialog-description"
                 >
-                <DialogTitle id="alert-dialog-title">{"Use Google's location service?"}</DialogTitle>
+                <DialogTitle id="alert-dialog-title">{"Are you Sure?"}</DialogTitle>
                 <DialogContent>
                 <DialogContentText id="alert-dialog-description">
                     Are you sure want to Delete {selectedObjId}
