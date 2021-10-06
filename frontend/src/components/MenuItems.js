@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function MenuItems(props) {
-    const {title,options,handleChange,selectedOption,other} = props; 
+    const {title,options,handleChange,selectedOption} = props; 
     const classes = useStyles();
  
   const [open, setOpen] = React.useState(false);

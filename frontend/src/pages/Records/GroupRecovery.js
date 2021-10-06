@@ -1,38 +1,17 @@
-import { Button, Chip, FormControl, Grid, IconButton, Input, InputLabel, MenuItem, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@material-ui/core';
-import { makeStyles, useTheme } from '@material-ui/styles';
+import { Button,Checkbox,FormControlLabel,Grid,Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/styles';
 import React, { useEffect, useState } from 'react';
 import CachedIcon from '@material-ui/icons/Cached';
 import Selecter from '../../components/Selecter';
 import axiosInstance from '../../apisConfig';
 import InputField from '../../components/InputField';
-import DeleteIcon from '@material-ui/icons/Delete';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import MenuItems from '../../components/MenuItems';
-import GroupWorkIcon from '@material-ui/icons/GroupWork';
-function getStyles(name, personName, theme) {
-    return {
-      fontWeight:
-        personName.indexOf(name) === -1
-          ? theme.typography.fontWeightRegular
-          : theme.typography.fontWeightMedium,
-    };
-  }
-const names = [
-    'Oliver Hansen',
-    'Van Henry',
-    'April Tucker',
-    'Ralph Hubbard',
-    'Omar Alexander',
-    'Carlos Abbott',
-    'Miriam Wagner',
-    'Bradley Wilkerson',
-    'Virginia Andrews',
-    'Kelly Snyder',
-  ];
+
 const useStyles = makeStyles((theme) => ({
     formRoot: {
       flexGrow: 1,
@@ -53,26 +32,18 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-
+var selectedvalue= [];
 const Recovery = () => {
-    const theme = useTheme();
     const initialFields = {
         party_orders:[],
         sale_officer:'',
         payment_method:'Cash',
         bank: '',
+        party:'',
         description: ''
     };
-    const ITEM_HEIGHT = 48;
-    const ITEM_PADDING_TOP = 8;
-    const MenuProps = {
-        PaperProps: {
-          style: {
-            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-            width: 250,
-          },
-        },
-      };
+
+    
     const classes = useStyles();
     const [amount,setAmount] = useState(0);
     const [fields,setFields] = useState(initialFields);
@@ -83,19 +54,88 @@ const Recovery = () => {
     // Sales Officer
     const [salesOfficer,setSalesOfficer] = useState([]);
     const [salesOfficerTitle,setSalesOfficerTitle] = useState('Sales Officer');
+    // Sales Officer
+    const [parties,setParties] = useState([]);
+    const [partyTitle,setPartyTitle] = useState('Party');
+    
+    const [disabledAmount,setDisabledAmount] = useState(false);
 
     const [openDialog, setOpenDialog] = useState(false);
     const [bankDisabled,setBankDisabled] = useState(true);
     const [selectedOption,setSelectedOption] = useState(fields.payment_method);
-    const [choices, setChoises] = React.useState([]);
+    const [totalRecoveryAmount,setTotalRecoveryAmount] = useState(0);
+        
 
-    
-    const handleChange = (event) => {
-        setChoises(event.target.value);
+    const handleSelect = (event) => {
+        if(event.target.checked){
+            selectedvalue.push(event.target.value);
+        
+        }else{
+            selectedvalue = selectedvalue.filter(value=>value !== event.target.value)
+        }
+        let p = [...partyOrders];
+            for (let partyorder in p){
+                if (p[partyorder].id === parseInt(event.target.value)){
+                    p[partyorder].disabled = event.target.checked;
+                }
+            }
+        setPartyOrders(p);
     };
 
-  
-  
+    const CountRemaining = () =>{
+        var total = 0;
+        for (let p in partyOrders){
+            total = total + parseInt(partyOrders[p].recoveryAmount)
+        }
+        setTotalRecoveryAmount(total);
+        if (total > amount){
+            alert('You Are Excceding From Entered amount');
+        }
+    }
+
+    const handleRecoveryAmountChange = (e) =>{
+        setDisabledAmount(true);
+        let p = partyOrders;
+        for (let i in p){
+            if (p[i].id === parseInt(e.target.name)){
+                p[i].recoveryAmount = e.target.value
+            }
+        }
+        setPartyOrders(p);
+        CountRemaining();
+    }
+    
+   
+
+    async function fetchParties(){
+        if (navigator.onLine){
+            return await axiosInstance.get('apis/Party/')
+            .then(res=>{
+                let data  = res.data;
+                if (data['error'] === true){
+                    alert(`Error Occures ${data['message']}`);
+                }
+                else{
+                    let parties = data['data'];
+                    for (let p in parties){
+                        parties[p].discount = parties[p].discount.discount;
+                        delete parties[p].date
+                        delete parties[p].current_Balance
+                    }
+                    setParties(parties);
+                    localStorage.removeItem('Parties');
+                    localStorage.setItem('Parties',JSON.stringify(parties));
+                }
+            })
+            .catch(error=>{
+                // alert(`Somethin wrong: ${error}`);
+            })
+        }
+        else{
+            setParties(JSON.parse(localStorage.getItem('Parties')));
+        }
+    }
+
     async function fetchBank(){
         if (navigator.onLine){
             return await axiosInstance.get('apis/Bank/')
@@ -192,6 +232,13 @@ const Recovery = () => {
             setBankTitle(obj.name);
 
         }
+        if (event.target.name === 'party'){
+            const index = event.target.selectedIndex;
+            const optionElement = event.target.childNodes[index];
+            const optionElementId = optionElement.getAttribute('id');
+            const obj = JSON.parse(optionElementId);
+            setPartyTitle(obj.name);
+        }
         if (event.target.name === 'sale_officer'){
             const index = event.target.selectedIndex;
             const optionElement = event.target.childNodes[index];
@@ -204,41 +251,49 @@ const Recovery = () => {
             ...fields,
             [event.target.name] : event.target.value,
         });
+        if (event.target.name === 'party'){
+            setAmount(0);
+            fetchReleventOrders(0,event.target.value);
+        }
     };
 
-    async function fetchReleventOrders(a){
-        return await axiosInstance.get(`apis/GetPartyOrderByAmount/${a}`)
+    async function fetchReleventOrders(a=0,party=fields.party){
+        return await axiosInstance.get(`apis/GetPartyOrderByAmount/${party}/${a}/`)
         .then(res=>{
-            let data  = res.data.data;
+            let data  = res.data;
             if (data['error'] === true){
                 alert(`Error Occures ${data['message']}`);
             }
             else{
-                for (let d in data){
-                    data[d].recovery_amount = 0 
+                let d = data.data;
+                for (let i in d){
+                    d[i].recoveryAmount = 0;
                 }
-                setPartyOrders(data);
-                setChoises([{'id':1}]);
+                setPartyOrders(d);
+                CountRemaining();
             }
         })
         .catch(error=>{
             alert(`Somethin wrong: ${error}`);
             setOpenDialog(false);
         })
+
     }
 
     const handleAmountChange = (e)=>{
         var a;
-        if (e.target.value === undefined || e.target.value === null){
-            a = 0
+        if (!e.target.value){
+            a = 0;;
         }
         else{
-            a = e.target.value
+            a = e.target.value;
         }
         setAmount(e.target.value);
         fetchReleventOrders(a);
     }
-
+    const hanldeAmountChange = (e)=>{
+        console.log(e.target.name)
+    }
     const handleClose = () => {
         setOpenDialog(false);
     };
@@ -255,10 +310,56 @@ const Recovery = () => {
             setBankDisabled(true);
         }
       };
+    const handleSubmit = async (event) =>{
+        if (selectedvalue.length === 0){
+            alert('Please select one of the "Order"')
+            return 
+        }
+        let payment_method = fields.payment_method;
+        let bank = fields.bank;
+        let sale_officer = fields.sale_officer;
+        
+        for (let i in selectedvalue){
+            let party = '';
+            let send_amount = 0;
+            for (let p in partyOrders){
+                console.log(partyOrders[p].id,parseInt(selectedvalue[i]));
+                if (partyOrders[p].id === parseInt(selectedvalue[i])){
+                    party = partyOrders[p].party.id
+                    send_amount = partyOrders[p].recoveryAmount
+                }
+            }
+            let send_dict = {
+                'party': party,
+                'party_order':selectedvalue[i],
+                'sale_officer':sale_officer,
+                'payment_method':payment_method,
+                'bank':bank,
+                'amount':send_amount,
+                'description':'Group Recovery',
+
+
+            }
+
+            await axiosInstance.post('apis/Recovery/',{...send_dict})
+            .then(res=>{
+                let data = res.data;
+                if (data['error'] === true){
+                    alert('SomeThing Wrong');
+                }
+                else{
+                    alert('Suucess');
+                }
+            })
+            
+
+        }
+    }
         
     useEffect(() => {
             fetchBank();
             fetchSalesOfficers();
+            fetchParties();
         }, []);
 
   
@@ -268,66 +369,44 @@ const Recovery = () => {
             <Grid item xs={11} >     
                 <Typography variant="h4" gutterBottom  color='primary'>Recovery</Typography>
             </Grid>
-            {/* Left */}
-            <Grid item xs={1}>
-                <Button>
-                    <CachedIcon ></CachedIcon>
-                </Button>     
-            </Grid>
+           
             
             <Grid item xs={12} md={3} lg={3}>
                 <Grid container item direction='column' spacing={3}>
-                    
-                            
                     {/* Sales Ofiicer Select */}
-                    <Grid item xs>
-                        <Selecter
-                            title={salesOfficerTitle}
-                            handleChange={FiledChange}
-                            value={fields.sale_officer}
-                            onOpen={selecterOpen}
-                            choises={salesOfficer}
-                            name='sale_officer'
-                            />
+                    <Grid container item xs>
+                        <Grid item xs>
+                            <Selecter
+                                title={salesOfficerTitle}
+                                handleChange={FiledChange}
+                                value={fields.sale_officer}
+                                onOpen={selecterOpen}
+                                choises={salesOfficer}
+                                name='sale_officer'
+                                />
+                        </Grid>
+                        <Grid item xs>
+                            <Selecter
+                                title={partyTitle}
+                                handleChange={FiledChange}
+                                value={fields.party}
+                                onOpen={selecterOpen}
+                                choises={parties}
+                                name='party'
+                                />
+                        </Grid>
                     </Grid>
                     <Grid item xs>
                         <InputField  size='small'
                             label="Recovery Amount" 
                             type="string" 
                             fullWidth
+                            disabled={disabledAmount}
                             onChange={handleAmountChange} 
                             name='RecoveryAmount'
                             value={amount}
+                            autoComplete='off'
                             />
-                    </Grid>
-                     <Grid item xs>
-                        <FormControl className={classes.formControl}   fullWidth>
-                            <InputLabel id="demo-mutiple-chip-label">Select Party Orders</InputLabel>
-                            <Select
-                            labelId="demo-mutiple-chip-label"
-                            id="demo-mutiple-chip"
-                            multiple
-                          
-                            value={choices}
-                            onChange={handleChange}
-                            input={<Input id="select-multiple-chip" />}
-                            renderValue={(selected) => (
-                                <div className={classes.chips}>
-                                {selected.map((value) => (
-                                    <Chip key={value} label={value} className={classes.chip} />
-                                ))}
-                                </div>
-                            )}
-                            MenuProps={MenuProps}
-                            >
-                            {choices.map((choise) => (
-                                <MenuItem key={0} value={'dd'} style={getStyles(choise.id, choise.id, theme)}>
-                                {/* {choise.party.name} */}
-                                h1
-                                </MenuItem>
-                            ))}
-                            </Select>
-                        </FormControl>
                     </Grid>
                      
                     {/* Payment Method */}
@@ -352,6 +431,13 @@ const Recovery = () => {
                         disabled={bankDisabled}
                      />
                     </Grid>
+                   
+                    <Grid item xs>
+                     <Button color='primary'variant="contained" fullWidth onClick={handleSubmit}>
+                        Submit
+                     </Button>
+                    </Grid>
+                   
                 </Grid>
            </Grid>
             {/* Right */}
@@ -361,86 +447,87 @@ const Recovery = () => {
                     <Table className={classes.table} aria-label="simple table">
                         <TableHead>
                         <TableRow>
-                            <TableCell>Date</TableCell>
+                            <TableCell>Check</TableCell>
+                            <TableCell >Date</TableCell>
                             <TableCell >ID</TableCell>
                             <TableCell >Party</TableCell>
                             <TableCell >Cotact</TableCell>
                             <TableCell >Total Amount</TableCell>
                             <TableCell >Pandding Amount</TableCell>
-                            <TableCell  style={{color:'red'}}>Recovery Added</TableCell>
-                            <TableCell align='center'>Action</TableCell>
+                            <TableCell  style={{color:'red'}} align='center'>Recovery Added</TableCell>
                         </TableRow>
                         </TableHead>
                         <TableBody>
                             {partyOrders.map((row)=>{
                             return(
                                 <TableRow key={row.id}>
-                                <TableCell component="th" scope="row">
-                                    {row.date}
-                                </TableCell>
-                                <TableCell component="th">
-                                    {row.id}
-                                </TableCell>
-                                <TableCell component="th">
-                                    {row.party.name}
-                                </TableCell>
-                                <TableCell component="th">
-                                    {row.party.contact}
-                                </TableCell>
-                                <TableCell component="th">
-                                    {row.total_amount}
-                                </TableCell>
-                                <TableCell component="th">
-                                    {row.pandding_amount}
-                                </TableCell>
-                                <TableCell component="th">
-                                    {row.recovery_amount}
-                                </TableCell>
-                                <TableCell component="th">
-                                    <Grid  container
-                                            alignItems="center"
-                                            justifyContent="flex-end"
-                                            spacing={1}
-                                            >
-                                        <Grid item xs>
-                                        <Button aria-label="delete" color="secondary" size='small' >
-                                            <DeleteIcon />
-                                        </Button>
-                                        </Grid>
-                                        <Grid item xs>
-                                        <IconButton aria-label="edit" size='small' color='primary' onClick={()=>setOpenDialog(!!!openDialog)}>
-                                            <GroupWorkIcon/>
-                                        </IconButton>
-                                        </Grid>
-                                    </Grid>
-                                </TableCell>
+                                    <TableCell component="th" scope="row">
+                                        <FormControlLabel control={<Checkbox name={`${row.id}`} onChange={handleSelect} value={row.id} />}/>
+                                    </TableCell>
+                                    <TableCell component="th" scope="row">
+                                        {row.date}
+                                    </TableCell>
+                                    <TableCell component="th">
+                                        {row.id}
+                                    </TableCell>
+                                    <TableCell component="th">
+                                        {row.party.name}
+                                    </TableCell>
+                                    <TableCell component="th">
+                                        {row.party.contact}
+                                    </TableCell>
+                                    <TableCell component="th">
+                                        {row.total_amount}
+                                    </TableCell>
+                                    <TableCell component="th">
+                                        {row.pandding_amount}
+                                    </TableCell>
+                                   
+                                    <TableCell component="th">
+                                        <InputField  size='small'
+                                                    type="string" 
+                                                    fullWidth
+                                                    onChange={handleRecoveryAmountChange} 
+                                                    name={row.id}
+                                                    color='secondary'
+                                                    value={partyOrders.recoveryAmount}
+                                                    autoComplete='off'
+                                                    />
+                                    </TableCell>
                                 </TableRow>
                             )
                             })}
-                        
+                            <TableRow>
+                                <TableCell component="th" colSpan={3}><b>Total Amount</b></TableCell>
+                                <TableCell component="th"></TableCell>
+                                <TableCell component="th"></TableCell>
+                                <TableCell component="th"></TableCell>
+                                <TableCell component="th"></TableCell>
+                                <TableCell component="th" align='center' style={{color:'red',fontSize:'16px'}}><b>{totalRecoveryAmount}.Rs</b></TableCell>
+                            
+                            </TableRow>
                             </TableBody>
                         </Table>
             </TableContainer>
             </div>
+            
            </Grid>
         
         {/* // Model */}
             <Dialog
                     open={openDialog}
                     onClose={handleClose}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
                 >
-                <DialogTitle id="alert-dialog-title">Enter Recovery Amount</DialogTitle>
+                <DialogTitle id="Dialog">Enter Recovery Amount</DialogTitle>
                 <DialogContent>
-                <DialogContentText id="alert-dialog-description">
+                <DialogContentText id="DialogText">
                     <Grid container justifyContent='center'>
                         <Grid item>
                             <InputField  size='small'
                                 label="Recovery Amount" 
                                 type="number" 
                                 fullWidth
-                                onChange={FiledChange} 
+                                onChange={hanldeAmountChange} 
                                 name='RecoveryAmount'
                                 value={fields.description}
                                 />

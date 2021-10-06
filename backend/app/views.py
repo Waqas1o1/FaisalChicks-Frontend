@@ -628,6 +628,7 @@ class RecoveryViewSet(viewsets.ViewSet):
                 data=request.data, context={"request": request})
             print(request.data)
             serializer.is_valid(raise_exception=True)
+            # print(serializer.errors)
             serializer.save()
             print(serializer.errors)
             dict_response = {"error": False,
@@ -904,12 +905,22 @@ def Test(request):
     return render(request,'test.html',response_dict)
 
 
-def GetPartyOrderByAmount(request,amount):
-    if (not amount):
-        amount = 0
-    party_orders = m.PartyOrder.objects.filter(Q(pandding_amount__lte=amount) | Q(pandding_amount=amount))
+def GetPartyOrderByAmount(request,party,amount):
+    if amount == 0:
+        party_orders = []
+    else:
+        party_orders = m.PartyOrder.objects.filter(status='Pending',party__id=party)
+    count = 0
+    send = []
+    for i in party_orders:
+        count += i.pandding_amount
+        send.append(i)
+        if count > amount:
+            break
+    if len(send) == 0 and len(party_orders) == 0:
+        send.append(m.PartyOrder.objects.filter(status='Pending',party__id=party).first())
     serializer = s.PartyOrderSerializer(
-                party_orders, many=True, context={"request": request})
+                send, many=True, context={"request": request})
     response_dict = {
                 "error": False, "message": "All List Data", "data": serializer.data}
     return JsonResponse(response_dict)

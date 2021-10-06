@@ -251,7 +251,7 @@ export default function PartyOrder() {
     setTotalAmount(count);
     var grand_total = 0;
     if (discount !== 0){
-        grand_total = (count /100)* discount
+        grand_total = count - (count /100)* discount
     }
     grand_total = grand_total - fields.freight;
     setGrandTotal(grand_total);

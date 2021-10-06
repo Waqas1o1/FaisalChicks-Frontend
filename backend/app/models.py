@@ -640,6 +640,10 @@ class Recovery(models.Model):
     def save(self, *args, **kwargs):
         if self.id == None:
             super(Recovery, self).save(*args, **kwargs)
+        if self.party_order:
+            order = PartyOrder.objects.get(id=self.party_order.id)
+            order.pandding_amount -= self.amount
+            order.save()
         else:
             if self.status == 'Approved':
                 if self.party_order:
