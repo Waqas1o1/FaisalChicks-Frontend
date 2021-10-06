@@ -22,15 +22,13 @@ export const authFail = (error) =>{
     }
 };
 
-
-
 export const authLogout = () =>{
     localStorage.removeItem("token");
     localStorage.removeItem("expirationDate");
     return {
         type: actionTypes.AUTH_LOGOUT
     }
-}
+};
 
 export const authLogin = (username, password) =>{
     return dispatch =>{
@@ -51,12 +49,11 @@ export const authLogin = (username, password) =>{
             dispatch(authFail(err))
         }))   
     }
-} 
+};
 
 
 export const authSignup = (username, email, password, role) =>{
     return dispatch =>{
-        console.log('IN Sginup')
         dispatch(authStart());
         axiosInstance.post('/auth/register/',{
             username,
@@ -83,6 +80,9 @@ export const authCheckState = () =>{
         var expiry = localStorage.getItem('expiry');
         if (token === undefined || token  === null){
             dispatch(authLogout())
+            if (window.location.pathname !== '/login'){
+                window.location.replace('/login');
+            }
         }
         else{
             expiry = new Date(expiry);
@@ -93,4 +93,4 @@ export const authCheckState = () =>{
             }
         };
     }
-}
+};

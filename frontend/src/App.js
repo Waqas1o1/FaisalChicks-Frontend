@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@material-ui/core';
 
@@ -30,6 +30,9 @@ import Login from './pages/Authentications/Login';
 import Signup from './pages/Authentications/Signup';
 
 import { ToastContainer } from "react-toastify";
+import { connect } from 'react-redux';
+import { authCheckState } from './store/actions/auth';
+import GroupRecovery from './pages/Records/GroupRecovery';
 
 
 const theme = createTheme({
@@ -66,13 +69,24 @@ const theme = createTheme({
 
 
 const App = (props) => {
+  // const checkAuthentication = () =>{
+  //   if (!props.authenticated){
+  //     if (window.location.pathname !== '/login'){
+  //       window.location.replace('/login');
+  //     }
+  //   }
+  // }
+
+  useEffect(() => {
+    props.onLoad();
+ }, [props])
 
   return(
     <ThemeProvider theme={theme}>
-            <Router>
+            <Router >
                 <Layout>
                     <ToastContainer hideProgressBar={true} newestOnTop={true} />
-                    <Switch>
+                    <Switch >
                         <Route exact path='/' component={GraphAnalysis} />
                         <Route exact path='/Components' component={DashBorad} />
                         <Route exact path='/addParty' component={AddParty} />
@@ -93,6 +107,7 @@ const App = (props) => {
                         {/* Records */}
                         <Route exact path='/PartyOrder' component={PartyOrder} />
                         <Route exact path='/ViewOrder' component={OrderView} />
+                        <Route exact path='/GroupRecovery' component={GroupRecovery} />
                         <Route exact path='/Recovery' component={Recovery} />
                         {/* Authentication */}
                         <Route exact path='/Login' component={Login} />
@@ -104,5 +119,15 @@ const App = (props) => {
     </ThemeProvider>
 )};
 
+const mapStateToProps = (state) =>{
+  return {
+      authenticated: state.token !== null
+  };
+}
+const mapDispatchToProps = (dispatch) =>{
+  return {
+      onLoad: () => dispatch(authCheckState()),
+  };
+}
 
-export default App;
+export default connect(mapStateToProps,mapDispatchToProps)(App);

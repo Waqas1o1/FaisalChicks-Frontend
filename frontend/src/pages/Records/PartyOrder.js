@@ -83,7 +83,7 @@ export default function PartyOrder() {
   
   async function fetchParties(){
     if (navigator.onLine){
-        return await axiosInstance.get('Party/')
+        return await axiosInstance.get('apis/Party/')
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
@@ -137,7 +137,7 @@ export default function PartyOrder() {
   
   async function fetchSalesOfficers(){
     if (navigator.onLine){
-        return await axiosInstance.get('SalesOfficer/')
+        return await axiosInstance.get('apis/SalesOfficer/')
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
@@ -215,7 +215,7 @@ export default function PartyOrder() {
       'party_order': fields,
       'products': productsRows
     }
-    await axiosInstance.post('GenratePartyOrder/',send_dict)
+    await axiosInstance.post('apis/GenratePartyOrder/',send_dict)
     .then(res=>{
       let data  = res.data;
       if (data['error'] === true){
@@ -250,7 +250,7 @@ export default function PartyOrder() {
     }
     setTotalAmount(count);
     var grand_total = 0;
-    if (discount != 0){
+    if (discount !== 0){
         grand_total = (count /100)* discount
     }
     grand_total = grand_total - fields.freight;
@@ -260,7 +260,8 @@ export default function PartyOrder() {
       ...fields,
       total_amount : grand_total
     })
-  },[productsRows,fields.freight])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[productsRows, fields.freight])
   
   return (
     <div className={classes.formRoot}>
@@ -339,7 +340,7 @@ export default function PartyOrder() {
           <Divider variant="middle" className={classes.gultter}/>
           {/* Add Products */}
           <Grid container  spacing={2}  className={`${classes.formRoot} ${classes.gultter}`} >
-              <Grid row container justifyContent='space-around' className={classes.bgBlue}>
+              <Grid container justifyContent='space-around' className={classes.bgBlue}>
                 <Grid item >
                   <Typography variant='button' className={classes.white} align='center'>Product</Typography>
                 </Grid>
@@ -352,7 +353,7 @@ export default function PartyOrder() {
               </Grid>
               {/* Add Product */}
               <form style={{display:'contents'}} onSubmit={handleProductRowSubmit}>
-                <Grid row container justifyContent='space-around' style={{marginTop:'20px'}} spacing={3}>
+                <Grid  container justifyContent='space-around' style={{marginTop:'20px'}} spacing={3}>
                     {/* Product */}
                     <Grid item>
                       <AutoSuggestField 

@@ -11,6 +11,7 @@ import AccountBalanceIcon from '@material-ui/icons/AccountBalance';
 import CategoryIcon from '@material-ui/icons/Category';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import Divider from '@material-ui/core/Divider';
+import MergeTypeIcon from '@material-ui/icons/MergeType';
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -142,6 +143,16 @@ const DashBorad = () => {
             </Paper>
           </Grid>
 
+          <Grid item xs={6} sm={4} md={3} lg={2} container justifyContent='center'>
+            <Paper className={`${classes.paper} ${classes.bgBlue}`}>
+              <MergeTypeIcon fontSize='large' className={`${classes.textWhite} ${classes.f60}`}/>
+              <Typography variant="button" display="block" gutterBottom className={classes.textWhite}>
+                <Link className={`${classes.textWhite} ${classes.link}`} to='/GroupRecovery'>
+                  Group Recovery
+                </Link>
+              </Typography>
+            </Paper>
+          </Grid>
           <Grid item xs={6} sm={4} md={3} lg={2} container justifyContent='center'>
             <Paper className={`${classes.paper} ${classes.bgBlue}`}>
               <VisibilityRoundedIcon fontSize='large' className={`${classes.textWhite} ${classes.f60}`}/>

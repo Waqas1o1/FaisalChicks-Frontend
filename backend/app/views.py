@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from app import models as m
 from app import serializers as s
 from app import permisions as p
+from django.db.models import Q
 
 # Create your views here.
 # Authentication
@@ -901,3 +902,14 @@ def Test(request):
     response_dict = {'Party':party,'SalesOfficer':salesofficer,'Sales':sales,'Bank':bank,'Freight':freight
                     ,'Discount':discount,'Cash':cash,'Clearing':cleariing,'Incentive':incentive }
     return render(request,'test.html',response_dict)
+
+
+def GetPartyOrderByAmount(request,amount):
+    if (not amount):
+        amount = 0
+    party_orders = m.PartyOrder.objects.filter(Q(pandding_amount__lte=amount) | Q(pandding_amount=amount))
+    serializer = s.PartyOrderSerializer(
+                party_orders, many=True, context={"request": request})
+    response_dict = {
+                "error": False, "message": "All List Data", "data": serializer.data}
+    return JsonResponse(response_dict)

@@ -168,10 +168,6 @@ const AddBank = () => {
         })
     }
 
-    const selecterOpen = (event)=>{
-        // fetchDiscounts();
-        
-    }
 
     const handleButtonClick = () => {
         if (!loading) {

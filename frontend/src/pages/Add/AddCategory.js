@@ -161,11 +161,6 @@ const AddCategory = () => {
         })
     }
 
-    const selecterOpen = (event)=>{
-        // fetchCategory();
-        
-    }
-
     const handleButtonClick = () => {
         if (!loading) {
         setSuccess(false);

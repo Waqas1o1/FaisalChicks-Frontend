@@ -121,7 +121,7 @@ function NavBar(props) {
   const [open, setOpen] = React.useState(false);
   useEffect(() => {
     props.onLoad()
-  }, [] )
+  }, [props] )
   
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -375,7 +375,7 @@ const mapStateToProps = state =>{
 const mapDispacthToProps = dispacth =>{
   return {
     onLoad : ()=>dispacth(authCheckState()),
-    logout : ()=>dispacth(authLogout)
+    logout : ()=>dispacth(authLogout())
   }
 }
 export default connect(mapStateToProps, mapDispacthToProps)(NavBar);

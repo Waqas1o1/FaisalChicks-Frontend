@@ -95,7 +95,7 @@ export default function ClearingLedger() {
         var d =  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
         setFields({
             ...fields,
-            'FromDate' : String(date)
+            'FromDate' : String(d)
         })
     };
 
@@ -103,7 +103,7 @@ export default function ClearingLedger() {
         var d =  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
         setFields({
             ...fields,
-            'ToDate' : String(date)
+            'ToDate' : String(d)
         })
     };
 

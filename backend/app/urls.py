@@ -28,8 +28,9 @@ urlpatterns = [
     path('DiscountLedger/<str:FromDate>/<str:ToDate>',views.DiscountLedgerFilter.as_view()),
     path('BankLedger/<int:bank>/<str:FromDate>/<str:ToDate>',views.BankLedgerFilter.as_view()),
     path('IncentiveLedger/<str:FromDate>/<str:ToDate>',views.IncentiveLedgerFilter.as_view()),
+    path('GetPartyOrderByAmount/<int:amount>/',views.GetPartyOrderByAmount),
     # Status Change
-    path('AproveRecovery/<int:id>',views.RecoveryStatusChange),
+    path('AproveRecovery/<int:id>/',views.RecoveryStatusChange),
     # Test
     path('test',views.Test),
 

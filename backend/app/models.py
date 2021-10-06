@@ -535,6 +535,7 @@ class PartyOrder(models.Model):
    
     
     total_amount = models.FloatField()
+    pandding_amount = models.IntegerField(blank=True,default=0)
     discounted_amount = models.FloatField(null=True, blank=True)
 
 
@@ -553,6 +554,7 @@ class PartyOrder(models.Model):
 
     def save(self, *args, **kwargs):
         if self.id == None:
+            self.pandding_amount = self.total_amount
             self.discounted_amount = self.total_amount * (self.party.discount.discount/100) 
             super(PartyOrder, self).save(*args, **kwargs)
         else:

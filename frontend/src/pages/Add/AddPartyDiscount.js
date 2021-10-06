@@ -13,6 +13,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import EditIcon from '@material-ui/icons/Edit';
+import { SetDB, AddDB , UpdateDB ,GetDB} from '../../db/db';
 
 const useStyles = makeStyles((theme) => ({
     formRoot: {
@@ -33,7 +34,6 @@ const AddPartyDiscount = () => {
     const initialFields = {
         name:'',
        discount:'0'
-
     };
     const classes = useStyles();
     const [rows,setRows] = useState([]);
@@ -56,8 +56,7 @@ const AddPartyDiscount = () => {
                 else{
                     let discounts = data['data'];
                     setRows(discounts);
-                    localStorage.removeItem('Discounts');
-                    localStorage.setItem('Discounts',JSON.stringify(data['data']));
+                    SetDB('DiscountCategory',discounts);
                 }
             })
             .catch(error=>{
@@ -65,12 +64,21 @@ const AddPartyDiscount = () => {
             })
         }
         else{
+            GetDB('DiscountCategory').then(res=>setRows(res))
             // setChoices(JSON.parse(localStorage.getItem('Discounts')));
         }
     }
 
 
     async function saveDiscount(){
+        if (!navigator.onLine){
+            if (!isUpdate){
+                AddDB('DiscountCategory',fields);
+            }
+            else{
+                UpdateDB('DiscountCategory',fields,{'name':fields.name})
+            }
+        }
         if (!isUpdate){
             return await axiosInstance.post('apis/DiscountCategory/',{...fields})
                 .then(res=>{

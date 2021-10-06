@@ -1,5 +1,5 @@
 import React from 'react';
-import {BarSeries , Chart, Title, PieSeries} from '@devexpress/dx-react-chart-material-ui';
+import {BarSeries , Chart, PieSeries} from '@devexpress/dx-react-chart-material-ui';
   
 import { Grid, makeStyles, Typography, Paper, Divider, Container } from '@material-ui/core';
 import InputField from '../components/InputField';
@@ -139,7 +139,7 @@ const GraphAnalysis = () => {
                                     type='string' size='small' 
                                     name='FromDate'
                                     value={'2021-09-10'}
-                                    color='#64C1A4'
+                                    style={{color:'#64C1A4'}}
                                     onChange={()=>{}}
                                     
                                 />

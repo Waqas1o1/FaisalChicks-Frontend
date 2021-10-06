@@ -44,20 +44,27 @@ const columns = [
     field: 'discounted_amount',
     headerName: 'Discounted Amount',
     type: 'number',
-    width: 200,
+    width: 170,
+    editable: false,
+  },
+  {
+    field: 'pandding_amount',
+    headerName: 'Pandding Amount',
+    type: 'number',
+    width: 150,
     editable: false,
   },
   {
     field: 'total_amount',
     headerName: 'Total Amount',
     type: 'number',
-    width: 200,
+    width: 150,
     editable: false,
   },
   {
     field: 'status',
     headerName: 'Status',
-    width: 150,
+    width: 120,
     editable: false,
   },
   
@@ -71,7 +78,7 @@ export default function DataTable() {
     const classes = useStyles();
 
     async function fetchOrders(){
-        await axiosInstance.get('PartyOrder/')
+        await axiosInstance.get('apis/PartyOrder/')
         .then(res=>{
           if (res['error'] === true){
               alert(`Error Occures ${res['message']}`);

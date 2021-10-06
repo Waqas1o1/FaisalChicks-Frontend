@@ -15,7 +15,6 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import EditIcon from '@material-ui/icons/Edit';
 import axios from 'axios';
-
 const useStyles = makeStyles((theme) => ({
     formRoot: {
       flexGrow: 1,
@@ -45,7 +44,7 @@ const AddParty = () => {
         contact:'',
         opening_Balance:'',
         discount:'0',
-        sales_Officer:'',
+        sales_officer:'',
         TOR:'',
         SCI:'',
         category:'',
@@ -159,8 +158,8 @@ const AddParty = () => {
                         parties[p].sales_Officer = parties[p].sales_Officer.name 
                     }
                     setRows(parties);
-                    localStorage.removeItem('Parties');
-                    localStorage.setItem('Parties',JSON.stringify(parties));
+                    // SetPartieseDB(parties);
+                    // console.log(GetPartieseDB());
                 }
             })
             .catch(error=>{
@@ -180,7 +179,6 @@ const AddParty = () => {
         setSuccess(false);
         fetchParties();
         setIsUpdate(false);
-
     }
 
     async function saveParty(){
@@ -188,8 +186,7 @@ const AddParty = () => {
             let form_data = new FormData();
             for (let i in fields){
                 form_data.append(i, fields[i]);
-            }
-            
+            };
             return await axios.post('http://127.0.0.1:8000/apis/Party/',form_data,
             { headers: {
                 'content-type': 'multipart/form-data',

@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function MenuItems(props) {
-    const {title,options,handleChange,selectedOption} = props; 
+    const {title,options,handleChange,selectedOption,other} = props; 
     const classes = useStyles();
  
   const [open, setOpen] = React.useState(false);
@@ -34,10 +34,10 @@ export default function MenuItems(props) {
 
   return (
     <div>
-      <Button className={classes.button} onClick={handleOpen}>
+      <Button className={classes.button} onClick={handleOpen} >
         {title}
       </Button>
-      <FormControl className={classes.formControl}>
+      <FormControl className={classes.formControl} fullWidth>
         <InputLabel id="method">{title}</InputLabel>
         <Select
           id="Selecter"

@@ -411,7 +411,7 @@ const Recovery = () => {
     const onActive = async (event)=>{
         let id  = event.currentTarget.getAttribute('id');
         setSelectedObjId(id);
-        await axiosInstance.get(`apis/AproveRecovery/${id}`)
+        await axiosInstance.get(`apis/AproveRecovery/${id}/`)
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
