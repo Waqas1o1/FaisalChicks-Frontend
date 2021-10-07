@@ -45,6 +45,9 @@ const useStyles = makeStyles((theme) => ({
   link:{
     textDecoration:'None',
     fontSize:'12px'
+  },
+  bgred:{
+    backgroundColor:'#FC5430'
   }
   
 }));
@@ -184,7 +187,7 @@ const DashBorad = () => {
             </Paper>
           </Grid>
           <Grid item xs={6} sm={4} md={3} lg={2} container justifyContent='center'>
-            <Paper className={`${classes.paper} ${classes.bgBlue}`}>
+            <Paper className={`${classes.paper} ${classes.bgBlue} ${classes.bgred}`}>
               <MenuBookIcon fontSize='large' className={`${classes.textWhite} ${classes.f60}`}/>
               <Link className={`${classes.textWhite} ${classes.link}`} to='/CashLedger'>
                   Cash Ledger
@@ -192,7 +195,7 @@ const DashBorad = () => {
             </Paper>
           </Grid>
           <Grid item xs={6} sm={4} md={3} lg={2} container justifyContent='center'>
-            <Paper className={`${classes.paper} ${classes.bgBlue}`}>
+            <Paper className={`${classes.paper} ${classes.bgBlue} ${classes.bgred}`}>
               <MenuBookIcon fontSize='large' className={`${classes.textWhite} ${classes.f60}`}/>
               <Link className={`${classes.textWhite} ${classes.link}`} to='/ClearingLedger'>
                   Clearing Ledger
@@ -200,7 +203,7 @@ const DashBorad = () => {
             </Paper>
           </Grid>
           <Grid item xs={6} sm={4} md={3} lg={2} container justifyContent='center'>
-            <Paper className={`${classes.paper} ${classes.bgBlue}`}>
+            <Paper className={`${classes.paper} ${classes.bgBlue} ${classes.bgred}`}>
               <MenuBookIcon fontSize='large' className={`${classes.textWhite} ${classes.f60}`}/>
               <Link className={`${classes.textWhite} ${classes.link}`} to='/salesOfficerLedger'>
                   Sales Offocer Ledger
@@ -208,7 +211,7 @@ const DashBorad = () => {
             </Paper>
           </Grid>
           <Grid item xs={6} sm={4} md={3} lg={2} container justifyContent='center'>
-            <Paper className={`${classes.paper} ${classes.bgBlue}`}>
+            <Paper className={`${classes.paper} ${classes.bgBlue} ${classes.bgred}`}>
               <MenuBookIcon fontSize='large' className={`${classes.textWhite} ${classes.f60}`}/>
               <Link className={`${classes.textWhite} ${classes.link}`} to='/SalesLedger'>
                   Sales Ledger
@@ -216,7 +219,7 @@ const DashBorad = () => {
             </Paper>
           </Grid>    
           <Grid item xs={6} sm={4} md={3} lg={2} container justifyContent='center'>
-              <Paper className={`${classes.paper} ${classes.bgBlue}`}>
+              <Paper className={`${classes.paper} ${classes.bgBlue} ${classes.bgred}`}>
                 <MenuBookIcon fontSize='large' className={`${classes.textWhite} ${classes.f60}`}/>
                 <Typography variant="button" display="block" gutterBottom className={classes.textWhite}>
                   <Link className={`${classes.textWhite} ${classes.link}`} to='/DiscountLedger'>
@@ -226,7 +229,7 @@ const DashBorad = () => {
               </Paper>
           </Grid>        
           <Grid item xs={6} sm={4} md={3} lg={2} container justifyContent='center'>
-              <Paper className={`${classes.paper} ${classes.bgBlue}`}>
+              <Paper className={`${classes.paper} ${classes.bgBlue} ${classes.bgred}`}>
                 <MenuBookIcon fontSize='large' className={`${classes.textWhite} ${classes.f60}`}/>
                 <Typography variant="button" display="block" gutterBottom className={classes.textWhite}>
                   <Link className={`${classes.textWhite} ${classes.link}`} to='/FreightLedger'>
@@ -236,7 +239,7 @@ const DashBorad = () => {
               </Paper>
           </Grid>        
           <Grid item xs={6} sm={4} md={3} lg={2} container justifyContent='center'>
-              <Paper className={`${classes.paper} ${classes.bgBlue}`}>
+              <Paper className={`${classes.paper} ${classes.bgBlue} ${classes.bgPink}`}>
                 <MenuBookIcon fontSize='large' className={`${classes.textWhite} ${classes.f60}`}/>
                 <Typography variant="button" display="block" gutterBottom className={classes.textWhite}>
                   <Link className={`${classes.textWhite} ${classes.link}`} to='/IncentiveLedger'>
@@ -247,7 +250,7 @@ const DashBorad = () => {
           </Grid>        
         
           <Grid item xs={6} sm={4} md={3} lg={2} container justifyContent='center'>
-              <Paper className={`${classes.paper} ${classes.bgBlue}`}>
+              <Paper className={`${classes.paper} ${classes.bgPurpal}`}>
                 <MenuBookIcon fontSize='large' className={`${classes.textWhite} ${classes.f60}`}/>
                 <Typography variant="button" display="block" gutterBottom className={classes.textWhite}>
                   <Link className={`${classes.textWhite} ${classes.link}`} to='/BankLedger'>

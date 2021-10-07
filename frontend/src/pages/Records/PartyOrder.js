@@ -38,6 +38,11 @@ const useStyles = makeStyles((theme) => ({
         cursor: 'pointer',
     },
 },
+xsFull:{
+  '@media only screen and (max-width: 600px)': {
+    width:'35vh'
+  }
+}
 }))
 
 const StyledTableCell = withStyles((theme) => ({
@@ -386,14 +391,17 @@ export default function PartyOrder() {
                                 />
                     </Grid>
                     {/* Submit */}
-                    <Grid item xs={12}>
-                      <Button variant="contained"  type='submit' >
-                        Add Product
-                      </Button>
-
-                      <Button style={{marginLeft:'20px'}} variant="contained" color='secondary' onClick={clearProduct} >
-                        Clear Product
-                      </Button>
+                    <Grid  container justifyContent='flex-start' item xs={12} spacing={2}>
+                      <Grid item>
+                        <Button variant="contained"  type='submit' className={classes.xsFull}>
+                          Add Product
+                        </Button>
+                      </Grid>
+                      <Grid item>
+                        <Button  variant="contained" color='secondary' className={classes.xsFull} onClick={clearProduct} >
+                          Clear Product
+                        </Button>
+                      </Grid>
                     </Grid>
                 
                 </Grid>

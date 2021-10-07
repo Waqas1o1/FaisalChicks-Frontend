@@ -39,13 +39,12 @@ const useStyles = makeStyles((theme) => ({
     formRoot: {
       flexGrow: 1,
       padding : theme.spacing(2),
+     
     },
-    selecter:{
-        marginTop:'20px',
-        maxWidth:'200px',
-    },
+   
     table: {
         minWidth: 700,
+        
     }
 }))
 
@@ -177,8 +176,6 @@ export default function PartyLedger() {
     return (
         <Grid
             container
-            direction="row"
-            justifyContent="center"
             alignItems="center"
             spacing={2}
         >
@@ -230,7 +227,7 @@ export default function PartyLedger() {
                 </MuiPickersUtilsProvider>
            </Grid>
             
-            <Grid item xs={4} md={3} lg={2}>
+            <Grid item xs={12} md={3} lg={2}>
                     <SpineerButton
                     className={classes.selecter}
                      handleButtonClick={handleButtonClick} 

@@ -16,13 +16,17 @@ const useStyles = makeStyles(theme=>({
   root: {
     flexGrow:1,
     '@media only screen and (max-width: 600px)': {
-      width:'90vh',
-      padding: theme.spacing(2),
+      width:'46vh',
      },
   },
   container: {
     maxHeight: 440,
   },
+  xsFull:{
+    '@media only screen and (max-width: 600px)': {
+      
+     },
+  }
 }));
 
 export default function GetTable(props) {
