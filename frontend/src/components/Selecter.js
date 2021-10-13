@@ -58,7 +58,7 @@ export default function Selecter(props) {
                 input={<Input id='Selecter' />}
                 name={name}
                 >
-                <option aria-label="None" value='Select Value' /> 
+                <option aria-label="None" value='0' id='0' /> 
                 {choises.map((item)=>{
                   return <option value={item.id} id={JSON.stringify(item)} key={item.id}>{item.name} : {item.discount}</option>
                 })}

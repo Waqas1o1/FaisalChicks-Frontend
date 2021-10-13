@@ -48,6 +48,7 @@ const AddParty = () => {
         TOR:'',
         SCI:'',
         category:'',
+        ref_id:'',
     };
     const classes = useStyles();
     const [rows,setRows] = useState([]);
@@ -424,15 +425,24 @@ const AddParty = () => {
                                 onChange={FiledChange}
                                 />
                         </Grid>
-                            <Grid item xs={6}>
-                                <InputField  label='Sales Target' 
-                                    type='number' size='small' 
-                                    name='salesTarget'
-                                    required={true} 
-                                    value={fields.salesTarget}
-                                    onChange={FiledChange}
-                                    />
-                            </Grid>
+                        <Grid item xs={6}>
+                            <InputField  label='Sales Target' 
+                                type='number' size='small' 
+                                name='salesTarget'
+                                required={true} 
+                                value={fields.salesTarget}
+                                onChange={FiledChange}
+                                />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <InputField  label='Reference ID' 
+                                type='number' size='small' 
+                                name='ref_id'
+                                required={true} 
+                                value={fields.ref_id}
+                                onChange={FiledChange}
+                                />
+                        </Grid>
                     </Grid>
                     <Grid item container spacing={3}>
                         <Grid item xs={6}>

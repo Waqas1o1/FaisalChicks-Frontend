@@ -173,6 +173,13 @@ class PartyOrderSerializer(serializers.ModelSerializer):
         response['sale_officer'] = SalesOfficerSerializer(instance.sale_officer).data
         return response
 
+
+class DispatchTableSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = m.DispatchTable
+        fields = '__all__'
+
+
 class PartyOrderProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = m.PartyOrderProduct

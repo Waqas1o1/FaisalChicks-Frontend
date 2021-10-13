@@ -9,6 +9,7 @@ router.register("Category", views.CategoryViewSet, basename="Category")
 router.register("Product", views.ProductViewSet, basename="Product")
 router.register("DiscountCategory", views.DiscountCategoryViewSet, basename="DiscountCategory")
 router.register("PartyOrder", views.PartyOrderViewSet, basename="PartyOrder")
+router.register("DispatchTable", views.DispatchTableViewSet, basename="DispatchTable")
 router.register("PartyOrderProduct", views.PartyOrderProductViewSet, basename="PartyOrderProduct")
 router.register("Recovery", views.RecoveryViewSet, basename="Recovery")
 router.register("GenratePartyOrder", views.GenratePreOrder, basename="GenratePartyOrder")
@@ -30,6 +31,8 @@ urlpatterns = [
     path('IncentiveLedger/<str:FromDate>/<str:ToDate>',views.IncentiveLedgerFilter.as_view()),
     path('GetPartyOrderByAmount/<int:party>/<int:amount>/',views.GetPartyOrderByAmount),
     # Status Change
+    path('ChangePartyOrderStatus/<int:id>/',views.ChangePartyOrderStatus),
+    path('ResetPartyOrderStatus/<int:id>/',views.ResetPartyOrderStatus),
     path('AproveRecovery/<int:id>/',views.RecoveryStatusChange),
     # Test
     path('test',views.Test),

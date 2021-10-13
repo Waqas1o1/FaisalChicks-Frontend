@@ -36,6 +36,7 @@ class Category(models.Model):
         return self.name 
  
 class Party(models.Model):
+    ref_id = models.IntegerField(blank=True,null=True)  
     name = models.CharField(max_length=30, unique=True)
     email = models.EmailField(max_length=30, unique=True)
     area = models.CharField(max_length=300)
@@ -289,9 +290,9 @@ class SalesOfficerLedger(Ledger):
     def delete(self, *args, **kwargs):
         up = kwargs.pop('updating', {})
         if up == {}:
-            DeleteLeadgers(self, PartyLedger, 'Party', True)
+            DeleteLeadgers(self, SalesOfficerLedger, 'SalesOfficer', True)
         else:
-            super(PartyLedger, self).delete()
+            super(SalesOfficerLedger, self).delete()
 
 class BankLedger(Ledger):
     bank = models.ForeignKey(Bank,on_delete=models.CASCADE)
@@ -520,16 +521,16 @@ class IncentiveLedger(Ledger):
     def delete(self, *args, **kwargs):
         up = kwargs.pop('updating', {})
         if up == {}:
-            DeleteLeadgers(self, ClearingLedger, 'Clearing', True)
+            DeleteLeadgers(self, IncentiveLedger, 'Incentive', True)
         else:
-            super(ClearingLedger, self).delete()   
+            super(IncentiveLedger, self).delete()   
 
 # UI
 class PartyOrder(models.Model):
     date = models.DateField(default=timezone.now, blank=True)
     party = models.ForeignKey(Party,on_delete=models.CASCADE)
     sale_officer = models.ForeignKey(SalesOfficer,on_delete=models.CASCADE)
-    status = models.CharField(max_length=50, choices=[('Pending', 'Pending'), ('Approved','Approved')], default='Pending')
+    status = models.CharField(max_length=50, choices=[('Pending', 'Pending'), ('Confirmed','Confirmed'),('Delivered','Delivered')], default='Pending')
     description = models.CharField(max_length=50)
     freight = models.FloatField(default=0)
    
@@ -539,14 +540,14 @@ class PartyOrder(models.Model):
     discounted_amount = models.FloatField(null=True, blank=True)
 
 
-    pld = models.ForeignKey(PartyLedger,on_delete=models.CASCADE,null=True,blank=True, related_name='+')
-    plc1 = models.ForeignKey(PartyLedger,on_delete=models.CASCADE,null=True,blank=True, related_name='+')
-    plc2 = models.ForeignKey(PartyLedger,on_delete=models.CASCADE,null=True,blank=True, related_name='+')
-    sl = models.ForeignKey(SalesLedger,on_delete=models.CASCADE,null=True,blank=True)
-    sol = models.ForeignKey(SalesOfficerLedger,on_delete=models.CASCADE,null=True,blank=True)
-    il = models.ForeignKey(IncentiveLedger,on_delete=models.CASCADE,null=True,blank=True)
-    fl = models.ForeignKey(FreightLedger,on_delete=models.CASCADE,null=True,blank=True)
-    dl = models.ForeignKey(DiscountLedger,on_delete=models.CASCADE,null=True,blank=True)
+    pl = models.ForeignKey(PartyLedger,on_delete=models.SET_NULL,null=True,blank=True, related_name='+')
+    plc1 = models.ForeignKey(PartyLedger,on_delete=models.SET_NULL,null=True,blank=True, related_name='+')
+    plc2 = models.ForeignKey(PartyLedger,on_delete=models.SET_NULL,null=True,blank=True, related_name='+')
+    sl = models.ForeignKey(SalesLedger,on_delete=models.SET_NULL,null=True,blank=True)
+    sol = models.ForeignKey(SalesOfficerLedger,on_delete=models.SET_NULL,null=True,blank=True)
+    il = models.ForeignKey(IncentiveLedger,on_delete=models.SET_NULL,null=True,blank=True)
+    fl = models.ForeignKey(FreightLedger,on_delete=models.SET_NULL,null=True,blank=True)
+    dl = models.ForeignKey(DiscountLedger,on_delete=models.SET_NULL,null=True,blank=True)
     
     def __str__(self):
         return self.party.name + ' : ' + str(self.id)
@@ -559,7 +560,7 @@ class PartyOrder(models.Model):
             super(PartyOrder, self).save(*args, **kwargs)
         else:
             # If Approved
-            if self.status == 'Approved':
+            if self.status == 'Delivered':
                 pl = PartyLedger(party=self.party,sales_officer=self.sale_officer, 
                                 freight = self.freight,transaction_type='Debit',
                                 description=self.description,
@@ -578,8 +579,13 @@ class PartyOrder(models.Model):
                                 total_amount=self.discounted_amount)
                 pl.save()
                 self.plc2 = pl
+                 # -------------------
+                dl = DiscountLedger(total_amount=self.discounted_amount,transaction_type='Debit'
+                                    ,discounted_amount=self.discounted_amount)
+                dl.save()
+                self.dl = dl
 
-
+            if self.status == 'Confirmed':
                 # --------------------
                 sl = SalesLedger(total_amount=self.total_amount,transaction_type='Credit')
 
@@ -589,7 +595,7 @@ class PartyOrder(models.Model):
                 sl = SalesOfficerLedger(sales_officer=self.sale_officer,transaction_type='Credit',
                                         description = self.description,
                                         party_order = self.id,
-                                        total_amount =self.total_amount *(self.sale_officer.commission/100))
+                                        total_amount =self.total_amount - self.total_amount *(self.sale_officer.commission/100))
                 sl.save()
                 self.sol = sl
                 # --------------------
@@ -600,13 +606,24 @@ class PartyOrder(models.Model):
                 fl = FreightLedger(total_amount=self.freight,freight=self.freight,transaction_type='Debit')
                 fl.save()
                 self.fl = fl
-                # -------------------
-                dl = DiscountLedger(total_amount=self.discounted_amount,transaction_type='Debit'
-                                    ,discounted_amount=self.total_amount)
-                dl.save()
-                self.dl = dl
+               
                 # ##################
             super(PartyOrder, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if self.status == 'Confirmed':
+            self.pl.delete();
+            self.plc1.delete();
+            self.plc2.delete();
+            self.dl.delete()
+        elif self.status == 'Delivered':
+            self.sol.delete()
+            self.sl.delete()
+            self.il.delete()
+            self.fl.delete()
+
+        super(PartyOrder, self).delete()
+
 
 class PartyOrderProduct(models.Model):
     party_order = models.ForeignKey(PartyOrder,on_delete=models.CASCADE)
@@ -682,6 +699,17 @@ class Recovery(models.Model):
                     self.cll = ccl
             super(Recovery, self).save(*args, **kwargs)  
 
+class DispatchTable(models.Model):
+    driver = models.CharField(max_length=300)
+    freight = models.IntegerField(default=0)
+    vehical_no = models.CharField(max_length=10)
+    cell_no = models.CharField(max_length=12,blank=True,null=True)
+    bulty_no = models.CharField(max_length=30)
+    gate_pass = models.CharField(max_length=300)
+    party_order = models.ForeignKey(PartyOrder,on_delete=models.CASCADE)
+    locations = models.TextField(null=True)
+    def __str__(self) -> str:
+        return self.driver + '->' +  self.bulty_no
         
 class SalesOfficerReceiving(models.Model):
     date = models.DateField(default=timezone.now, blank=True)

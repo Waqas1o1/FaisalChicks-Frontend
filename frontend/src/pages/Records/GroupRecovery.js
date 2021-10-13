@@ -55,42 +55,37 @@ const Recovery = () => {
     const [salesOfficerTitle,setSalesOfficerTitle] = useState('Sales Officer');
     // Sales Officer
     const [parties,setParties] = useState([]);
-    const [partyTitle,setPartyTitle] = useState('Party');
-    
-    const [disabledAmount,setDisabledAmount] = useState(false);
+    const [partyTitle,setPartyTitle] = useState('Select Party');
+    // Remaing Recovery
+    const [recoveryTotal,setRecoveryTotal] = useState(0);
+    const [disabledAmount,setDisabledAmount] = useState(true);
 
     const [openDialog, setOpenDialog] = useState(false);
     const [bankDisabled,setBankDisabled] = useState(true);
     const [selectedOption,setSelectedOption] = useState(fields.payment_method);
-    const [totalRecoveryAmount,setTotalRecoveryAmount] = useState(0);
         
 
     const handleSelect = (event) => {
+        let item = JSON.parse(event.target.name);
+        let total;
         if(event.target.checked){
             selectedvalue.push(event.target.value);
-        
+            total = recoveryTotal + parseInt(item.recoveryAmount);
         }else{
+            total = recoveryTotal - parseInt(item.recoveryAmount);
             selectedvalue = selectedvalue.filter(value=>value !== event.target.value)
         }
+        setRecoveryTotal(total);
         let p = [...partyOrders];
-            for (let partyorder in p){
-                if (p[partyorder].id === parseInt(event.target.value)){
-                    p[partyorder].disabled = event.target.checked;
-                }
+        for (let partyorder in p){
+            if (p[partyorder].id === parseInt(event.target.value)){
+                p[partyorder].disabled = event.target.checked;
             }
+        }
         setPartyOrders(p);
     };
 
-    const CountRemaining = () =>{
-        var total = 0;
-        for (let p in partyOrders){
-            total = total + parseInt(partyOrders[p].recoveryAmount)
-        }
-        setTotalRecoveryAmount(total);
-        if (total > amount){
-            alert('You Are Excceding From Entered amount');
-        }
-    }
+   
 
     const handleRecoveryAmountChange = (e) =>{
         setDisabledAmount(true);
@@ -101,10 +96,14 @@ const Recovery = () => {
             }
         }
         setPartyOrders(p);
-        CountRemaining();
     }
     
-   
+   const Reset = () =>{
+       setSalesOfficerTitle('Select SalesOfficer');
+       setPartyTitle('Select Party');
+       setAmount(0);
+       setFields(initialFields);
+   }
 
     async function fetchParties(){
         if (navigator.onLine){
@@ -236,7 +235,10 @@ const Recovery = () => {
             const optionElement = event.target.childNodes[index];
             const optionElementId = optionElement.getAttribute('id');
             const obj = JSON.parse(optionElementId);
-            setPartyTitle(obj.name);
+            if (event.target.value !== undefined && event.target.value !== null && obj){
+                setPartyTitle(obj.name);
+                setDisabledAmount(false);
+            }
         }
         if (event.target.name === 'sale_officer'){
             const index = event.target.selectedIndex;
@@ -257,6 +259,7 @@ const Recovery = () => {
     };
 
     async function fetchReleventOrders(a=0,party=fields.party){
+        setPartyOrders([]);
         return await axiosInstance.get(`apis/GetPartyOrderByAmount/${party}/${a}/`)
         .then(res=>{
             let data  = res.data;
@@ -264,12 +267,23 @@ const Recovery = () => {
                 alert(`Error Occures ${data['message']}`);
             }
             else{
+                selectedvalue = [];
                 let d = data.data;
+                let remaining = a;
                 for (let i in d){
-                    d[i].recoveryAmount = 0;
+                    if (remaining >= d[i].pandding_amount){
+                        d[i].recoveryAmount = d[i].pandding_amount;
+                        remaining -= d[i].pandding_amount ;
+                    }
+                    else if(remaining < d[i].pandding_amount && remaining > 0){
+                        d[i].recoveryAmount = remaining;
+                        remaining -= d[i].pandding_amount ;
+                    }
+                    else {
+                        d[i].recoveryAmount = 0;
+                    }
                 }
                 setPartyOrders(d);
-                CountRemaining();
             }
         })
         .catch(error=>{
@@ -322,7 +336,6 @@ const Recovery = () => {
             let party = '';
             let send_amount = 0;
             for (let p in partyOrders){
-                console.log(partyOrders[p].id,parseInt(selectedvalue[i]));
                 if (partyOrders[p].id === parseInt(selectedvalue[i])){
                     party = partyOrders[p].party.id
                     send_amount = partyOrders[p].recoveryAmount
@@ -339,7 +352,6 @@ const Recovery = () => {
 
 
             }
-
             await axiosInstance.post('apis/Recovery/',{...send_dict})
             .then(res=>{
                 let data = res.data;
@@ -347,6 +359,14 @@ const Recovery = () => {
                     alert('SomeThing Wrong');
                 }
                 else{
+                    if (recoveryTotal < amount ){
+                        setAmount(amount - recoveryTotal);
+                        fetchReleventOrders(amount,fields.party);
+                        setRecoveryTotal(0);
+                    }
+                    else{
+                        Reset();
+                    }
                     alert('Suucess');
                 }
             })
@@ -373,7 +393,7 @@ const Recovery = () => {
             <Grid item xs={12} md={3} lg={3}>
                 <Grid container item direction='column' spacing={3}>
                     {/* Sales Ofiicer Select */}
-                    <Grid container item xs>
+                    <Grid container item xs spacing={2}>
                         <Grid item xs>
                             <Selecter
                                 title={salesOfficerTitle}
@@ -395,10 +415,11 @@ const Recovery = () => {
                                 />
                         </Grid>
                     </Grid>
+                    
                     <Grid item xs>
                         <InputField  size='small'
                             label="Recovery Amount" 
-                            type="string" 
+                            type="number" 
                             fullWidth
                             disabled={disabledAmount}
                             onChange={handleAmountChange} 
@@ -461,7 +482,10 @@ const Recovery = () => {
                             return(
                                 <TableRow key={row.id}>
                                     <TableCell component="th" scope="row">
-                                        <FormControlLabel control={<Checkbox name={`${row.id}`} onChange={handleSelect} value={row.id} />}/>
+                                        {row.recoveryAmount !== 0?
+                                        <FormControlLabel control={<Checkbox name={JSON.stringify(row)} onChange={handleSelect} value={row.id} />}/>:
+                                        <FormControlLabel control={<Checkbox name={`${row.id}`} disabled />}/>
+                                    }
                                     </TableCell>
                                     <TableCell component="th" scope="row">
                                         {row.date}
@@ -486,10 +510,11 @@ const Recovery = () => {
                                         <InputField  size='small'
                                                     type="string" 
                                                     fullWidth
+                                                    disabled={true}
                                                     onChange={handleRecoveryAmountChange} 
-                                                    name={row.id}
+                                                    name={`${row.id}`}
                                                     color='secondary'
-                                                    value={partyOrders.recoveryAmount}
+                                                    value={row.recoveryAmount}
                                                     autoComplete='off'
                                                     />
                                     </TableCell>
@@ -502,7 +527,7 @@ const Recovery = () => {
                                 <TableCell component="th"></TableCell>
                                 <TableCell component="th"></TableCell>
                                 <TableCell component="th"></TableCell>
-                                <TableCell component="th" align='center' style={{color:'red',fontSize:'16px'}}><b>{totalRecoveryAmount}.Rs</b></TableCell>
+                                <TableCell component="th" align='center' style={{color:'red',fontSize:'16px'}}><b>{recoveryTotal}.Rs</b></TableCell>
                             
                             </TableRow>
                             </TableBody>

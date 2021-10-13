@@ -58,7 +58,7 @@ export default function PartyOrder() {
     party:'',
     sale_officer:'',
     description:'',
-    freight:'',
+    freight:0,
     total_amount:'',
   }
   
@@ -74,6 +74,7 @@ export default function PartyOrder() {
     product:'',
     qty:'',
     rate:'',
+    freight:0,
   }
   const [products,setProducts] = useState([]); 
   const [productsRows,setProductsRows] = useState([]); 
@@ -227,18 +228,19 @@ export default function PartyOrder() {
           alert(`Error Occures ${data['message']}`);
       }
       else{
-          console.log(data);
+          alert('Order Genrated');
+          clearProduct();
+          setFields(initialFields);
+          setPartyTitle('Select Party');
+          setSalesOfficerTitle('Select Sales Officer');
+          setDiscount(0);
       }
       })
       .catch(error=>{
           alert(`Somethin wrong: ${error}`);
       })
-
-      clearProduct();
-      setFields(initialFields);
-      setPartyTitle('Select Party');
-      setSalesOfficerTitle('Select Sales Officer');
-      setDiscount(0);
+     
+      
   }
 
 
@@ -255,9 +257,7 @@ export default function PartyOrder() {
     }
     setTotalAmount(count);
     var grand_total = 0;
-    if (discount !== 0){
-        grand_total = count - (count /100)* discount
-    }
+    grand_total = count - (count /100)* discount
     grand_total = grand_total - fields.freight;
     setGrandTotal(grand_total);
     
