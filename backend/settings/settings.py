@@ -1,8 +1,7 @@
 import os
-
+import django_heroku
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -13,7 +12,7 @@ SECRET_KEY = '#65$t=5cn-px8rhp63z0gsf$z#ciz1--sydy-tly+mq2$22ukd'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['fasialchicks.herokuapp.com']
 
 
 # Application definition
@@ -35,7 +34,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -121,6 +120,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 CORS_ORIGIN_ALLOW_ALL = True  
 ORS_ORIGIN_WHITELIST = [
+    'https://technoventive.herokuapp.com',
+    'http://technoventive.herokuapp.com',
     'http://localhost:3000',
 ]
 # Media
@@ -129,5 +130,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 from datetime import timedelta
 REST_KNOX = {
-       'TOKEN_TTL': timedelta(hours=24),  # default time 10h
+       'TOKEN_TTL': timedelta(hours=24),
 }
+
+
+django_heroku.settings(locals())

@@ -52,7 +52,7 @@ const StyledTableCell = withStyles((theme) => ({
   },
 }))(TableCell);
 
-export default function PartyOrder() {
+export default function PartyOrder(props) {
   const classes = useStyles();
   const initialFields = {
     party:'',
@@ -69,6 +69,8 @@ export default function PartyOrder() {
   // Sales Officer
   const [salesOfficers,setSalesOfficers] = useState([]); 
   const [salesOfficerTitle,setSalesOfficerTitle] = useState('Select Sales Ofiicer'); 
+  const [salesOfficerDisabled,setSalesOfficerDisabled] = useState(false); 
+  const [selectedSalesOfficer,setSelectedSalesOfficer] = useState(null); 
   // Products
   const initialProductFields = {
     product:'',
@@ -87,6 +89,9 @@ export default function PartyOrder() {
   // Grand Total
   const [grandTotal,setGrandTotal] = useState(0);
   
+
+
+
   async function fetchParties(){
     if (navigator.onLine){
         return await axiosInstance.get('apis/Party/')
@@ -191,36 +196,37 @@ export default function PartyOrder() {
   }
 
   const FieldsCahange = event => {
-
-  if (event.target.name === 'party'){
-      const index = event.target.selectedIndex;
-      const optionElement = event.target.childNodes[index];
-      const optionElementId = optionElement.getAttribute('id');
-      const obj = JSON.parse(optionElementId);
-      setPartyTitle(obj.name);
-      setDiscount(obj.discount);
-  }
-  if (event.target.name === 'sale_officer'){
-      const index = event.target.selectedIndex;
-      const optionElement = event.target.childNodes[index];
-      const optionElementId = optionElement.getAttribute('id');
-      const obj = JSON.parse(optionElementId);
-      setSalesOfficerTitle(obj.name);
-  }
-  setFields({
-      ...fields,
-      [event.target.name] : event.target.value,
-  });
+    if (event.target.name === 'party'){
+        const index = event.target.selectedIndex;
+        const optionElement = event.target.childNodes[index];
+        const optionElementId = optionElement.getAttribute('id');
+        const obj = JSON.parse(optionElementId);
+        setPartyTitle(obj.name);
+        setDiscount(obj.discount);
+    }
+    if (event.target.name === 'sale_officer'){
+        const index = event.target.selectedIndex;
+        const optionElement = event.target.childNodes[index];
+        const optionElementId = optionElement.getAttribute('id');
+        const obj = JSON.parse(optionElementId);
+        setSalesOfficerTitle(obj.name);
+    }
+    setFields({
+        ...fields,
+        [event.target.name] : event.target.value,
+    });
   }
   const clearProduct = ()=>{
     setProductsRows([]);
   }
 
   const handleGenrateOrder = async e =>{
+    let sendfileds = {...fields,sale_officer:selectedSalesOfficer}
     const send_dict = {
-      'party_order': fields,
+      'party_order': sendfileds,
       'products': productsRows
     }
+
     await axiosInstance.post('apis/GenratePartyOrder/',send_dict)
     .then(res=>{
       let data  = res.data;
@@ -238,16 +244,23 @@ export default function PartyOrder() {
       })
       .catch(error=>{
           alert(`Somethin wrong: ${error}`);
-      })
-     
-      
+      }) 
   }
 
-
+  function checkIsAdmin(){
+    let u = localStorage.getItem('salesofficer');
+    if(u !== 'undefined'){
+      let so = JSON.parse(u);
+      setSalesOfficerDisabled(true);
+      setSalesOfficerTitle(so.name);
+      setSelectedSalesOfficer(so.id);
+    }
+  }
   useEffect(() => {
     fetchParties()
     fetchSalesOfficers()
     fetchParoducts()
+    checkIsAdmin()
   }, [])
   // Total Calculater
   useEffect(()=>{
@@ -303,6 +316,7 @@ export default function PartyOrder() {
                 <Typography variant='button' color='textSecondary'>SALES OFFICER </Typography>     
                 <Selecter
                       title={salesOfficerTitle}
+                      disabled={salesOfficerDisabled}
                       handleChange={FieldsCahange}
                       value={fields.sale_officer}
                       onOpen={()=>console.log('open')}
@@ -318,7 +332,7 @@ export default function PartyOrder() {
                       type="number" 
                       onChange={FieldsCahange} 
                       name='freight'
-                      value={productFields.freight}
+                      value={fields.freight}
                       />
                 </Grid>
                 <Grid item container justifyContent='space-between'>
@@ -413,7 +427,7 @@ export default function PartyOrder() {
          <TableContainer component={Paper}>
             <Table className={classes.table} aria-label="simple table">
               <TableHead>
-                <TableRow>
+                <TableRow key='products'>
                   <StyledTableCell>Product</StyledTableCell>
                   <StyledTableCell>Quantity</StyledTableCell>
                   <StyledTableCell>Rate</StyledTableCell>

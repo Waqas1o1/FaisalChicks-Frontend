@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from utils.utils import UpdateLeadgers,DeleteLeadgers
+from django.contrib.auth.models import User
 # Users
 
 # ~~~~~~~~~~~
@@ -9,9 +10,11 @@ class SalesOfficer(models.Model):
     commission = models.FloatField(default=0.0)
     contact = models.CharField(max_length=13)
     
+    
     opening_Balance = models.FloatField()
     current_Balance = models.FloatField(blank=True, null=True)
     
+    user = models.OneToOneField(User,on_delete=models.CASCADE)
     date = models.DateField(default=timezone.now, blank=True)
 
     def save(self, *args, **kwargs):
@@ -40,10 +43,12 @@ class Party(models.Model):
     name = models.CharField(max_length=30, unique=True)
     email = models.EmailField(max_length=30, unique=True)
     area = models.CharField(max_length=300)
+    zone = models.CharField(max_length=300)
+    region = models.CharField(max_length=300)
     contact = models.CharField(max_length=13)
     # Relation
     discount = models.ForeignKey(DiscountCategory,on_delete=models.CASCADE)
-    sales_Officer = models.ForeignKey(SalesOfficer,on_delete=models.SET_NULL,null=True)
+    sale_officer = models.ForeignKey(SalesOfficer,on_delete=models.CASCADE)
     category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True)
     # Accounts
     creditLimit = models.FloatField()
@@ -51,8 +56,8 @@ class Party(models.Model):
     opening_Balance = models.FloatField()
     current_Balance = models.FloatField(blank=True, null=True)
     # Images 
-    SCI = models.ImageField(null=True,blank=True,upload_to='Security Check Images')
-    TOR = models.ImageField(null=True,blank=True,upload_to='Terms of Recoreds')
+    SCI = models.FileField(null=True,blank=True,upload_to='Security Check Images')
+    TOR = models.FileField(null=True,blank=True,upload_to='Terms of Recoreds')
     # Date
     date = models.DateField(default=timezone.now, blank=True)
 
@@ -64,11 +69,11 @@ class Party(models.Model):
 
     def __str__(self):
         return self.name
-
    
 class Product(models.Model):
     name = models.CharField(max_length=200,unique=True)
     type = models.CharField(max_length=300,choices=(('Pellet','Pellet'),('CRUMSS','CRUMSS')))
+    unit = models.CharField(max_length=30,default='Kg')
     pakage_weight = models.IntegerField(default=0)
     sales_price = models.FloatField(default=0)
     cost_price = models.FloatField(default=0)
@@ -636,7 +641,7 @@ class PartyOrderProduct(models.Model):
       
 class Recovery(models.Model):
     date = models.DateField(default=timezone.now, blank=True)
-    party = models.ForeignKey(Party,on_delete=models.CASCADE,null=True,blank=True)
+    party = models.ForeignKey(Party,on_delete=models.CASCADE)
     status = models.CharField(max_length=50, choices=[('Pending', 'Pending'), ('Approved','Approved')], default='Pending')
     party_order = models.ForeignKey(PartyOrder,on_delete=models.CASCADE,null=True,blank=True)
     sale_officer = models.ForeignKey(SalesOfficer,on_delete=models.CASCADE)
@@ -668,9 +673,7 @@ class Recovery(models.Model):
                                 freight = self.party_order.freight,transaction_type='Credit',
                                 description=self.description,
                                 total_amount=self.amount)
-                    pl.save()
-                  
-                    
+                    pl.save()                 
                 else:
                     pl = PartyLedger(party=self.party,sales_officer=self.sale_officer, 
                                     transaction_type='Credit',
@@ -697,7 +700,7 @@ class Recovery(models.Model):
                                 total_amount=(self.amount))
                     ccl.save()
                     self.cll = ccl
-            super(Recovery, self).save(*args, **kwargs)  
+        super(Recovery, self).save(*args, **kwargs)  
 
 class DispatchTable(models.Model):
     driver = models.CharField(max_length=300)

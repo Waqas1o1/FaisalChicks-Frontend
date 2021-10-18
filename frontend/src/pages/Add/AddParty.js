@@ -14,7 +14,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import EditIcon from '@material-ui/icons/Edit';
-import axios from 'axios';
+// import axios from 'axios';
 const useStyles = makeStyles((theme) => ({
     formRoot: {
       flexGrow: 1,
@@ -41,14 +41,17 @@ const AddParty = () => {
         creditLimit:'',
         salesTarget:'',
         area:'',
+        zone:'',
+        region:'',
         contact:'',
         opening_Balance:'',
         discount:'0',
-        sales_officer:'',
+        sale_officer:'',
         TOR:'',
         SCI:'',
         category:'',
         ref_id:'',
+     
     };
     const classes = useStyles();
     const [rows,setRows] = useState([]);
@@ -156,7 +159,7 @@ const AddParty = () => {
                         delete parties[p].date
                         delete parties[p].current_Balance
                         parties[p].category = parties[p].category.name 
-                        parties[p].sales_Officer = parties[p].sales_Officer.name 
+                        parties[p].sale_officer = parties[p].sale_officer.name 
                     }
                     setRows(parties);
                     // SetPartieseDB(parties);
@@ -171,6 +174,7 @@ const AddParty = () => {
             setRows(JSON.parse(localStorage.getItem('Parties')));
         }
     }
+
     function Reset(){
         setCategoryTitle('Select Catagory');
         setDiscountTitle('Select Discount');
@@ -188,7 +192,7 @@ const AddParty = () => {
             for (let i in fields){
                 form_data.append(i, fields[i]);
             };
-            return await axios.post('http://127.0.0.1:8000/apis/Party/',form_data,
+            return await axiosInstance.post('apis/Party/',form_data,
             { headers: {
                 'content-type': 'multipart/form-data',
                 'Authorization': `Token ${localStorage.getItem('token')}`
@@ -212,7 +216,7 @@ const AddParty = () => {
             let form_data = new FormData();
             for (let i in fields){
                 if (i === 'sales_Officer' || i === 'SCI' || i === 'TOR'){
-                    console.log('not Set ',i);
+                    
                 }
                 else{
                     form_data.append(i, fields[i]);
@@ -265,21 +269,25 @@ const AddParty = () => {
                 alert(`Error Occures ${data['message']}`);
             }
             else{
+                console.log(data.data);
                 let setData = {
                     creditLimit:data.data.creditLimit,
                     salesTarget:data.data.salesTarget,
                     sales_Officer:data.data.sales_Officer,
                     category:data.data.category.id,
                     name:data.data.name,
+                    ref_id:data.data.ref_id,
                     email:data.data.email,
                     area:data.data.area,
+                    region:data.data.region,
+                    zone:data.data.zone,
                     contact:data.data.contact,
                     opening_Balance:data.data.opening_Balance,
                     discount:data.data.discount.id,
                 }
                 setFields(setData);
                 setCategoryTitle(data.data.category.name);
-                setSalesOfficersTitle(data.data.sales_Officer.name);
+                setSalesOfficersTitle(data.data.sale_officer.name);
                 setDiscountTitle(data.data.discount.name);
                 setIsUpdate(true);
             }
@@ -312,7 +320,7 @@ const AddParty = () => {
             const obj = JSON.parse(optionElementId);
             setDiscountTitle(`${obj.name} : ${obj.discount}`);
         }
-        if (event.target.name === 'sales_officer'){
+        if (event.target.name === 'sale_officer'){
             const index = event.target.selectedIndex;
             const optionElement = event.target.childNodes[index];
             const optionElementId = optionElement.getAttribute('id');
@@ -354,7 +362,6 @@ const AddParty = () => {
             ...fields,
           [event.target.name]: event.target.files[0]
         });
-
       };
     
         
@@ -396,10 +403,10 @@ const AddParty = () => {
                             <Selecter
                             title={salesOfficerTitle}
                             handleChange={FiledChange}
-                            value={fields.sales_officer}
+                            value={fields.sale_officer}
                             onOpen={selecterOpen}
                             choises={salesOfficer}
-                            name='sales_Officer'
+                            name='sale_officer'
                             />
                         </Grid>
                         
@@ -465,22 +472,42 @@ const AddParty = () => {
                             />
                         </Grid>
                     </Grid>
-                    <Grid item xs>
-                        <InputField  label='Area' 
-                            type='string' size='small' 
-                            name='area'
-                            required={true} 
-                            value={fields.area}
-                            onChange={FiledChange}
-                            fullWidth
-                        
-                        />
+                    <Grid item container spacing={3}>
+                        <Grid xs item>
+                            <InputField  label='Area' 
+                                type='string' size='small' 
+                                name='area'
+                                inputProps={{ style: {textTransform: "uppercase" }}}
+                                required={true} 
+                                value={fields.area}
+                                onChange={FiledChange}
+                            />
+                        </Grid>
+                        <Grid xs item>
+                            <InputField  label='Region' 
+                                type='string' size='small' 
+                                inputProps={{ style: {textTransform: "uppercase" }}}
+                                name='region'
+                                required={true} 
+                                value={fields.region}
+                                onChange={FiledChange}
+                            />
+                        </Grid>
+                        <Grid xs item>
+                            <InputField  label='Zone' 
+                                type='string' size='small' 
+                                inputProps={{ style: {textTransform: "uppercase" }}}
+                                name='zone'
+                                required={true} 
+                                value={fields.zone}
+                                onChange={FiledChange}
+                            />
+                        </Grid>
                     </Grid>             
                     <Grid item xs>
                         <InputField  size='small' label="Contact"
-                        type="number"
+                        type="string"
                         name='contact'
-                        required={true}
                         value={fields.contact}
                         onChange={FiledChange}
                         />  
@@ -494,6 +521,7 @@ const AddParty = () => {
                         disabled={(isUpdate? true:false)}
                         />
                     </Grid>
+                    
                     <Grid item container spacing={3}>
                         <Grid item xs={6}>
                             <Typography variant='body2'>Security Check Image</Typography>
@@ -520,7 +548,7 @@ const AddParty = () => {
             <Grid item xs={12} md={9} lg={9} className={classes.table}>
                 <GetTable 
                     rows={rows} 
-                    columns={['ID','Name','Email','Area','Contact','Credit Limit','Sales Target','Discounted Amount','SCI','TOR','Opening Balance','SalesOfficer','Category']}
+                    columns={['ID','Ref Id','Name','Email','Area','Zone','Region','Contact','Credit Limit','Sales Target','Opening Balance','SCI','TOR','Discount','SalesOfficer','Category']}
                     onDelete={onDelete}
                     onUpdate={onUpdate}
                 />

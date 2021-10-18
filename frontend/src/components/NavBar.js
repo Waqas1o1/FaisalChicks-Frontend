@@ -132,6 +132,7 @@ function NavBar(props) {
   };
   const [openLedger, setpOenLedger] = React.useState(false);
   const [openAdd, setpOenAdd] = React.useState(false);
+  const [isNotAdmin,setIsNotAdmin] = React.useState(false);
 
   const handleOpenLedgerClick = () => {
     setpOenLedger(!openLedger);
@@ -140,6 +141,13 @@ function NavBar(props) {
     setpOenAdd(!openAdd);
   };
 
+  useEffect(()=>{
+    let u = localStorage.getItem('salesofficer');
+    if(u !== 'undefined'){
+      setIsNotAdmin(true);
+    }
+  }
+    ,[])  
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -202,7 +210,7 @@ function NavBar(props) {
         <Divider />
         <List>
         {/* Main */}
-            <Link to='/' className={`${classes.link} ${classes.linkText}`} >  
+            <Link to='/graph' className={`${classes.link} ${classes.linkText}`} >  
               <ListItem button key={'DashBorad'} onClick={handleDrawerClose}>
                     <ListItemIcon> 
                       <DashboardIcon /> 
@@ -210,7 +218,7 @@ function NavBar(props) {
                 <ListItemText primary={'DashBorad'} />
               </ListItem>
             </Link>
-            <Link to='/Components' className={`${classes.link} ${classes.linkText}`}>  
+            <Link to='/' className={`${classes.link} ${classes.linkText}`}>  
               <ListItem button key={'Components'} onClick={handleDrawerClose}>
                     <ListItemIcon> 
                       <SettingsInputComponentIcon /> 
@@ -218,8 +226,10 @@ function NavBar(props) {
                 <ListItemText primary={'Components'} />
               </ListItem>
             </Link>
-            {/* Add  */}
             <Divider />
+            {!isNotAdmin?
+            <>
+            {/* Add  */}
             <ListItem button onClick={handleOpenAddClick}>
               <ListItemIcon>
                 <QueuePlayNextIcon />
@@ -271,6 +281,8 @@ function NavBar(props) {
               </Link>
               </List>
             </Collapse>
+            </>
+            :undefined}
             <Divider />
             {/* Ledgers */}
             <ListItem button onClick={handleOpenLedgerClick}>
@@ -289,6 +301,8 @@ function NavBar(props) {
                   <ListItemText primary="Party Ledger" />
                 </ListItem>
               </Link>
+              {!isNotAdmin?
+              <>
               <Link to='/CashLedger' className={`${classes.link} ${classes.linkText}`} > 
                 <ListItem button className={classes.nested}  onClick={handleDrawerClose} >
                   <ListItemIcon>
@@ -353,6 +367,8 @@ function NavBar(props) {
                   <ListItemText primary="Bank Ledger" />
                 </ListItem>
               </Link>
+              </>
+              :undefined}
             </Collapse>
        
         </List>

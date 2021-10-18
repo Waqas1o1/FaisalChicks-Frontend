@@ -56,6 +56,7 @@ const Recovery = () => {
     // Sales Officer
     const [salesOfficer,setSalesOfficer] = useState([]);
     const [salesOfficerTitle,setSalesOfficerTitle] = useState('Sales Officer');
+    const [salesOfficerDisabled,setSalesOfficerDisabled] = useState(false); 
     // Party orders
     const [partyOrders,setPartyOrders] = useState([]);
     const [partyOrderTitle,setPartyOrdersTitle] = useState('Select Party Order');
@@ -427,6 +428,18 @@ const Recovery = () => {
         fetchRecovery();
 
     }
+    function checkIsAdmin(){
+        let u = localStorage.getItem('salesofficer');
+        if(u !== 'undefined'){
+          let so = JSON.parse(u);
+          setSalesOfficerDisabled(true);
+          setSalesOfficerTitle(so.name);
+          setFields({
+            ...fields,
+            sale_officer:so.id
+          });
+        }
+      }
 
     const handleClose = () => {
         setOpenDialog(false);
@@ -451,6 +464,8 @@ const Recovery = () => {
             fetchRecovery();
             fetchSalesOfficers();
             fetchPartyOrders();
+            checkIsAdmin();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         }, []);
 
     const columns = [
@@ -570,6 +585,7 @@ const Recovery = () => {
                         <Grid item xs>
                             <Selecter
                                 title={salesOfficerTitle}
+                                disabled={salesOfficerDisabled}
                                 handleChange={FiledChange}
                                 value={fields.sale_officer}
                                 onOpen={selecterOpen}
@@ -658,7 +674,7 @@ const Recovery = () => {
                     columns={columns}
                     pageSize={7}
                     className={classes.table}
-                    headerHeight={60}
+                    headerHeight={50}
                     disableSelectionOnClick
                     loading={loading}
                 />

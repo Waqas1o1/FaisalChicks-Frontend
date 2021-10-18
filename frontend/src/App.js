@@ -23,16 +23,18 @@ import DiscountLedger from './pages/Ledgers/DiscountLedger';
 import IncentiveLedger from './pages/Ledgers/IncentiveLedger';
 import BankLedger from './pages/Ledgers/BankLedger';
 // UI
+import Import from './pages/Imports/Import';
 import PartyOrder from './pages/Records/PartyOrder';
 import OrderView from './pages/Records/OrderView';
 import Recovery from './pages/Records/Recovery';
 import Login from './pages/Authentications/Login';
-import Signup from './pages/Authentications/Signup';
+// import Signup from './pages/Authentications/Signup';
 
 import { ToastContainer } from "react-toastify";
 import { connect } from 'react-redux';
 import { authCheckState } from './store/actions/auth';
 import GroupRecovery from './pages/Records/GroupRecovery';
+import AddSalesOfficer from './pages/Add/AddSalesOfficer';
 
 
 const theme = createTheme({
@@ -69,13 +71,6 @@ const theme = createTheme({
 
 
 const App = (props) => {
-  // const checkAuthentication = () =>{
-  //   if (!props.authenticated){
-  //     if (window.location.pathname !== '/login'){
-  //       window.location.replace('/login');
-  //     }
-  //   }
-  // }
 
   useEffect(() => {
     props.onLoad();
@@ -87,9 +82,10 @@ const App = (props) => {
                 <Layout>
                     <ToastContainer hideProgressBar={true} newestOnTop={true} />
                     <Switch >
-                        <Route exact path='/' component={GraphAnalysis} />
-                        <Route exact path='/Components' component={DashBorad} />
+                        <Route exact path='/Graph' component={GraphAnalysis} />
+                        <Route exact path='/' component={DashBorad} />
                         <Route exact path='/addParty' component={AddParty} />
+                        <Route exact path='/addSalesofficer' component={AddSalesOfficer} />
                         <Route exact path='/addPartyDiscount' component={AddPartyDiscount} />
                         <Route exact path='/addCategory' component={AddCategory} />
                         <Route exact path='/addBank' component={AddBank} />
@@ -111,8 +107,9 @@ const App = (props) => {
                         <Route exact path='/Recovery' component={Recovery} />
                         {/* Authentication */}
                         <Route exact path='/Login' component={Login} />
-                        <Route exact path='/Sginup' component={Signup} />
-                      
+                        {/* <Route exact path='/Sginup' component={Signup} /> */}
+                        {/* Import */}
+                        <Route exact path='/Import' component={Import} />
                     </Switch>
                 </Layout>
             </Router>

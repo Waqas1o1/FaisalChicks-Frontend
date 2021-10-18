@@ -1,6 +1,5 @@
 import *  as actionTypes from "./actionTypes";
 import axiosInstance from '../../apisConfig';
-import axios from 'axios';
 
 export const authStart = () =>{
     return {
@@ -8,10 +7,11 @@ export const authStart = () =>{
     };
 };
 
-export const  authSuccess = (token) =>{
+export const  authSuccess = (token,group) =>{
     return {
         type: actionTypes.AUTH_SUCCESS,
-        token:token
+        token:token,
+        group:group
     }
 };
 
@@ -34,14 +34,19 @@ export const authLogin = (username, password) =>{
     return dispatch =>{
         dispatch(authStart());
         localStorage.removeItem('token');
-        axios.post('http://127.0.0.1:8000/auth/login/',{
+        axiosInstance.post('/auth/login/',{
             username,
             password
         })
         .then((res)=>{
-            const token = res.data.token;
-            const expiry = res.data.expiry;
+            const token = res.data.data.token;
+            const expiry = res.data.data.expiry;
+            const group = res.data.data.group;
+            if (res.data.data.salesofficer !== undefined | res.data.data.salesofficer !== null){
+                localStorage.setItem('salesofficer',JSON.stringify(res.data.data.salesofficer));
+            }
             localStorage.setItem('token',token);
+            localStorage.setItem('group',group);
             localStorage.setItem('expiry',expiry);
             window.location.replace("/");
         })
@@ -77,6 +82,7 @@ export const authSignup = (username, email, password, role) =>{
 export const authCheckState = () =>{
     return dispatch =>{
         const token = localStorage.getItem('token');
+        const group = localStorage.getItem('group');
         var expiry = localStorage.getItem('expiry');
         if (token === undefined || token  === null){
             dispatch(authLogout())
@@ -89,7 +95,7 @@ export const authCheckState = () =>{
             if ( expiry <= new Date()){
                 dispatch(authLogout());
             }else{
-                dispatch(authSuccess(token));
+                dispatch(authSuccess(token,group));
             }
         };
     }

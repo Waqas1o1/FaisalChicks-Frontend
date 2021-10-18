@@ -1,4 +1,5 @@
-from django.http.response import HttpResponse, JsonResponse
+from django.contrib.auth.models import User
+from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from rest_framework  import viewsets,generics
 from rest_framework.response import Response
@@ -6,22 +7,26 @@ from app import models as m
 from app import serializers as s
 from app import permisions as p
 from django.db.models import Q
-
+from django.views.decorators.csrf import csrf_exempt
+from utils.enums import Groups as g
+from django.contrib.auth.models import Group
 # Create your views here.
 # Authentication
  
 # CRUD oprations
 class PartyViewSet(viewsets.ViewSet):
     def list(self, request):
-        # if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request) :
-        data = m.Party.objects.all()
+        user = request.user.groups.all().first().name
+        if user == 'salesofficer':
+            sales_officer = m.SalesOfficer.objects.get(user=request.user)
+            data = m.Party.objects.filter(sale_officer=sales_officer)
+        else:
+            data = m.Party.objects.all()
+
         serializer = s.PartySerializer(
             data, many=True, context={"request": request})
         response_dict = {
             "error": False, "message": "All List Data", "data": serializer.data}
-        # else:
-        #     response_dict = {
-        #         "error": True, "message": 'UnAuthenticated Person'}
         return Response(response_dict)
 
     def create(self, request):
@@ -96,35 +101,39 @@ class PartyViewSet(viewsets.ViewSet):
 class SalesOfficerViewSet(viewsets.ViewSet):
 
     def list(self, request):
-        # if request.user.is_superuser or p.Accountant(request):
-        if request: 
-            data = m.SalesOfficer.objects.all()
-            serializer = s.SalesOfficerSerializer(
-                data, many=True, context={"request": request})
-            response_dict = {
-                "error": False, "message": "All List Data", "data": serializer.data}
-            return Response(response_dict)
-        else:
-            response_dict = {
-                "error": False, "message": 'UnAuthenticated Person'}
+        # if request.user.is_superuser or p.Accountant(request)
+        data = m.SalesOfficer.objects.all()
+        serializer = s.SalesOfficerSerializer(
+            data, many=True, context={"request": request})
+        response_dict = {
+            "error": False, "message": "All List Data", "data": serializer.data}
         return Response(response_dict)
+    
     def create(self, request):
-        if request.user.is_superuser :
-            try:
-                serializer = s.SalesOfficerSerializer(
-                    data=request.data, context={"request": request})
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
-                response_dict = {"error": False,
-                                "message": "Data Save Successfully"}
-            except ValueError as err:
-                response_dict = {"error": True, "message": err}
-            except:
-                response_dict = {"error": True,
+        try:
+            # user
+            username = request.data['username']
+            email = request.data['email']
+            password = request.data['password']
+            name = request.data['name']
+            user = User.objects.create_user(username, email, password)
+            user.first_name  = name
+            user.last_name  = 'Sales Officer'
+            grp = Group.objects.get(name=g.SalesOfficer.value)
+            user.groups.add(grp)
+            user.save()
+            # SalesOfficer
+            commission = request.data['commission']
+            contact = request.data['contact']
+            opening_Balance = request.data['opening_Balance']
+            m.SalesOfficer(name=name,commission=commission,contact=contact,opening_Balance=opening_Balance,user=user).save()
+            response_dict = {"error": False,
+                            "message": "Data Save Successfully"}
+        except ValueError as err:
+            response_dict = {"error": True, "message": err}
+        except:
+            response_dict = {"error": True,
                                 "message": "Error During Saving Data"}
-        else:
-            response_dict = {
-                "error": False, "message": 'UnAuthenticated Person'}
         return JsonResponse(response_dict)
 
     def retrieve(self, request, pk=None):
@@ -162,7 +171,7 @@ class SalesOfficerViewSet(viewsets.ViewSet):
     def delete(self, request, pk=None):
         if request.user.is_superuser:
             try:
-                m.SalesOfficer.objects.get(id=pk).delete()
+                m.SalesOfficer.objects.get(id=pk).user.delete()
                 response_dict = {"error": False,
                                 "message": "Successfully Deleted"}
             except:
@@ -334,15 +343,12 @@ class CategoryViewSet(viewsets.ViewSet):
 class ProductViewSet(viewsets.ViewSet):
     def list(self, request):
         # if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
-        if request:
-            data = m.Product.objects.all()
-            serializer = s.ProductSerializer(
-                data, many=True, context={"request": request})
-            response_dict = {
-                "error": False, "message": "All List Data", "data": serializer.data}
-            return Response(response_dict)
-        else:
-            HttpResponse('{"error": False, "message": "All List Data"}')
+        data = m.Product.objects.all()
+        serializer = s.ProductSerializer(
+            data, many=True, context={"request": request})
+        response_dict = {
+            "error": False, "message": "All List Data", "data": serializer.data}
+        return Response(response_dict)
 
     def create(self, request):
         # if request.user.is_superuser :
@@ -405,14 +411,11 @@ class ProductViewSet(viewsets.ViewSet):
 class DiscountCategoryViewSet(viewsets.ViewSet):
 
     def list(self, request):
-        # if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
         data = m.DiscountCategory.objects.all()
         serializer = s.DiscountCategorySerializer(
             data, many=True, context={"request": request})
         response_dict = {"error": False, "message": "All List Data", "data": serializer.data}
         return Response(response_dict)
-        # else:
-        #     HttpResponse('{"error": False, "message": "No Authenticated"}')
     
     def create(self, request):
         # if request.user.is_superuser:
@@ -1045,3 +1048,26 @@ def GetPartyOrderByAmount(request,party,amount):
     response_dict = {
                 "error": False, "message": "All List Data", "data": serializer.data}
     return JsonResponse(response_dict)
+import pandas as pd
+@csrf_exempt
+def Import(request):
+    if request.method == 'POST':
+        type = request.POST['type']
+        df = pd.read_csv(request.FILES['file'])
+        for index, row in df.iterrows():
+            if type == 'Discount':
+                m.DiscountCategory(name=row['name'],discount=row['discount']).save()
+            if type == 'Party':
+                so = m.SalesOfficer.objects.get(id=row['SalesOfficer id'])
+                dt = m.DiscountCategory.objects.get(id=row['discount id'])
+                ct = m.Category.objects.get(id=row['category id'])
+                m.Party(name=row['name'],email=row['email'],contact=row['contact'],creditLimit=row['creditLimit'],salesTarget=row['salesTarget'],area=row['area'],sale_officer=so,discount=dt,category=ct,opening_Balance=row['opening_Balance'],ref_id=row['ref_id']).save()
+            if type == 'Category':
+                m.Category(name=row['name']).save()
+            if type == 'Bank':
+                m.Bank(name=row['name'],account_no=row['account_no'],opening_Balance=row['opening_Balance']).save()
+            if type == 'Product':
+                ct = m.Category.objects.get(id=row['category id'])
+                m.Product(name=row['name'],type=row['type'],unit=row['unit'],pakage_weight=row['pakage_weight'],sales_price=row['sales_price'],cost_price=row['cost_price'],category=ct).save()
+    
+    return JsonResponse('Ok',safe=False)

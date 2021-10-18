@@ -39,7 +39,8 @@ const Recovery = () => {
         payment_method:'Cash',
         bank: '',
         party:'',
-        description: ''
+        description: '',
+        freight:0,
     };
 
     
@@ -53,6 +54,7 @@ const Recovery = () => {
     // Sales Officer
     const [salesOfficer,setSalesOfficer] = useState([]);
     const [salesOfficerTitle,setSalesOfficerTitle] = useState('Sales Officer');
+    const [salesOfficerDisabled,setSalesOfficerDisabled] = useState(false);
     // Sales Officer
     const [parties,setParties] = useState([]);
     const [partyTitle,setPartyTitle] = useState('Select Party');
@@ -307,6 +309,20 @@ const Recovery = () => {
     const hanldeAmountChange = (e)=>{
         console.log(e.target.name)
     }
+
+    function checkIsAdmin(){
+        let u = localStorage.getItem('salesofficer');
+        if(u !== 'undefined'){
+          let so = JSON.parse(u);
+          setSalesOfficerDisabled(true);
+          setSalesOfficerTitle(so.name);
+          setFields({
+            ...fields,
+            sale_officer:so.id
+          });
+        }
+      }
+
     const handleClose = () => {
         setOpenDialog(false);
     };
@@ -379,6 +395,8 @@ const Recovery = () => {
             fetchBank();
             fetchSalesOfficers();
             fetchParties();
+            checkIsAdmin();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         }, []);
 
   
@@ -386,7 +404,7 @@ const Recovery = () => {
         <Grid container spacing={2} className={classes.formRoot}>
             {/* Title */}
             <Grid item xs={11} >     
-                <Typography variant="h4" gutterBottom  color='primary'>Recovery</Typography>
+                <Typography variant="h4" gutterBottom  color='primary'>Group Recovery</Typography>
             </Grid>
            
             
@@ -397,6 +415,7 @@ const Recovery = () => {
                         <Grid item xs>
                             <Selecter
                                 title={salesOfficerTitle}
+                                disabled={salesOfficerDisabled}
                                 handleChange={FiledChange}
                                 value={fields.sale_officer}
                                 onOpen={selecterOpen}

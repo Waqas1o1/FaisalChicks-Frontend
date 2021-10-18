@@ -17,6 +17,7 @@ export const authSuccess =  (state, action) => {
     return updateObject(state,{
         loading: false,
         token: action.token,
+        group: action.group
     });
 };
 export const authFail =  (state, action) => {

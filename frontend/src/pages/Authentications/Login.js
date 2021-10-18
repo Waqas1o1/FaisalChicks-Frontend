@@ -3,8 +3,6 @@ import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
 import Link from "@material-ui/core/Link";
 import Paper from "@material-ui/core/Paper";
 import Box from "@material-ui/core/Box";
@@ -27,10 +25,13 @@ const MadeWithLove = () => (
 
 const useStyles = makeStyles(theme => ({
   root: {
-    height: "100vh"
+    height: "85vh",
+    display:'flex',
+    justifyContent:'center',
+    alignContent:'center'
   },
   image: {
-    backgroundImage: "url(https://source.unsplash.com/random)",
+    backgroundImage: "url(https://media.npr.org/assets/img/2016/01/22/ncchickenfarm_custom-d40d6b8b1de70a3ea43012b1df67e971ca867e38.jpg)",
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover",
     backgroundPosition: "center"
@@ -108,10 +109,7 @@ const Login = (props) => {
               type="password"
               onChange={handleOnChange}
             />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
+           
             <Button
               type="submit"
               fullWidth

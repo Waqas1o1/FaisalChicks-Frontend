@@ -38,13 +38,14 @@ const AddProduct = () => {
         sales_price:'',
         cost_price:'',
         category:'',
+        unit:'',
     };
     const classes = useStyles();
     const [rows,setRows] = useState([]);
     const [fields,setFields] = useState(initialFields);
     const [isUpdate,setIsUpdate] = useState(false);
     const [category, setCategory] = useState([]);
-    const [categoryTitle, setCategoryTitle] = useState('Select product mode');
+    const [categoryTitle, setCategoryTitle] = useState('Select Catagory');
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
@@ -265,48 +266,55 @@ const AddProduct = () => {
             </Grid>
             
             <Grid item xs={12} md={3} lg={3}>
-                <Grid container item direction='column' spacing={3}>
-                    <Grid item xs>
+                <Grid container item  spacing={3}>
+                    <Grid item xs={12}>
                         <Selecter
-                        title={categoryTitle}
-                        handleChange={FiledChange}
-                        value={fields.category}
-                        onOpen={selecterOpen}
-                        choises={category}
-                        name='category'
+                            title={categoryTitle}
+                            handleChange={FiledChange}
+                            value={fields.category}
+                            onOpen={selecterOpen}
+                            choises={category}
+                            name='category'
                         />
                     </Grid>
-                    <Grid item xs>
+                   
+                    <Grid item xs={12}>
                         <FormControl  style={{minWidth:220}} color='primary'>
                             <InputLabel >Type</InputLabel>
                             <Select
-                            labelId="Type"
-                            name='type'
-                            value={fields.type}
-                            onChange={FiledChange}
+                                labelId="Type"
+                                name='type'
+                                value={fields.type}
+                                onChange={FiledChange}
                             >
                             <MenuItem value={'Pellet'}>Pellet</MenuItem>
                             <MenuItem value={'CRUMSS'}>CRUMSS</MenuItem>
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid item xs>
+                    <Grid item xs={12}>
                         <InputField  label='Name' size='small' 
-                        name='name' type="string" fullWidth
-                        required={true} 
-                        value={fields.name}
-                        onChange={FiledChange}
-                        autoFocus
+                            name='name' type="string" fullWidth
+                            required={true} 
+                            value={fields.name}
+                            onChange={FiledChange}
                         />
                     </Grid>
-                    <Grid item xs>
+                    
+                    <Grid item xs={8}>
                         <InputField  label='Pakage Weight'  
-                        size='small' fullWidth
-                        name='pakage_weight' type="string" 
-                        required={true} 
-                        value={fields.pakage_weight}
-                        onChange={FiledChange}
-                        autoFocus
+                            size='small'
+                            name='pakage_weight' type="string" 
+                            value={fields.pakage_weight}
+                            onChange={FiledChange}
+                        />
+                    </Grid>
+                    <Grid item xs={4}>
+                        <InputField  label='Unit'  
+                            size='small'
+                            name='unit' type="string" 
+                            value={fields.unit}
+                            onChange={FiledChange}
                         />
                     </Grid>
                     <Grid item container spacing={3}>
@@ -347,7 +355,7 @@ const AddProduct = () => {
            <Grid item xs={12} md={9} lg={9} className={classes.table}>
                 <GetTable 
                     rows={rows} 
-                    columns={['ID','Name','Type','Pakage','Sales Price','Cost Price','Category']}
+                    columns={['ID','Name','Type','Unit','Pakage','Sales Price','Cost Price','Category']}
                     onDelete={onDelete}
                     onUpdate={onUpdate}
                 />

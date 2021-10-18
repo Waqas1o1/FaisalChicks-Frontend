@@ -1,5 +1,5 @@
 import { Grid, makeStyles, Paper, Typography } from '@material-ui/core';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import HomeRoundedIcon from '@material-ui/icons/HomeRounded';
 // import SettingsBackupRestoreRoundedIcon from '@material-ui/icons/SettingsBackupRestoreRounded';
@@ -12,6 +12,7 @@ import CategoryIcon from '@material-ui/icons/Category';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import Divider from '@material-ui/core/Divider';
 import MergeTypeIcon from '@material-ui/icons/MergeType';
+
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -53,14 +54,25 @@ const useStyles = makeStyles((theme) => ({
 }));
  
 const DashBorad = () => {
-  
+  const [isNotAdmin,setIsNotAdmin] = useState(false)
+
+  useEffect(()=>{
+    let u = localStorage.getItem('salesofficer');
+    if(u !== 'undefined'){
+      setIsNotAdmin(true);
+    }
+  }
+    ,[])  
+
     const classes = useStyles();
     return (
       <div className={classes.root}>
         <Typography variant='h3'  color='primary' gutterBottom>
               DashBorad
         </Typography>
+        
         {/* Add  */}
+        {!isNotAdmin?
         <Grid container style={{padding:'30px'}} spacing={2} justifyContent='center' alignItems="center" >
           <Grid item xs={12} >
             <Typography variant="h4" display="block" color='textSecondary'  align='center'>
@@ -73,6 +85,16 @@ const DashBorad = () => {
               <Typography variant="button" display="block" gutterBottom >
                 <Link className={`${classes.textWhite} ${classes.link}`} to='/addParty'>
                   Add Party
+                </Link>
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={6} sm={4} md={3} lg={2} container justifyContent='center'>
+            <Paper className={`${classes.paper} ${classes.bgred}`}>
+              <HomeRoundedIcon fontSize='large' className={`${classes.textWhite} ${classes.f60}`}/>
+              <Typography variant="button" display="block" gutterBottom >
+                <Link className={`${classes.textWhite} ${classes.link}`} to='/addSalesofficer'>
+                  Add Salesofficer
                 </Link>
               </Typography>
             </Paper>
@@ -116,6 +138,7 @@ const DashBorad = () => {
             </Paper>
           </Grid>
         </Grid>
+        :undefined}
         {/* View */}
         <Divider variant="middle" />
         <Grid container style={{padding:'30px'}} spacing={2} justifyContent='center'  alignItems="center">
@@ -186,6 +209,8 @@ const DashBorad = () => {
               </Typography>
             </Paper>
           </Grid>
+        {!isNotAdmin?
+        <>
           <Grid item xs={6} sm={4} md={3} lg={2} container justifyContent='center'>
             <Paper className={`${classes.paper} ${classes.bgBlue} ${classes.bgred}`}>
               <MenuBookIcon fontSize='large' className={`${classes.textWhite} ${classes.f60}`}/>
@@ -248,7 +273,6 @@ const DashBorad = () => {
                   </Typography>
               </Paper>
           </Grid>        
-        
           <Grid item xs={6} sm={4} md={3} lg={2} container justifyContent='center'>
               <Paper className={`${classes.paper} ${classes.bgPurpal}`}>
                 <MenuBookIcon fontSize='large' className={`${classes.textWhite} ${classes.f60}`}/>
@@ -258,8 +282,9 @@ const DashBorad = () => {
                     </Link>
                   </Typography>
               </Paper>
-          </Grid>        
-        
+          </Grid>   
+          </>     
+          :undefined}
         </Grid>
     </div>
     );

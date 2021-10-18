@@ -62,7 +62,6 @@ export default function GetTable(props) {
                 <TableCell
                   key={column}
                   align="center"
-                  // style={{ minWidth: column.minWidth }}
                 >
                   {column}
                 </TableCell>
