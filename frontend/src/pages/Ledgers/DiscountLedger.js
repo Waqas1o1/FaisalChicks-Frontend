@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const columns = ['Date','Description','Category','Product','Qty','Rate','Transaction Type','Total Amount','Net Balance']
+const columns = ['Date','Description','Debit','Credit','Net Balance']
 
 export default function DiscountLedger() {
     var date = new Date();
@@ -66,7 +66,7 @@ export default function DiscountLedger() {
 
     async function fetchLedger(){
         if (navigator.onLine){
-            return await axiosInstance.get(`DiscountLedger/${fields.FromDate}/${fields.ToDate}`)
+            return await axiosInstance.get(`apis/DiscountLedger/${fields.FromDate}/${fields.ToDate}`)
             .then(res=>{
                 let data  = res;
                 if (data['error'] === true){
@@ -75,23 +75,16 @@ export default function DiscountLedger() {
                 }
                 else{
                     let data = res.data;
-                    for (var p in data){
-                        data[p].category = data[p].product.category.name
-                        data[p].product = data[p].product.name
-                    }
+                  
                     setRows(data);
                     setLoading(false);
-                    localStorage.removeItem('DiscountLedger');
                 }
             })
             .catch(error=>{
                 setLoading(false);
-                console.log(`${error}`);
             })
         }
-        else{
-            setRows(JSON.parse(localStorage.getItem('DiscountLedger')));
-        }
+       
     }
 
     const handleFromDateChange = (date) => {
@@ -200,12 +193,17 @@ export default function DiscountLedger() {
                                 <StyledTableRow key={row.id}>
                                     <StyledTableCell component="th" scope="row">{row.date}</StyledTableCell>
                                     <StyledTableCell align='center' >{row.description}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.category}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.product}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.qty}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.rate}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.transaction_type}</StyledTableCell>
+                                    {row.transaction_type === 'Credit'?
+                                    <>
+                                    <StyledTableCell align='center' ></StyledTableCell>
                                     <StyledTableCell align='center' >{row.total_amount}</StyledTableCell>
+                                    </>
+                                    :
+                                    <>
+                                    <StyledTableCell align='center' >{row.total_amount}</StyledTableCell>
+                                    <StyledTableCell align='center' ></StyledTableCell>
+                                    </>
+                                    }
                                     <StyledTableCell align='center' >{row.net_balance}</StyledTableCell>
                                 </StyledTableRow>
                             ))}

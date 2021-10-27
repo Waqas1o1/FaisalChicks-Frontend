@@ -18,15 +18,15 @@ const useStyles = makeStyles((theme) => ({
     formRoot: {
         flexGrow: 1,
         '@media only screen and (max-width: 600px)': {
-          width:'330px',
-          marginLeft:'-10px',
+          width:'340px',
          },
       },
-    table:{
+      table:{
+          width:'100vh',
           '@media only screen and (max-width: 600px)': {
-              marginLeft:'-30px',
-             },
-      }
+              width:'100%',
+          },
+      },
 }))
 
 const AddCategory = () => {
@@ -202,7 +202,7 @@ const AddCategory = () => {
         <Grid container spacing={2} className={classes.formRoot}>
             {/* Title */}
             <Grid item xs={11} >     
-                <Typography variant="h4" gutterBottom  color='primary'>Add Category</Typography>
+                <Typography variant="h4" gutterBottom  color='primary'>Add Product Category</Typography>
             </Grid>
             {/* Left */}
             <Grid item xs={1}>

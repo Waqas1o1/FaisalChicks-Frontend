@@ -1,6 +1,7 @@
 import *  as actionTypes from "./actionTypes";
 import axiosInstance from '../../apisConfig';
 
+
 export const authStart = () =>{
     return {
         type:actionTypes.AUTH_START
@@ -22,6 +23,7 @@ export const authFail = (error) =>{
     }
 };
 
+
 export const authLogout = () =>{
     localStorage.removeItem("token");
     localStorage.removeItem("expirationDate");
@@ -42,16 +44,26 @@ export const authLogin = (username, password) =>{
             const token = res.data.data.token;
             const expiry = res.data.data.expiry;
             const group = res.data.data.group;
-            if (res.data.data.salesofficer !== undefined | res.data.data.salesofficer !== null){
+            let displayname = 'Superuser';
+            if (res.data.data.salesofficer ){
                 localStorage.setItem('salesofficer',JSON.stringify(res.data.data.salesofficer));
+                displayname = res.data.data.salesofficer.name;
+            }
+            else if (res.data.data.dispatcher){
+                displayname = res.data.data.dispatcher.name;
+            }
+            else{
+                localStorage.removeItem('salesofficer');
             }
             localStorage.setItem('token',token);
+            localStorage.setItem('displayname',displayname);
             localStorage.setItem('group',group);
             localStorage.setItem('expiry',expiry);
             window.location.replace("/");
         })
         .catch((err =>{
-            dispatch(authFail(err))
+            dispatch(authFail(err));
+            alert('Login Criedentials Fail !!!');
         }))   
     }
 };

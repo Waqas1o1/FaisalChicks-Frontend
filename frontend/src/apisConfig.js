@@ -9,7 +9,7 @@ const getAxiosIncetent = () =>{
         return (
             axios.create({
             baseURL: baseURL,
-            timeout: 20000,
+            timeout: 5000,
             headers: {
                     'Content-Type': 'application/json',
                     'accept': 'application/json'
@@ -21,7 +21,7 @@ const getAxiosIncetent = () =>{
         return (
             axios.create({
             baseURL: baseURL,
-            timeout: 5000,
+            timeout: 6000,
             headers: {
                     'Authorization': `Token ${token}`,
                     'Content-Type': 'application/json',

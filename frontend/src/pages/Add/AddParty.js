@@ -19,14 +19,13 @@ const useStyles = makeStyles((theme) => ({
     formRoot: {
       flexGrow: 1,
       '@media only screen and (max-width: 600px)': {
-        width:'300px',
-        marginLeft:'-10px',
+        width:'340px',
        },
     },
     table:{
         width:'100vh',
         '@media only screen and (max-width: 600px)': {
-            marginLeft:'-30px',
+            width:'100%',
         },
     },
     upperCase:{
@@ -62,7 +61,7 @@ const AddParty = () => {
     const [openDialog, setOpenDialog] = useState(false);
     const [discountTitle, setDiscountTitle] = useState('Discount');
     const [discount, setDiscount] = useState([]);
-    const [categoryTitle, setCategoryTitle] = useState('Catagory');
+    const [categoryTitle, setCategoryTitle] = useState('Category');
     const [category, setCategory] = useState([]);
     const [salesOfficer, setSalesOfficers] = useState([]);
     const [salesOfficerTitle, setSalesOfficersTitle] = useState('S-Officer');
@@ -528,7 +527,7 @@ const AddParty = () => {
                             <input type="file" disabled={(isUpdate?true:false)} name='SCI' onChange={handleInputChange}/>
                         </Grid>
                         <Grid item xs={6}>
-                        <Typography variant='body2'>Term OF Services Image</Typography>
+                        <Typography variant='body2'>Terms Of Service Image</Typography>
                             <input type="file"  disabled={(isUpdate?true:false)} name='TOR' onChange={handleInputChange}/>
                         </Grid>
                     </Grid>         
@@ -548,7 +547,7 @@ const AddParty = () => {
             <Grid item xs={12} md={9} lg={9} className={classes.table}>
                 <GetTable 
                     rows={rows} 
-                    columns={['ID','Ref Id','Name','Email','Area','Zone','Region','Contact','Credit Limit','Sales Target','Opening Balance','SCI','TOR','Discount','SalesOfficer','Category']}
+                    columns={['ID','Ref Id','Name','Email','Area','Zone','Region','Contact','Credit Limit','Sales Target','Opening Balance','SCI','TOR','Discount','Sales Officer','Category']}
                     onDelete={onDelete}
                     onUpdate={onUpdate}
                 />

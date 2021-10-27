@@ -17,15 +17,15 @@ const useStyles = makeStyles((theme) => ({
     formRoot: {
         flexGrow: 1,
         '@media only screen and (max-width: 600px)': {
-          width:'330px',
-          marginLeft:'-10px',
+          width:'340px',
          },
       },
     table:{
+          width:'100vh',
           '@media only screen and (max-width: 600px)': {
-              marginLeft:'-30px',
-             },
-      }
+              width:'100%',
+          },
+      },
 }))
 
 const AddSalesOfficer = () => {
@@ -59,8 +59,8 @@ const AddSalesOfficer = () => {
                 }
                 else{
                     let d = data['data'];
-                    console.log(d)
                     for (var i in d){
+                        d[i].username = d[i].user.username
                         delete d[i].current_Balance
                         delete d[i].date
                         d[i].last_login = new Date(d[i].user.last_login).toLocaleString()
@@ -223,7 +223,7 @@ const AddSalesOfficer = () => {
         <Grid container spacing={2} className={classes.formRoot}>
             {/* Title */}
             <Grid item xs={11} >     
-                <Typography variant="h4" gutterBottom  color='primary'>Add SalesOfficer</Typography>
+                <Typography variant="h4" gutterBottom  color='primary'>Add Sales Officer</Typography>
             </Grid>
             {/* Left */}
             <Grid item xs={1}>
@@ -255,6 +255,7 @@ const AddSalesOfficer = () => {
                             name='username'
                             value={fields.username}
                             onChange={FiledChange}
+                            inputProps={{ style: {textTransform: "lowercase" }}}
                         />
                     </Grid>
                     <Grid item xs={6}>
@@ -265,7 +266,7 @@ const AddSalesOfficer = () => {
                         />
                     </Grid>
                     <Grid item xs={6}>
-                        <InputField  label='Commission' type='number'  
+                        <InputField  label='Commission (%)' type='number'  
                             name='commission'
                             value={fields.commission}
                             onChange={FiledChange}
@@ -281,7 +282,7 @@ const AddSalesOfficer = () => {
                         />
                     </Grid>
                     <Grid item xs={6}>
-                        <InputField  label='User Password' type='password'  
+                        <InputField  label='Password' type='password'  
                             name='password'
                             disabled={isUpdate}
                             value={fields.password}
@@ -313,7 +314,7 @@ const AddSalesOfficer = () => {
            <Grid item xs={12} md={9} lg={9} className={classes.table}>
                 <GetTable 
                     rows={rows} 
-                    columns={['ID','Name','Contact','Commition','Opening Balance','Last Login']}
+                    columns={['ID','Name','Contact','Commission (%)','Opening Balance','Username','Last Login']}
                     onDelete={onDelete}
                     onUpdate={onUpdate}
                 />

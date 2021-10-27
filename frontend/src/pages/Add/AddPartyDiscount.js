@@ -19,15 +19,16 @@ const useStyles = makeStyles((theme) => ({
     formRoot: {
         flexGrow: 1,
         '@media only screen and (max-width: 600px)': {
-          width:'330px',
-          marginLeft:'-10px',
+          width:'340px',
+          marginLeft:'20px'
          },
       },
-    table:{
+      table:{
+          width:'100vh',
           '@media only screen and (max-width: 600px)': {
-              marginLeft:'-30px',
-             },
-      }
+              width:'100%',
+          },
+      },
 }))
 
 const AddPartyDiscount = () => {
@@ -212,7 +213,7 @@ const AddPartyDiscount = () => {
         <Grid container spacing={2} className={classes.formRoot}>
             {/* Title */}
             <Grid item xs={11} >     
-                <Typography variant="h4" gutterBottom  color='primary'>Add Party Discount</Typography>
+                <Typography variant="h4" gutterBottom  color='primary'>Add Discount Category</Typography>
             </Grid>
             {/* Left */}
             <Grid item xs={1}>
@@ -234,7 +235,7 @@ const AddPartyDiscount = () => {
             
 
                     <Grid item xs>
-                        <InputField  label='Discount' 
+                        <InputField  label='Discount (%)' 
                         type='number' 
                         size='small' 
                         name='discount'   
@@ -259,7 +260,7 @@ const AddPartyDiscount = () => {
            <Grid item xs={12} md={9} lg={9} className={classes.table}>
                 <GetTable 
                     rows={rows} 
-                    columns={['ID','Name','Discounted Amount']}
+                    columns={['ID','Name','Discount(%)']}
                     onDelete={onDelete}
                     onUpdate={onUpdate}
                 />

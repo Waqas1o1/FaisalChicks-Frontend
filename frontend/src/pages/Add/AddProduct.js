@@ -19,15 +19,15 @@ const useStyles = makeStyles((theme) => ({
     formRoot: {
         flexGrow: 1,
         '@media only screen and (max-width: 600px)': {
-          width:'330px',
-          marginLeft:'-10px',
+          width:'340px',
          },
       },
-    table:{
+      table:{
+          width:'100vh',
           '@media only screen and (max-width: 600px)': {
-              marginLeft:'-30px',
-             },
-      }
+              width:'100%',
+          },
+      },
 }))
 
 const AddProduct = () => {
@@ -45,7 +45,7 @@ const AddProduct = () => {
     const [fields,setFields] = useState(initialFields);
     const [isUpdate,setIsUpdate] = useState(false);
     const [category, setCategory] = useState([]);
-    const [categoryTitle, setCategoryTitle] = useState('Select Catagory');
+    const [categoryTitle, setCategoryTitle] = useState('Select Category');
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
@@ -302,7 +302,7 @@ const AddProduct = () => {
                     </Grid>
                     
                     <Grid item xs={8}>
-                        <InputField  label='Pakage Weight'  
+                        <InputField  label='Package Weight'  
                             size='small'
                             name='pakage_weight' type="string" 
                             value={fields.pakage_weight}
@@ -355,7 +355,7 @@ const AddProduct = () => {
            <Grid item xs={12} md={9} lg={9} className={classes.table}>
                 <GetTable 
                     rows={rows} 
-                    columns={['ID','Name','Type','Unit','Pakage','Sales Price','Cost Price','Category']}
+                    columns={['ID','Name','Type','Unit','Package','Sales Price','Cost Price','Category']}
                     onDelete={onDelete}
                     onUpdate={onUpdate}
                 />

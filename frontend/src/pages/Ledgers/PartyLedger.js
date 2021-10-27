@@ -36,19 +36,17 @@ const StyledTableRow = withStyles((theme) => ({
     
 
 const useStyles = makeStyles((theme) => ({
-    formRoot: {
-      flexGrow: 1,
-      padding : theme.spacing(2),
-     
-    },
-   
-    table: {
-        minWidth: 700,
-        
+    table:{
+        marginTop:'20px',
+        '& .MuiPaper-root':{
+            '@media only screen and (max-width: 600px)': {
+                width:'70vh%',
+            },
+        }
     }
 }))
 
-const columns = ['Date','Description','Freight','Transaction Type','Total Amount','Net Balance']
+const columns = ['Date','Description','Freight','Debit','Credit','Net Balance']
 
 export default function PartyLedger() {
     var date = new Date();
@@ -167,13 +165,12 @@ export default function PartyLedger() {
 
     }
     
-    
-   
     useEffect(() => {
         fetchParties()
     }, [])
 
     return (
+        <>
         <Grid
             container
             alignItems="center"
@@ -184,7 +181,7 @@ export default function PartyLedger() {
                 <Typography variant="h4" gutterBottom  color='primary'>Parties Ledger</Typography>
             </Grid>
             
-           <Grid item  xs={12} md={3} lg={2} className={classes.selecter}>
+           <Grid item  xs={12} md={3} lg={2} >
                 <Selecter
                      title={partyTitle}
                      handleChange={FiledChange}
@@ -238,40 +235,45 @@ export default function PartyLedger() {
                      startIcon={(loading? <HourglassFullRoundedIcon/>:<StorageRoundedIcon />)}
                     />
             </Grid>
-            
-            
-            {/* TAble */}
-            <Grid item xs={12}>
-                <TableContainer component={Paper}>
-                        <Table className={classes.table} aria-label="customized table">
-                            <TableHead>
-                            <TableRow>
-                                {columns.map((column) => (
-                                        <StyledTableCell
-                                            key={column}
-                                            align="center"
-                                            // style={{ minWidth: column.minWidth }}
-                                            >
-                                            {column}
-                                        </StyledTableCell>
-                                    ))}
-                            </TableRow>
-                            </TableHead>
-                            <TableBody>
-                            {rows.map((row) => (
-                                <StyledTableRow key={row.id}>
-                                    <StyledTableCell component="th" scope="row">{row.date}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.description}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.freight}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.transaction_type}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.total_amount}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.net_balance}</StyledTableCell>
-                                </StyledTableRow>
-                            ))}
-                            </TableBody>
-                    </Table>
-                </TableContainer>
-            </Grid>
        </Grid>
+    {/* TAble */}
+    <TableContainer component={Paper} className={classes.table} >
+            <Table  aria-label="customized table">
+                <TableHead>
+                <TableRow>
+                    {columns.map((column) => (
+                            <StyledTableCell
+                                key={column}
+                                align="center"
+                                >
+                                {column}
+                            </StyledTableCell>
+                        ))}
+                </TableRow>
+                </TableHead>
+                <TableBody>
+                {rows.map((row) => (
+                    <StyledTableRow key={row.id}>
+                        <StyledTableCell component="th" scope="row">{row.date}</StyledTableCell>
+                        <StyledTableCell align='center' >{row.description}</StyledTableCell>
+                        <StyledTableCell align='center' >{row.freight}</StyledTableCell>
+                        {row.transaction_type === 'Credit'?
+                        <>
+                        <StyledTableCell align='center' ></StyledTableCell>
+                        <StyledTableCell align='center' >{row.total_amount}</StyledTableCell>
+                        </>
+                        :
+                        <>
+                        <StyledTableCell align='center' >{row.total_amount}</StyledTableCell>
+                        <StyledTableCell align='center' ></StyledTableCell>
+                        </>
+                        }
+                        <StyledTableCell align='center' >{row.net_balance}</StyledTableCell>
+                    </StyledTableRow>
+                ))}
+                </TableBody>
+        </Table>
+    </TableContainer>
+    </>
     )
 }

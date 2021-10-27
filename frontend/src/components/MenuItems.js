@@ -9,7 +9,6 @@ import Button from '@material-ui/core/Button';
 const useStyles = makeStyles((theme) => ({
   button: {
     display: 'block',
-    marginTop: theme.spacing(2),
   },
   formControl: {
     margin: theme.spacing(1),
@@ -18,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function MenuItems(props) {
-    const {title,options,handleChange,selectedOption} = props; 
+    const {title,options,handleChange,selectedOption,disabled=false,other} = props; 
     const classes = useStyles();
  
   const [open, setOpen] = React.useState(false);
@@ -34,9 +33,7 @@ export default function MenuItems(props) {
 
   return (
     <div>
-      <Button className={classes.button} onClick={handleOpen} >
-        {title}
-      </Button>
+      
       <FormControl className={classes.formControl} fullWidth>
         <InputLabel id="method">{title}</InputLabel>
         <Select
@@ -46,6 +43,8 @@ export default function MenuItems(props) {
           onOpen={handleOpen}
           value={selectedOption}
           onChange={handleChange}
+          disabled={disabled}
+          {...other}
         >
           <MenuItem value="">
             <em>None</em>
@@ -53,7 +52,6 @@ export default function MenuItems(props) {
           {options.map((option)=>(     
               <MenuItem value={option} key={option}>{option}</MenuItem>
           ))}
-          
         </Select>
       </FormControl>
     </div>

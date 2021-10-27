@@ -4,6 +4,7 @@ from app import views
 router = routers.DefaultRouter()
 router.register("Party", views.PartyViewSet, basename="Party")
 router.register("SalesOfficer", views.SalesOfficerViewSet, basename="SalesOfficer")
+router.register("Dispatcher", views.DispatchViewSet, basename="Dispatcher")
 router.register("Bank", views.BankViewSet, basename="Bank")
 router.register("Category", views.CategoryViewSet, basename="Category")
 router.register("Product", views.ProductViewSet, basename="Product")
@@ -12,7 +13,8 @@ router.register("PartyOrder", views.PartyOrderViewSet, basename="PartyOrder")
 router.register("DispatchTable", views.DispatchTableViewSet, basename="DispatchTable")
 router.register("PartyOrderProduct", views.PartyOrderProductViewSet, basename="PartyOrderProduct")
 router.register("Recovery", views.RecoveryViewSet, basename="Recovery")
-router.register("GenratePartyOrder", views.GenratePreOrder, basename="GenratePartyOrder")
+router.register("GenratePartyOrder", views.GenratePartOrder, basename="GenratePartyOrder")
+router.register("LedgerAdjustments", views.LedgerAdjustments, basename="LedgerAdjustments")
 # Authentication
 
 

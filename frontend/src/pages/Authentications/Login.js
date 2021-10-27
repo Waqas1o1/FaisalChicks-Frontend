@@ -31,9 +31,10 @@ const useStyles = makeStyles(theme => ({
     alignContent:'center'
   },
   image: {
-    backgroundImage: "url(https://media.npr.org/assets/img/2016/01/22/ncchickenfarm_custom-d40d6b8b1de70a3ea43012b1df67e971ca867e38.jpg)",
+    backgroundImage: "url(http://faisalfeeds.com/wp-content/uploads/2018/03/novogen.png)",
+    // backgroundImage: "url(https://i.dawn.com/large/2021/10/615bb710d3f9f.jpg)",
     backgroundRepeat: "no-repeat",
-    backgroundSize: "cover",
+    backgroundSize: "350px",
     backgroundPosition: "center"
   },
   paper: {
@@ -97,6 +98,7 @@ const Login = (props) => {
               name="username"
               autoComplete="Username"
               onChange={handleOnChange}
+              inputProps={{ style: {textTransform: "lowercase" }}}
               autoFocus
             />
             <TextField
@@ -119,18 +121,7 @@ const Login = (props) => {
             >
               Sign In
             </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link href="/Sginup" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
-            </Grid>
+           
             <Box mt={5}>
               <MadeWithLove />
             </Box>

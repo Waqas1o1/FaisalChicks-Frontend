@@ -58,7 +58,7 @@ const GraphAnalysis = () => {
     return (
       <div className={classes.root}>
         <Typography variant='h3'  color='primary' gutterBottom>
-              DashBorad
+              Dashboard
         </Typography>
 
         <Container maxWidth='xl'>

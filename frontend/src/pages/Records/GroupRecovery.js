@@ -15,11 +15,18 @@ const useStyles = makeStyles((theme) => ({
     formRoot: {
       flexGrow: 1,
       padding : theme.spacing(2),
+      '@media only screen and (max-width: 600px)': {
+        width:'45vh'
+        }
     },
     table: {
         '& .MuiDataGrid-columnHeader': {
             backgroundColor: theme.palette.primary.dark,
             cursor: 'pointer',
+        },
+        width:'100vh',
+        '@media only screen and (max-width: 600px)': {
+            width:'100%',
         },
     },
     chips: {
@@ -32,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 var selectedvalue= [];
-const Recovery = () => {
+const GroupRecovery = () => {
     const initialFields = {
         party_orders:[],
         sale_officer:'',
@@ -312,7 +319,7 @@ const Recovery = () => {
 
     function checkIsAdmin(){
         let u = localStorage.getItem('salesofficer');
-        if(u !== 'undefined'){
+        if(u === 'undefined' || u !== null ){
           let so = JSON.parse(u);
           setSalesOfficerDisabled(true);
           setSalesOfficerTitle(so.name);
@@ -481,7 +488,6 @@ const Recovery = () => {
            </Grid>
             {/* Right */}
            <Grid item xs={12} md={9} lg={9}>
-            <div style={{ height: 500, width: '100%'}}>
                 <TableContainer component={Paper}>
                     <Table className={classes.table} aria-label="simple table">
                         <TableHead>
@@ -492,7 +498,7 @@ const Recovery = () => {
                             <TableCell >Party</TableCell>
                             <TableCell >Cotact</TableCell>
                             <TableCell >Total Amount</TableCell>
-                            <TableCell >Pandding Amount</TableCell>
+                            <TableCell >Pending Amount</TableCell>
                             <TableCell  style={{color:'red'}} align='center'>Recovery Added</TableCell>
                         </TableRow>
                         </TableHead>
@@ -552,8 +558,6 @@ const Recovery = () => {
                             </TableBody>
                         </Table>
             </TableContainer>
-            </div>
-            
            </Grid>
         
         {/* // Model */}
@@ -591,4 +595,4 @@ const Recovery = () => {
     );
 }
 
-export default Recovery;
+export default GroupRecovery;

@@ -18,15 +18,15 @@ const useStyles = makeStyles((theme) => ({
     formRoot: {
         flexGrow: 1,
         '@media only screen and (max-width: 600px)': {
-          width:'330px',
-          marginLeft:'-10px',
+          width:'340px',
          },
       },
       table:{
+          width:'100vh',
           '@media only screen and (max-width: 600px)': {
-              marginLeft:'-30px',
-             },
-      }
+              width:'100%',
+          },
+      },
 }))
 
 const AddBank = () => {
@@ -230,7 +230,7 @@ const AddBank = () => {
                         />
                     </Grid>
                     <Grid item xs>
-                        <InputField  size='small' label="Account"
+                        <InputField  size='small' label="Account #"
                         type="string"
                         name='account_no'
                         required={true}
@@ -264,7 +264,7 @@ const AddBank = () => {
            <Grid item xs={12} md={9} lg={9} className={classes.table}>
                 <GetTable 
                     rows={rows} 
-                    columns={['ID','Name','Account','Opening Balance']}
+                    columns={['ID','Name','Account #','Opening Balance']}
                     onDelete={onDelete}
                     onUpdate={onUpdate}
                 />

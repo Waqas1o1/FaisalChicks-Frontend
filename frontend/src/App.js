@@ -23,19 +23,21 @@ import DiscountLedger from './pages/Ledgers/DiscountLedger';
 import IncentiveLedger from './pages/Ledgers/IncentiveLedger';
 import BankLedger from './pages/Ledgers/BankLedger';
 // UI
-import Import from './pages/Imports/Import';
+import Import from './pages/Admin/Import';
+import Adjustments from './pages/Admin/Adjustments';
+
+
 import PartyOrder from './pages/Records/PartyOrder';
 import OrderView from './pages/Records/OrderView';
 import Recovery from './pages/Records/Recovery';
 import Login from './pages/Authentications/Login';
-// import Signup from './pages/Authentications/Signup';
 
 import { ToastContainer } from "react-toastify";
 import { connect } from 'react-redux';
 import { authCheckState } from './store/actions/auth';
 import GroupRecovery from './pages/Records/GroupRecovery';
 import AddSalesOfficer from './pages/Add/AddSalesOfficer';
-
+import AddDispatchperson from './pages/Add/AddDispatchperson';
 
 const theme = createTheme({
   palette: {
@@ -86,6 +88,7 @@ const App = (props) => {
                         <Route exact path='/' component={DashBorad} />
                         <Route exact path='/addParty' component={AddParty} />
                         <Route exact path='/addSalesofficer' component={AddSalesOfficer} />
+                        <Route exact path='/addDispatcher' component={AddDispatchperson} />
                         <Route exact path='/addPartyDiscount' component={AddPartyDiscount} />
                         <Route exact path='/addCategory' component={AddCategory} />
                         <Route exact path='/addBank' component={AddBank} />
@@ -107,9 +110,9 @@ const App = (props) => {
                         <Route exact path='/Recovery' component={Recovery} />
                         {/* Authentication */}
                         <Route exact path='/Login' component={Login} />
-                        {/* <Route exact path='/Sginup' component={Signup} /> */}
-                        {/* Import */}
+                        {/* Admin */}
                         <Route exact path='/Import' component={Import} />
+                        <Route exact path='/Adjustments' component={Adjustments} />
                     </Switch>
                 </Layout>
             </Router>

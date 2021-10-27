@@ -4,15 +4,18 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 
 
 export default function AutoSuggestField(props) {
-    const { options, selectedOption, id, label, onChange, name } = props;
+    const { options, selectedOption, id, label, onChange,name,size=300,required=false,valueChange,value,other } = props;
     return (
         <Autocomplete
             id={id}
             options={options}
             getOptionLabel={selectedOption}
-            style={{ width: 300 }}
+            onChange={valueChange}
+            value={value}
+            style={{ width: size }}
             size='small'
-            renderInput={(params) => <TextField {...params} name={name} onSelect={onChange} label={label} variant="outlined" />}
+            {...other}
+            renderInput={(params) => <TextField {...params} name={name} required={required}  onSelect={onChange} label={label} variant="outlined" />}
       />
     )
 }

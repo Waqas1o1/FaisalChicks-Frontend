@@ -1,14 +1,21 @@
 {
-    "short_name": "Weather App",
-    "name": "Weather App PWA",
-    "icons": [{
-        "src": "logo512.png",
-        "type": "image/png",
-        "sizes": "1024x1024",
-        "purpose": "any maskable"
-    }],
-    "start_url": ".",
+    "name": "Faisal Chicks App",
+    "short_name": "FC App",
+    "lang": "en-US",
+    "orientation": "any",
+    "start_url": "/",
+    "background_color": "#fff",
+    "theme_color": "#fff",
     "display": "standalone",
-    "theme_color": "#000000",
-    "background_color": "#ffffff"
-}
+    "description": "A App Developed By Technoventive Solutions.This app is developed under the conditions of Hafiz (ptv.limited) company.Copy right reserved by Technoventive solutions 2021",
+    "icons": [
+      {
+        "src": "playstore-icon.png",
+        "sizes": "192x192"
+      },
+      {
+        "src": "playstore-icon.png",
+        "sizes": "512x512"
+      }
+    ]
+  }

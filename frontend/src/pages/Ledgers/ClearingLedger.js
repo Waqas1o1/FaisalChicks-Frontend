@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const columns = ['Date','Description','Transaction Type','Total Amount','Net Balance']
+const columns = ['Date','Description','Debit','Credit','Net Balance']
 
 export default function ClearingLedger() {
     var date = new Date();
@@ -197,8 +197,17 @@ export default function ClearingLedger() {
                                 <StyledTableRow key={row.id}>
                                     <StyledTableCell component="th" scope="row">{row.date}</StyledTableCell>
                                     <StyledTableCell align='center' >{row.description}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.transaction_type}</StyledTableCell>
+                                    {row.transaction_type === 'Credit'?
+                                    <>
+                                    <StyledTableCell align='center' ></StyledTableCell>
                                     <StyledTableCell align='center' >{row.total_amount}</StyledTableCell>
+                                    </>
+                                    :
+                                    <>
+                                    <StyledTableCell align='center' >{row.total_amount}</StyledTableCell>
+                                    <StyledTableCell align='center' ></StyledTableCell>
+                                    </>
+                                    }
                                     <StyledTableCell align='center' >{row.net_balance}</StyledTableCell>
                                 </StyledTableRow>
                             ))}

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles, withStyles } from '@material-ui/styles'
 import Paper from '@material-ui/core/Paper';
-import { Button, Divider, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextareaAutosize, Typography } from '@material-ui/core';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextareaAutosize, Typography } from '@material-ui/core';
 import Selecter from '../../components/Selecter';
 import axiosInstance  from '../../apisConfig';
 import InputField from '../../components/InputField';
 import AutoSuggestField from '../../components/AutoSuggestField';
 import ReceiptIcon from '@material-ui/icons/Receipt';
+import MenuItems from '../../components/MenuItems';
 
 
 
@@ -14,6 +15,7 @@ const useStyles = makeStyles((theme) => ({
   formRoot: {
     flexGrow: 1,
     padding : theme.spacing(2),
+    marginLeft:'-15px'
   },
   textArea:{
     width: '100%',
@@ -60,6 +62,7 @@ export default function PartyOrder(props) {
     description:'',
     freight:0,
     total_amount:'',
+    gross_total:'',
   }
   
   const [fields,setFields] = useState(initialFields);   
@@ -68,7 +71,7 @@ export default function PartyOrder(props) {
   const [partyTitle,setPartyTitle] = useState('Select Party');   
   // Sales Officer
   const [salesOfficers,setSalesOfficers] = useState([]); 
-  const [salesOfficerTitle,setSalesOfficerTitle] = useState('Select Sales Ofiicer'); 
+  const [salesOfficerTitle,setSalesOfficerTitle] = useState('Select Sales Officer'); 
   const [salesOfficerDisabled,setSalesOfficerDisabled] = useState(false); 
   const [selectedSalesOfficer,setSelectedSalesOfficer] = useState(null); 
   // Products
@@ -81,15 +84,29 @@ export default function PartyOrder(props) {
   const [products,setProducts] = useState([]); 
   const [productsRows,setProductsRows] = useState([]); 
   const [productFields,setProductFields] = useState(initialProductFields); 
-  const [selectedProductId,setSelectedProductId] = useState(initialProductFields); 
+  const [selectedProduct,setSelectedProduct] = useState(initialProductFields); 
   // Total CalCulate
   const [totalAmount,setTotalAmount] = useState(fields.total_amount); 
   // Discount
   const [discount,setDiscount] = useState(0);
   // Grand Total
   const [grandTotal,setGrandTotal] = useState(0);
+  // Recovery
+  const initialRecoveryFields = {
+    party: fields.party,
+    sale_officer:fields.sale_officer,
+    payment_method:'Cash',
+    description: fields.description,
+    bank: '',
+    amount: '',
+};
+const [recoveryFields,setRecoveryFields] = useState(initialRecoveryFields);
+const [OpenRecovery,setOpenRecovery] = useState(false);
+// Bank
+const [banks,setBanks] = useState([]);
+const [bankTitle,setBankTitle] = useState('Select Bank');
+const [bankDisabled,setBankDisabled] = useState(true);
   
-
 
 
   async function fetchParties(){
@@ -173,10 +190,34 @@ export default function PartyOrder(props) {
         setSalesOfficers(JSON.parse(localStorage.getItem('SalesOfficer')));
     }
   }
+  
+  async function fetchBank(){
+    if (navigator.onLine){
+        return await axiosInstance.get('apis/Bank/')
+        .then(res=>{
+            let data  = res.data;
+            if (data['error'] === true){
+                alert(`Error Occures ${data['message']}`);
+            }
+            else{
+                let bank = data['data'];
+                for (let b in bank){
+                    delete bank[b].date
+                    delete bank[b].current_Balance
+                }
+                setBanks(bank);
+            }
+        })
+        .catch(error=>{
+            alert(`Somethin wrong: ${error}`);
+        })
+    }
+}
 
-  const ProductfieldChange = e =>{
+  const ProductfieldChange =(e) =>{
     setProductFields({
       ...productFields,
+      rate:selectedProduct.sales_price,
       [e.target.name] : e.target.value
     })
   }
@@ -185,7 +226,7 @@ export default function PartyOrder(props) {
     e.preventDefault();
     const newProductRow = {
       product : productFields.product,
-      product_id : selectedProductId,
+      product_id : selectedProduct.id,
       qty : productFields.qty,
       rate : productFields.rate,
       total : productFields.qty * productFields.rate
@@ -193,6 +234,7 @@ export default function PartyOrder(props) {
     const newProductsRows = [...productsRows,newProductRow]
     setProductsRows(newProductsRows);
     setProductFields(initialProductFields);
+    setSelectedProduct([]);
   }
 
   const FieldsCahange = event => {
@@ -210,23 +252,52 @@ export default function PartyOrder(props) {
         const optionElementId = optionElement.getAttribute('id');
         const obj = JSON.parse(optionElementId);
         setSalesOfficerTitle(obj.name);
+        setSelectedSalesOfficer(obj.id);
     }
     setFields({
         ...fields,
         [event.target.name] : event.target.value,
     });
   }
+  const handleRecoveryFieldsChange = (event) =>{
+      setRecoveryFields({
+        ...recoveryFields,
+        [event.target.name] : event.target.value,
+      })
+      if (event.target.name === 'bank'){
+        const index = event.target.selectedIndex;
+        const optionElement = event.target.childNodes[index];
+        const optionElementId = optionElement.getAttribute('id');
+        const obj = JSON.parse(optionElementId);
+        setBankTitle(obj.name);
+      }
+  }
+  const handleMenuChange = (event) => {
+    setRecoveryFields({
+        ...fields,
+        'payment_method' : event.target.value,
+    });
+    if (event.target.value === 'Bank'){
+        setBankDisabled(false);
+    }
+    else{
+        setBankDisabled(true);
+    }
+  };
+  
   const clearProduct = ()=>{
     setProductsRows([]);
+    setProductFields(initialFields);
+    setSelectedProduct([]);
   }
 
   const handleGenrateOrder = async e =>{
     let sendfileds = {...fields,sale_officer:selectedSalesOfficer}
     const send_dict = {
       'party_order': sendfileds,
-      'products': productsRows
+      'products': productsRows,
+      'recovery': {...recoveryFields}
     }
-
     await axiosInstance.post('apis/GenratePartyOrder/',send_dict)
     .then(res=>{
       let data  = res.data;
@@ -240,22 +311,29 @@ export default function PartyOrder(props) {
           setPartyTitle('Select Party');
           setSalesOfficerTitle('Select Sales Officer');
           setDiscount(0);
+          setRecoveryFields(initialRecoveryFields);
+          setOpenRecovery(false);
       }
       })
       .catch(error=>{
           alert(`Somethin wrong: ${error}`);
       }) 
   }
-
+  const productValueChange = (_,value)=>{
+    if (value !== null){
+      setSelectedProduct(value);
+    }
+  }
   function checkIsAdmin(){
     let u = localStorage.getItem('salesofficer');
-    if(u !== 'undefined'){
+    if(u === 'undefined' || u !== null ){
       let so = JSON.parse(u);
       setSalesOfficerDisabled(true);
       setSalesOfficerTitle(so.name);
       setSelectedSalesOfficer(so.id);
     }
   }
+
   useEffect(() => {
     fetchParties()
     fetchSalesOfficers()
@@ -276,7 +354,8 @@ export default function PartyOrder(props) {
     
     setFields({
       ...fields,
-      total_amount : grand_total
+      total_amount : grand_total,
+      gross_total : totalAmount
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[productsRows, fields.freight])
@@ -298,7 +377,7 @@ export default function PartyOrder(props) {
                     title={partyTitle}
                     handleChange={FieldsCahange}
                     value={fields.party}
-                    onOpen={()=>console.log('open')}
+                    onOpen={()=>''}
                     choises={parties}
                     name='party'
                     algin='left'
@@ -315,13 +394,13 @@ export default function PartyOrder(props) {
               <Grid item xs={12}>
                 <Typography variant='button' color='textSecondary'>SALES OFFICER </Typography>     
                 <Selecter
-                      title={salesOfficerTitle}
-                      disabled={salesOfficerDisabled}
-                      handleChange={FieldsCahange}
-                      value={fields.sale_officer}
-                      onOpen={()=>console.log('open')}
-                      choises={salesOfficers}
-                      name='sale_officer'
+                    title={salesOfficerTitle}
+                    disabled={salesOfficerDisabled}
+                    handleChange={FieldsCahange}
+                    value={fields.sale_officer}
+                    onOpen={()=>''}
+                    choises={salesOfficers}
+                    name='sale_officer'
                   />
               </Grid>
               {/* Total  */}
@@ -349,8 +428,8 @@ export default function PartyOrder(props) {
                 </Grid>
               </Grid>
               <Grid item xs={12}>
-                  <Button fullWidth variant="outlined" color="secondary" startIcon={<ReceiptIcon/>} onClick={handleGenrateOrder} >
-                    Genrate Order
+                  <Button fullWidth variant="outlined" color="secondary" startIcon={<ReceiptIcon/>} onClick={()=>setOpenRecovery(true)} >
+                    Generate Order
                   </Button>
                 </Grid>
             </Grid>
@@ -377,10 +456,13 @@ export default function PartyOrder(props) {
                     <Grid item>
                       <AutoSuggestField 
                         options={products}
-                        selectedOption={(option)=>{setSelectedProductId(option.id); return (option.name)}}
+                        selectedOption={(option)=>{return (option.name)}}
                         label={'Select Product'}
                         id={'id'}
+                        value={selectedProduct}
+                        valueChange={productValueChange}
                         name='product'
+                        required={true}
                         onChange={ProductfieldChange}           
                         />
                     </Grid>
@@ -389,6 +471,7 @@ export default function PartyOrder(props) {
                           <InputField  size='small'
                                 label="Qty" 
                                 type="number" 
+                                required={true}
                                 onChange={ProductfieldChange} 
                                 name='qty'
                                 value={productFields.qty}
@@ -399,6 +482,7 @@ export default function PartyOrder(props) {
                         <InputField  size='small'
                                 label="Rate" 
                                 type="number" 
+                                required={true}
                                 onChange={ProductfieldChange} 
                                 name='rate'
                                 value={productFields.rate}
@@ -428,10 +512,10 @@ export default function PartyOrder(props) {
             <Table className={classes.table} aria-label="simple table">
               <TableHead>
                 <TableRow key='products'>
-                  <StyledTableCell>Product</StyledTableCell>
-                  <StyledTableCell>Quantity</StyledTableCell>
-                  <StyledTableCell>Rate</StyledTableCell>
-                  <StyledTableCell>Total</StyledTableCell>
+                  <StyledTableCell key='name'>Product</StyledTableCell>
+                  <StyledTableCell key='quantity'>Quantity</StyledTableCell>
+                  <StyledTableCell key='rate'>Rate</StyledTableCell>
+                  <StyledTableCell key='total'>Total</StyledTableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -447,6 +531,59 @@ export default function PartyOrder(props) {
             </Table>
           </TableContainer>
       </Grid>
+    {/* Recovery Model */}
+      <Dialog
+          open={OpenRecovery}
+          onClose={()=>setOpenRecovery(false)}
+        >
+        <DialogTitle id="Dialog">Add Recovery</DialogTitle>
+        <DialogContent >
+          <Typography color='secondary'>Leave Empty or 0 if you dont want to add Recovery</Typography>
+        <DialogContentText id="DialogText">
+            <Grid container justifyContent='center'>
+                 {/* Payment Method */}
+                 <Grid item xs={12}>
+                    <MenuItems
+                        options={['Cash','Clearing','Bank']}
+                        title='Payment Method'
+                        handleChange={(handleMenuChange)}
+                        selectedOption={recoveryFields.payment_method}
+                      />
+                </Grid>
+                <Grid item xs>
+                  <Selecter
+                      title={bankTitle}
+                      handleChange={handleRecoveryFieldsChange}
+                      value={recoveryFields.bank}
+                      onOpen={fetchBank}
+                      choises={banks}
+                      name='bank'
+                      disabled={bankDisabled}
+                  />
+                </Grid>
+                <Grid item>
+                  <InputField  size='small'
+                      label="Recovery Amount" 
+                      type="number" 
+                      fullWidth
+                      onChange={handleRecoveryFieldsChange} 
+                      name='amount'
+                      value={recoveryFields.amount}
+                      />
+                </Grid>
+            </Grid> 
+        </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+            <Button onClick={()=>setOpenRecovery(false)} color="default" >
+                Cancel
+            </Button>
+            <Button onClick={handleGenrateOrder} color="secondary" autoFocus>
+                Add
+            </Button>
+        </DialogActions>
+      </Dialog>
+  
     </div>
   )
 }

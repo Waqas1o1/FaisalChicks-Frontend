@@ -15,9 +15,11 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import EditIcon from '@material-ui/icons/Edit';
 import MenuItems from '../../components/MenuItems';
 import { DataGrid } from '@material-ui/data-grid';
+import GroupStatus from '../../utils/status';
 import DeleteIcon from '@material-ui/icons/Delete';
 import CreateIcon from '@material-ui/icons/Create';
 import DoneAllIcon from '@material-ui/icons/DoneAll';
+import { connect } from 'react-redux';
 
 const useStyles = makeStyles((theme) => ({
     formRoot: {
@@ -33,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 
-const Recovery = () => {
+const Recovery = (props) => {
     const initialFields = {
         party: '',
         party_order:'',
@@ -178,10 +180,16 @@ const Recovery = () => {
                 else{
                     let partyorder = data['data'];
                     for (let order in partyorder){
-                        partyorder[order].name = partyorder[order].id
-                        delete partyorder[order].date
-                        delete partyorder[order].party
-                        delete partyorder[order].sale_officer
+                        if (partyorder[order].status === 'Pendding'){
+                         delete partyorder[order];
+                        }
+                        else{
+
+                            partyorder[order].name = partyorder[order].id
+                            delete partyorder[order].date
+                            delete partyorder[order].party
+                            delete partyorder[order].sale_officer
+                        }
                     }
                     setPartyOrders(partyorder);
                     localStorage.removeItem('PartyOrders');
@@ -211,8 +219,6 @@ const Recovery = () => {
                         delete d[p].current_Balance
                     }
                     setSalesOfficer(d);
-                    localStorage.removeItem('SalesOfficer');
-                    localStorage.setItem('SalesOfficer',JSON.stringify(d));
                 }
             })
             .catch(error=>{
@@ -239,6 +245,7 @@ const Recovery = () => {
                         setLoading(false);
                         fetchRecovery();
                         resetFields();
+                        alert(`${data['message']}`);
                     }
                 })
                 .catch(error=>{
@@ -430,7 +437,7 @@ const Recovery = () => {
     }
     function checkIsAdmin(){
         let u = localStorage.getItem('salesofficer');
-        if(u !== 'undefined'){
+        if(u === 'undefined' || u !== null ){
           let so = JSON.parse(u);
           setSalesOfficerDisabled(true);
           setSalesOfficerTitle(so.name);
@@ -439,7 +446,7 @@ const Recovery = () => {
             sale_officer:so.id
           });
         }
-      }
+    }
 
     const handleClose = () => {
         setOpenDialog(false);
@@ -466,7 +473,7 @@ const Recovery = () => {
             fetchPartyOrders();
             checkIsAdmin();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        }, []);
+        }, [props]);
 
     const columns = [
             { field: 'id', headerName: 'ID', width: 90 },
@@ -490,7 +497,7 @@ const Recovery = () => {
             },
             {
               field: 'party_order',
-              headerName: 'PartyOrder',
+              headerName: 'Party Order #',
               type: 'number',
               width: 200,
               editable: false,
@@ -528,11 +535,14 @@ const Recovery = () => {
                     alignItems="center"
                     spacing={1}
                     >
+                    {props.group === GroupStatus.SUPERUSER | row.row.status === 'Pending'?
                     <Grid item xs={4}>
                         <Button aria-label="delete" color="secondary" size='small' onClick={onDelete} id={row.id}>
                         <DeleteIcon />
                         </Button>
-                    </Grid>
+                    </Grid>:undefined
+                    }
+                    
                     <Grid item xs={4} onClick={onUpdate} id={row.id}>
                         <IconButton aria-label="edit" size='small' key={row.id}>
                         <CreateIcon />
@@ -544,9 +554,7 @@ const Recovery = () => {
                             <DoneAllIcon />
                         </IconButton>
                         :
-                        <Button aria-label="active"  disabled  size='small' key={row.id}>
-                            <DoneAllIcon  />
-                        </Button>
+                       undefined
                         )}
                     </Grid>
                 </Grid>
@@ -631,15 +639,15 @@ const Recovery = () => {
                     
                     {/* Banks */}
                     <Grid item xs>
-                     <Selecter
-                        title={bankTitle}
-                        handleChange={FiledChange}
-                        value={fields.bank}
-                        onOpen={selecterOpen}
-                        choises={banks}
-                        name='bank'
-                        disabled={bankDisabled}
-                     />
+                        <Selecter
+                            title={bankTitle}
+                            handleChange={FiledChange}
+                            value={fields.bank}
+                            onOpen={selecterOpen}
+                            choises={banks}
+                            name='bank'
+                            disabled={bankDisabled}
+                        />
                     </Grid>
                      {/* Recived Amount */}
                      <Grid item xs>
@@ -707,4 +715,11 @@ const Recovery = () => {
     );
 }
 
-export default Recovery;
+const mapStateToProps = (state) =>{
+    return {
+        group: state.group
+    };
+  }
+  
+  
+  export default connect(mapStateToProps,null)(Recovery);
