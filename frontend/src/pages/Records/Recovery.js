@@ -40,7 +40,7 @@ const Recovery = (props) => {
         party: '',
         party_order:'',
         sale_officer:'',
-        payment_method:'Cash',
+        payment_method:'Clearing',
         bank: '',
         amount: 0,
         description: ''
@@ -80,6 +80,7 @@ const Recovery = (props) => {
         setSelectedOption('Cash');
         setBankDisabled(true);
         fetchRecovery();
+        checkIsAdmin();
     }
 
     async function fetchParties(){
@@ -106,9 +107,7 @@ const Recovery = (props) => {
                 alert(`Somethin wrong: ${error}`);
             })
         }
-        else{
-            setParties(JSON.parse(localStorage.getItem('Parties')));
-        }
+      
     }
 
   
@@ -135,9 +134,7 @@ const Recovery = (props) => {
                 alert(`Somethin wrong: ${error}`);
             })
         }
-        else{
-            setBanks(JSON.parse(localStorage.getItem('Bank')));
-        }
+        
     }
 
     async function fetchRecovery(){
@@ -245,7 +242,6 @@ const Recovery = (props) => {
                         setLoading(false);
                         fetchRecovery();
                         resetFields();
-                        alert(`${data['message']}`);
                     }
                 })
                 .catch(error=>{
@@ -344,7 +340,6 @@ const Recovery = (props) => {
                 setSalesOfficerTitle(data.data.sale_officer.name);
                 fetchRecovery();
                 setIsUpdate(true);
-                
             }
         })
         .catch(error=>{
@@ -545,11 +540,11 @@ const Recovery = (props) => {
                     
                     <Grid item xs={4} onClick={onUpdate} id={row.id}>
                         <IconButton aria-label="edit" size='small' key={row.id}>
-                        <CreateIcon />
+                            <CreateIcon />
                         </IconButton>
                     </Grid>
                     <Grid item xs={4}>
-                        {(row.row.status === 'Pending'?
+                        {(props.group !== GroupStatus.SALESOFFICER && row.row.status === 'Pending'?
                         <IconButton  onClick={onActive} id={row.id} aria-label="active" color='primary' size='small' key={row.id}>
                             <DoneAllIcon />
                         </IconButton>
@@ -578,12 +573,13 @@ const Recovery = (props) => {
             
             <Grid item xs={12} md={3} lg={3}>
                 <Grid container item direction='column' spacing={3}>
-                    <Grid container  spacing={3}>
+                    <Grid item container  spacing={3}>
                         <Grid item xs>
                             <Selecter
                                 title={partyTitle}
                                 handleChange={FiledChange}
                                 value={fields.party}
+                                disabled={isUpdate?true:false}
                                 onOpen={selecterOpen}
                                 choises={parties}
                                 name='party'
@@ -593,7 +589,7 @@ const Recovery = (props) => {
                         <Grid item xs>
                             <Selecter
                                 title={salesOfficerTitle}
-                                disabled={salesOfficerDisabled}
+                                disabled={salesOfficerDisabled || isUpdate ? true:false}
                                 handleChange={FiledChange}
                                 value={fields.sale_officer}
                                 onOpen={selecterOpen}
@@ -623,6 +619,7 @@ const Recovery = (props) => {
                             type="string" 
                             onChange={FiledChange} 
                             name='description'
+                            fullWidth
                             value={fields.description}
                             />
                     </Grid>
@@ -630,8 +627,9 @@ const Recovery = (props) => {
                     {/* Payment Method */}
                     <Grid item xs>
                         <MenuItems
-                            options={['Cash','Clearing','Bank']}
+                            options={props.group === GroupStatus.SALESOFFICER?['SalesOfficer','Clearing','Bank']:['Cash','Clearing','Bank']}
                             title='Payment Method'
+                            disabled={isUpdate}
                             handleChange={handleMenuChange}
                             selectedOption={selectedOption}
                         />

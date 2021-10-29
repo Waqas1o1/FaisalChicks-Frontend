@@ -2,7 +2,6 @@ import { Container } from '@material-ui/core';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { authCheckState } from '../../store/actions/auth';
-// import MessageAlert from '../../components/MessageAlert';
 import NavBar from '../../components/NavBar';
 import { useLocation } from 'react-router';
 

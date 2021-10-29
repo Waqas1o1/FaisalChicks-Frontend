@@ -94,8 +94,6 @@ const GroupRecovery = () => {
         setPartyOrders(p);
     };
 
-   
-
     const handleRecoveryAmountChange = (e) =>{
         setDisabledAmount(true);
         let p = partyOrders;
@@ -171,8 +169,6 @@ const GroupRecovery = () => {
         }
     }
 
-    
-    
     async function fetchSalesOfficers(){
         if (navigator.onLine){
             return await axiosInstance.get('apis/SalesOfficer/')
@@ -200,8 +196,6 @@ const GroupRecovery = () => {
             setSalesOfficer(JSON.parse(localStorage.getItem('SalesOfficer')));
         }
     }
-
-
 
     async function ConfirmDelete(e){
         return await axiosInstance.delete(`apis/Recovery/`)
@@ -371,9 +365,7 @@ const GroupRecovery = () => {
                 'payment_method':payment_method,
                 'bank':bank,
                 'amount':send_amount,
-                'description':'Group Recovery',
-
-
+                'description':'Group Recovery'
             }
             await axiosInstance.post('apis/Recovery/',{...send_dict})
             .then(res=>{
@@ -396,6 +388,7 @@ const GroupRecovery = () => {
             
 
         }
+        setPartyOrders([]);
     }
         
     useEffect(() => {
@@ -489,7 +482,7 @@ const GroupRecovery = () => {
             {/* Right */}
            <Grid item xs={12} md={9} lg={9}>
                 <TableContainer component={Paper}>
-                    <Table className={classes.table} aria-label="simple table">
+                    <Table  aria-label="simple table">
                         <TableHead>
                         <TableRow>
                             <TableCell>Check</TableCell>
@@ -507,10 +500,7 @@ const GroupRecovery = () => {
                             return(
                                 <TableRow key={row.id}>
                                     <TableCell component="th" scope="row">
-                                        {row.recoveryAmount !== 0?
                                         <FormControlLabel control={<Checkbox name={JSON.stringify(row)} onChange={handleSelect} value={row.id} />}/>:
-                                        <FormControlLabel control={<Checkbox name={`${row.id}`} disabled />}/>
-                                    }
                                     </TableCell>
                                     <TableCell component="th" scope="row">
                                         {row.date}
@@ -562,8 +552,8 @@ const GroupRecovery = () => {
         
         {/* // Model */}
             <Dialog
-                    open={openDialog}
-                    onClose={handleClose}
+                open={openDialog}
+                onClose={handleClose}
                 >
                 <DialogTitle id="Dialog">Enter Recovery Amount</DialogTitle>
                 <DialogContent>

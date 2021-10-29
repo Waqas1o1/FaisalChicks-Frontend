@@ -16,12 +16,6 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import EditIcon from '@material-ui/icons/Edit';
 
 const useStyles = makeStyles((theme) => ({
-    formRoot: {
-        flexGrow: 1,
-        '@media only screen and (max-width: 600px)': {
-          width:'340px',
-         },
-      },
       table:{
           width:'100vh',
           '@media only screen and (max-width: 600px)': {
@@ -184,6 +178,7 @@ const AddProduct = () => {
                     category:data.data.category.id,
                     type:data.data.type,
                     name:data.data.name,
+                    unit:data.data.unit,
                     pakage_weight:data.data.pakage_weight,
                     sales_price:data.data.sales_price,
                     cost_price:data.data.cost_price,
@@ -255,11 +250,11 @@ const AddProduct = () => {
     return (
         <Grid container spacing={2} className={classes.formRoot}>
             {/* Title */}
-            <Grid item xs={11} >     
+            <Grid item md={11} >     
                 <Typography variant="h4" gutterBottom  color='primary'>Add Product</Typography>
             </Grid>
             {/* Left */}
-            <Grid item xs={1}>
+            <Grid item md={1}>
                 <Button onClick={fetchProduct}>
                     <CachedIcon ></CachedIcon>
                 </Button>     
@@ -298,20 +293,23 @@ const AddProduct = () => {
                             required={true} 
                             value={fields.name}
                             onChange={FiledChange}
+                            inputProps={{ style: {textTransform: "uppercase" }}}
                         />
                     </Grid>
                     
                     <Grid item xs={8}>
                         <InputField  label='Package Weight'  
                             size='small'
-                            name='pakage_weight' type="string" 
+                            name='pakage_weight' type="number" 
                             value={fields.pakage_weight}
+                            inputProps={{ style: {textTransform: "uppercase" }}}
                             onChange={FiledChange}
                         />
                     </Grid>
                     <Grid item xs={4}>
                         <InputField  label='Unit'  
                             size='small'
+                            inputProps={{ style: {textTransform: "uppercase" }}}
                             name='unit' type="string" 
                             value={fields.unit}
                             onChange={FiledChange}

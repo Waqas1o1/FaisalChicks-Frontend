@@ -13,21 +13,10 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import EditIcon from '@material-ui/icons/Edit';
-import { SetDB, AddDB , UpdateDB ,GetDB} from '../../db/db';
 
 const useStyles = makeStyles((theme) => ({
-    formRoot: {
-        flexGrow: 1,
-        '@media only screen and (max-width: 600px)': {
-          width:'340px',
-          marginLeft:'20px'
-         },
-      },
       table:{
           width:'100vh',
-          '@media only screen and (max-width: 600px)': {
-              width:'100%',
-          },
       },
 }))
 
@@ -57,29 +46,17 @@ const AddPartyDiscount = () => {
                 else{
                     let discounts = data['data'];
                     setRows(discounts);
-                    SetDB('DiscountCategory',discounts);
                 }
             })
             .catch(error=>{
                 alert(`Somethin wrong: ${error}`);
             })
         }
-        else{
-            GetDB('DiscountCategory').then(res=>setRows(res))
-            // setChoices(JSON.parse(localStorage.getItem('Discounts')));
-        }
+       
     }
 
 
     async function saveDiscount(){
-        if (!navigator.onLine){
-            if (!isUpdate){
-                AddDB('DiscountCategory',fields);
-            }
-            else{
-                UpdateDB('DiscountCategory',fields,{'name':fields.name})
-            }
-        }
         if (!isUpdate){
             return await axiosInstance.post('apis/DiscountCategory/',{...fields})
                 .then(res=>{
@@ -210,13 +187,13 @@ const AddPartyDiscount = () => {
         }, []);
     
     return (
-        <Grid container spacing={2} className={classes.formRoot}>
+        <Grid container spacing={2} >
             {/* Title */}
-            <Grid item xs={11} >     
+            <Grid item md={11}>     
                 <Typography variant="h4" gutterBottom  color='primary'>Add Discount Category</Typography>
             </Grid>
             {/* Left */}
-            <Grid item xs={1}>
+            <Grid item md={1}>
                 <Button onClick={fetchDiscounts}>
                     <CachedIcon ></CachedIcon>
                 </Button>     
@@ -229,6 +206,7 @@ const AddPartyDiscount = () => {
                             name='name'
                             value={fields.name}
                             onChange={FiledChange}
+                            inputProps={{ style: {textTransform: "uppercase" }}}
                             autoFocus
                         />
                     </Grid>

@@ -36,16 +36,18 @@ const StyledTableRow = withStyles((theme) => ({
     
 
 const useStyles = makeStyles((theme) => ({
-    formRoot: {
-      flexGrow: 1,
-      padding : theme.spacing(2),
-    },
-    selecter:{
+    table:{
         marginTop:'20px',
-        maxWidth:'200px',
+        overflowX:'auto',
+        '@media only screen and (max-width: 600px)': {
+            width:'320px',
+        },
     },
-    table: {
-        minWidth: 700,
+    filter:{
+            '@media only screen and (max-width: 600px)': {
+                width:'45vh !important',
+            },
+        
     }
 }))
 
@@ -173,12 +175,14 @@ export default function BankLedger() {
     }, [])
 
     return (
+    <>
         <Grid
             container
             direction="row"
             justifyContent="center"
             alignItems="center"
             spacing={2}
+            className={classes.filter}
         >
            {/* Title */}
            <Grid item xs={12} >     
@@ -196,7 +200,7 @@ export default function BankLedger() {
                 />
            </Grid>
            
-           <Grid item xs={4} md={3} lg={2}>
+           <Grid item xs={6} md={3} lg={2}>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 <KeyboardDatePicker
                     autoOk
@@ -212,7 +216,7 @@ export default function BankLedger() {
                 </MuiPickersUtilsProvider>
            </Grid>
           
-           <Grid item xs={4} md={3} lg={2}>
+           <Grid item xs={6} md={3} lg={2}>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                     <KeyboardDatePicker
                         autoOk
@@ -228,7 +232,7 @@ export default function BankLedger() {
                 </MuiPickersUtilsProvider>
            </Grid>
             
-            <Grid item xs={4} md={3} lg={2}>
+            <Grid item xs={12} md={3} lg={2}>
                     <SpineerButton
                     className={classes.selecter}
                      handleButtonClick={handleButtonClick} 
@@ -239,46 +243,45 @@ export default function BankLedger() {
                      startIcon={(loading? <HourglassFullRoundedIcon/>:<StorageRoundedIcon />)}
                     />
             </Grid>
-            {/* TAble */}
-            <Grid item xs={12}>
-                <TableContainer component={Paper}>
-                        <Table className={classes.table} aria-label="customized table">
-                            <TableHead>
-                            <TableRow>
-                                {columns.map((column) => (
-                                        <StyledTableCell
-                                            key={column}
-                                            align="center"
-                                            // style={{ minWidth: column.minWidth }}
-                                            >
-                                            {column}
-                                        </StyledTableCell>
-                                    ))}
-                            </TableRow>
-                            </TableHead>
-                            <TableBody>
-                            {rows.map((row) => (
-                                <StyledTableRow key={row.id}>
-                                    <StyledTableCell component="th" scope="row">{row.date}</StyledTableCell>
-                                    <StyledTableCell align='center' >{row.description}</StyledTableCell>
-                                    {row.transaction_type === 'Credit'?
-                                    <>
-                                    <StyledTableCell align='center' ></StyledTableCell>
-                                    <StyledTableCell align='center' >{row.total_amount}</StyledTableCell>
-                                    </>
-                                    :
-                                    <>
-                                    <StyledTableCell align='center' >{row.total_amount}</StyledTableCell>
-                                    <StyledTableCell align='center' ></StyledTableCell>
-                                    </>
-                                    }
-                                    <StyledTableCell align='center' >{row.net_balance}</StyledTableCell>
-                                </StyledTableRow>
-                            ))}
-                            </TableBody>
-                    </Table>
-                </TableContainer>
-            </Grid>
+            
        </Grid>
-    )
+    {/* TAble */}     
+        <TableContainer component={Paper} className={classes.table}>
+        <Table className={classes.table} aria-label="customized table">
+            <TableHead>
+            <TableRow>
+                {columns.map((column) => (
+                        <StyledTableCell
+                            key={column}
+                            align="center"
+                            // style={{ minWidth: column.minWidth }}
+                            >
+                            {column}
+                        </StyledTableCell>
+                    ))}
+            </TableRow>
+            </TableHead>
+            <TableBody>
+            {rows.map((row) => (
+                <StyledTableRow key={row.id}>
+                    <StyledTableCell component="th" scope="row">{row.date}</StyledTableCell>
+                    <StyledTableCell align='center' >{row.description}</StyledTableCell>
+                    {row.transaction_type === 'Credit'?
+                    <>
+                    <StyledTableCell align='center' ></StyledTableCell>
+                    <StyledTableCell align='center' >{row.total_amount}</StyledTableCell>
+                    </>
+                    :
+                    <>
+                    <StyledTableCell align='center' >{row.total_amount}</StyledTableCell>
+                    <StyledTableCell align='center' ></StyledTableCell>
+                    </>
+                    }
+                    <StyledTableCell align='center' >{row.net_balance}</StyledTableCell>
+                </StyledTableRow>
+            ))}
+            </TableBody>
+        </Table>
+        </TableContainer>
+    </>)
 }

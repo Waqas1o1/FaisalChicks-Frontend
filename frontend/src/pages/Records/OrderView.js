@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import { DataGrid } from '@material-ui/data-grid';
 import axiosInstance from '../../apisConfig';
 import { makeStyles } from '@material-ui/styles';
-import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
+import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@material-ui/core';
 import AddAlarmOutlinedIcon from '@material-ui/icons/AddAlarmOutlined';
 import LocalShippingIcon from '@material-ui/icons/LocalShipping';
 import DoneAllIcon from '@material-ui/icons/DoneAll';
@@ -16,6 +16,11 @@ import { connect } from 'react-redux';
 import GroupStatus from '../../utils/status';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import AutoSuggestField from '../../components/AutoSuggestField';
+import CachedIcon from '@material-ui/icons/Cached';
+import PictureAsPdfOutlinedIcon from '@material-ui/icons/PictureAsPdfOutlined';
+import logo from '../../static/img/logo.png';
+import { jsPDF } from "jspdf";
+import html2canvas from 'html2canvas';
 
 const useStyles = makeStyles(theme => ({
     table: {
@@ -48,6 +53,7 @@ function DataTable(props) {
     description  :'',
     freight  :'',
     total_amount  :'',
+    discount:''
   };
 
   const initialdispcthFields = {
@@ -92,6 +98,7 @@ function DataTable(props) {
   const [productsFields,setProductsFields] = useState(initialProductFields);
   const [selectedProduct,setSelectedProduct] = useState(initialProductFields); 
   const [confirmProductAdd,setConfirmProductAdd] = useState(false); 
+  const [grandTotal,setGrandTotal] = useState(0); 
 
 
   const [loading,setLoading] = useState(false);
@@ -99,6 +106,8 @@ function DataTable(props) {
   const [openDialog2, setOpenDialog2] = useState(false);
   const [selectedObjId, setSelectedObjId] = useState(0);
   const [locations, setLocaions] = useState([]);
+  const [invoiceDialogBox, setInvoiceDialogBox] = useState(false);
+  const [invoiceGenrate, setInvoiceGenrate] = useState(false);
 
   
   const classes = useStyles();
@@ -110,6 +119,7 @@ function DataTable(props) {
     })
   }
 
+ 
   async function fetchParties(){
       if (navigator.onLine){
           return await axiosInstance.get('apis/Party/')
@@ -135,7 +145,7 @@ function DataTable(props) {
     
   }
 
-  async function fetchReliventPartyOrders(id){
+  async function fetchReliventPartyOrders(id,isLocations=false){
     if (navigator.onLine){
         return await axiosInstance.get(`apis/PartyOrder/${id}`)
         .then(res=>{
@@ -145,9 +155,11 @@ function DataTable(props) {
             }
             else{
                 let partyorder = data['data'];
+                if (isLocations === false){
                     setPartyTitle(partyorder.party.name);
                     setSalesOfficerTitle(partyorder.sale_officer.name);
                     setEditFields({
+                      discount:partyorder.party.discount.discount,
                       party:partyorder.party.id,
                       sale_officer:partyorder.sale_officer.id,
                       description:partyorder.description,
@@ -157,11 +169,18 @@ function DataTable(props) {
                       salesTarget:partyorder.salesTarget,
                       total_amount:partyorder.total_amount,
                     });
+                    setGrandTotal(partyorder.total_amount);
                     if (partyorder.status !== 'Pending'){
                         setPartDisabled(true);
                         setSalesOfficerDisabled(true);
                     }
                     setProducts(partyorder.products);
+                }
+                else{
+                  if (partyorder.locations){
+                    setLocaions(JSON.parse(partyorder.locations));
+                  }
+                }
             }
         })
         .catch(error=>{
@@ -194,7 +213,8 @@ function DataTable(props) {
     if (navigator.onLine){
       let send_dict = {
         ...editFields,
-        'products':products
+        'products':products,
+        total_amount:grandTotal
       }
         return await axiosInstance.put(`apis/PartyOrder/${selectedPartyOrder}/`,{...send_dict})
         .then(res=>{
@@ -275,10 +295,11 @@ function DataTable(props) {
   function GenrateDispatch(e,row){
     let id  = e.currentTarget.getAttribute('id');
     setSelectedObjId(id);
+    fetchReliventPartyOrders(id,true);
     setFields({
       ...fields,
       party_order:id,
-      freight:row.row.freight
+      freight:row.row.freight,
     })
     setOpenDialog2(true);
   }
@@ -290,19 +311,31 @@ function DataTable(props) {
       const optionElementId = optionElement.getAttribute('id');
       const obj = JSON.parse(optionElementId);
       setPartyTitle(obj.name);
-  }
-  if (event.target.name === 'sale_officer'){
-      const index = event.target.selectedIndex;
-      const optionElement = event.target.childNodes[index];
-      const optionElementId = optionElement.getAttribute('id');
-      const obj = JSON.parse(optionElementId);
-      setSalesOfficerTitle(obj.name);
-  }
+    }
+    if (event.target.name === 'sale_officer'){
+        const index = event.target.selectedIndex;
+        const optionElement = event.target.childNodes[index];
+        const optionElementId = optionElement.getAttribute('id');
+        const obj = JSON.parse(optionElementId);
+        setSalesOfficerTitle(obj.name);
+    }
     setFields({
         ...fields,
         [event.target.name] : event.target.value,
     });
+    
   };
+  function Calculate(){
+    var count = 0;
+    for (let row in products){
+      count += products[row].qty * products[row].rate;
+    }
+    var grand_total = 0;
+    console.log(editFields.freight);
+    grand_total = count - (count /100) * editFields.discount;
+    grand_total = grand_total - editFields.freight;
+    setGrandTotal(grand_total);
+  }
   const handleProductFieldChange = (e)=>{
     setProductsFields({
       ...productsFields,
@@ -352,6 +385,7 @@ function DataTable(props) {
       newItem
     ]);
   }
+
   function handleLocationDelete(name,index) {
     let array = locations.filter(item=>item !== name);
     setLocaions([
@@ -479,6 +513,7 @@ function DataTable(props) {
   }
   const EditPartyOrder=()=>{
     setLoading(true);
+    Calculate();
     UpdatePartyOrder();
   }
   const DeletePartyOrders=(id)=>{
@@ -514,6 +549,27 @@ function DataTable(props) {
     setSelectedProduct([]);
     setProductsFields(initialProductFields);
     setConfirmProductAdd(false);
+  }
+  const OpenInvoice = (row)=>{
+    setSelectedPartyOrder(row);
+    setInvoiceGenrate(true);
+    setInvoiceDialogBox(true);
+  } 
+  const handleGenratePDF = () => {
+    const input = document.getElementById('PDFinvoice');
+    html2canvas(input,{scale: 3})
+      .then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF({
+          // orientation: "landscape",
+          unit: "in",
+          format: [4, 2]
+        });
+        var width = pdf.internal.pageSize.getWidth();
+        var height = pdf.internal.pageSize.getHeight();
+        pdf.addImage(imgData, 'JPEG', 0, 0,width,height);
+        pdf.save("download.pdf");
+      })
   }
   const columns = [
     { field: 'id', headerName: 'ID', width: 90 },
@@ -556,7 +612,6 @@ function DataTable(props) {
       width: 150,
       editable: false,
     },
-   
     {
       field: 'pdt_qty__sum',
       headerName: 'Products Total',
@@ -566,10 +621,20 @@ function DataTable(props) {
     },
     {
       field: 'pandding_amount',
-      headerName: 'Pending Amount',
+      headerName: 'Net Amount Receivable ',
       type: 'number',
-      width: 180,
+      width: 225,
       editable: false,
+    },
+    {
+      field: 'Amount Received ',
+      headerName: 'Amount Received ',
+      type: 'number',
+      width: 225,
+      editable: false,
+      renderCell: (row)=>{
+        return (row.row.total_amount - row.row.pandding_amount)
+      }
     },
     {
       field: 'total_amount',
@@ -616,6 +681,14 @@ function DataTable(props) {
                   </span>
         }
       }
+    },
+    {
+      field: 'PDF',
+      headerName: 'PDF',
+      width: 120,
+      editable: false,
+      renderCell: (row)=>(<IconButton color='secondary' onClick={()=>{OpenInvoice(row.row)}}><PictureAsPdfOutlinedIcon/></IconButton>),
+      headerAlign: 'center',
     },
     {
       field: 'action',
@@ -695,15 +768,26 @@ function DataTable(props) {
   
     return (
        <div style={{ height: 500, width: '100%'}}>
-            <DataGrid
-              rows={rows}
-              columns={columns}
-              autoPageSize
-              className={classes.table}
-              autoHeight
-              disableSelectionOnClick
-              loading={loading}
-            />
+          <Grid container  spacing={2} justifyContent='space-between' className={`${classes.formRoot} ${classes.gultter}`}>
+           {/* TITLE */}
+            <Grid item >
+              <Typography variant='h3' color='primary'>Party Orders</Typography>
+            </Grid>
+            <Grid item >
+                <Button onClick={fetchOrders}>
+                    <CachedIcon ></CachedIcon>
+                </Button> 
+            </Grid>
+          </Grid>
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            autoPageSize
+            className={classes.table}
+            autoHeight
+            disableSelectionOnClick
+            loading={loading}
+          />
             {/* Confirm */}
           <Dialog
               open={openDialog}
@@ -827,7 +911,9 @@ function DataTable(props) {
               open={openEditDialog}
               onClose={()=>setEditDialog(false)}
               >
-              <DialogTitle id="a">{"Order Update"}</DialogTitle>
+              <DialogTitle >
+                  {"Order Update"}
+                </DialogTitle>
               <DialogContent>
                 <Grid container spacing={3} alignItems="center">
                   <Grid item xs>
@@ -874,7 +960,10 @@ function DataTable(props) {
                   {/* Products */}
                     <form action="" style={{display:'block'}} onSubmit={(e)=>{e.preventDefault();setConfirmProductAdd(true)}}>
                       <Grid item container spacing={3} alignItems="center" >
-                          <Grid item xs={4}>
+                          <Grid item xs={12}>
+                            <Typography variant='body1' color='primary'> Add Products</Typography>
+                          </Grid>
+                          <Grid item xs={12} md={4}>
                             <AutoSuggestField 
                                 options={prodcutsFetched}
                                 selectedOption={(option)=>option.name || ""}
@@ -888,7 +977,7 @@ function DataTable(props) {
                                 onChange={ProductfieldChange}           
                               />
                             </Grid>
-                          <Grid item xs={3}>
+                          <Grid item xs={4} md={3}>
                             <InputField  size='small'
                                 label="qty" 
                                 type="number" 
@@ -897,7 +986,7 @@ function DataTable(props) {
                                 value={productsFields.qty}
                                 />
                             </Grid>
-                          <Grid item xs={3}>
+                          <Grid item xs={4} md={3}>
                             <InputField  size='small'
                                 label="Rate" 
                                 type="number" 
@@ -906,7 +995,7 @@ function DataTable(props) {
                                 value={productsFields.rate}
                                 />
                           </Grid>
-                          <Grid item xs={2}>
+                          <Grid item xs={4} md={2}>
                           <IconButton type='submit' >
                             <AddCircleIcon color='primary' style={{ fontSize: 40 }}/>
                             </IconButton>
@@ -946,6 +1035,7 @@ function DataTable(props) {
                                     id={JSON.stringify(pdt)}
                                     onChange={EditProduct} 
                                     name='qty'
+                                    fullWidth
                                     value={pdt.qty}
                                     />
                                 </TableCell>
@@ -956,6 +1046,7 @@ function DataTable(props) {
                                     id={JSON.stringify(pdt)}
                                     onChange={EditProduct} 
                                     name='rate'
+                                    fullWidth
                                     value={pdt.rate}
                                     />
                                 </TableCell>
@@ -972,9 +1063,7 @@ function DataTable(props) {
                         </Table>
                       </TableContainer>
                   </Grid>
-                  
                 </Grid>
-              
               </DialogContent>
               <DialogActions>
                   <Button onClick={()=>setEditDialog(false)} color="default" >
@@ -1065,14 +1154,13 @@ function DataTable(props) {
                         />
                   </Grid>      
                   <Grid item>
-                  <ChipInput
+                    <ChipInput
                         placeholder='Locations'
                         value={locations}
                         onAdd={(chip) => handleLocationSet(chip)}
                         onDelete={(chip, index) => handleLocationDelete(chip, index)}
                         fullWidth
-                  />
-                  
+                    />
                   </Grid>
                 </Grid>
             </DialogContent>
@@ -1106,6 +1194,106 @@ function DataTable(props) {
                   </Button>
               </DialogActions>
           </Dialog>
+        {/* PDF */}
+        <Dialog
+          open={invoiceDialogBox}
+          onClose={()=>{setInvoiceGenrate(false);setInvoiceDialogBox(false)}}
+        >
+        <DialogTitle id="Dialog">Invoice View</DialogTitle>
+        <DialogContent >
+          {!invoiceGenrate?undefined:
+          <div className="invoice-box" id='PDFinvoice'>
+            <table>
+              <tr className="top"  key='top'>
+                <td colSpan='5'>
+                  <table>
+                    <tr key='InvoiceImage'>
+                      <td className="title">
+                        <img src={logo} alt="Company logo" style={{width: '100%',maxWidth: '100px'}} />
+                      </td>
+
+                      <td>
+                        Invoice #: {selectedPartyOrder.id}<br />
+                        Created: {selectedPartyOrder.date}<br />
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+
+              <tr className="information" key='information'>
+                <td colSpan="5">
+                  <table>
+                    <tr key='table'>
+                      <td>
+                        Sales Officer<br />
+                        Dispatch Party
+                      </td>
+
+                      <td >
+                        {selectedPartyOrder.sale_officer}<br />
+                        {selectedPartyOrder.party}
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+
+        
+
+              <tr className="heading" key='heading'>
+                <td colSpan={3}>Product</td>
+                <td>Qty</td>
+                <td>Rate</td>
+              </tr>
+          {!selectedPartyOrder?undefined:selectedPartyOrder.products.map((pdt,index, arr)=>{
+            return (
+            <>
+              {index === arr.length - 1 ?
+                <tr className="item last" key={pdt.product.name}>
+                  <td colSpan={3}>{pdt.product.name}</td>
+                  <td>{pdt.qty}</td>
+                  <td>{pdt.rate}</td>
+                </tr> :
+                <tr className="item"  key={pdt.product.name}>
+                  <td colSpan={3}>{pdt.product.name}</td>
+                  <td>{pdt.qty}</td>
+                  <td>{pdt.rate}</td>
+                </tr>
+              }
+            </>)
+          })}
+
+
+        <tr className="total"  key='Grossstotal'>
+					<td></td>
+
+					<td colSpan={4}>Grosss Total: {selectedPartyOrder.gross_total}</td>
+				</tr>
+        <tr className="total"  key='Discounttotal'>
+					<td></td>
+
+					<td colSpan={4}>Discount Amount: {selectedPartyOrder.discounted_amount}</td>
+				</tr>
+        <tr className="total" key='Grandtotal'>
+					<td></td>
+
+					<td colSpan={4}>Grand Total: {selectedPartyOrder.total_amount}</td>
+				</tr>
+        
+            </table>
+          </div>
+          }       
+        </DialogContent>
+        <DialogActions>
+            <Button  color="default" onClick={()=>{setInvoiceGenrate(false);setInvoiceDialogBox(false)}}>
+                Cancel
+            </Button>
+            <Button color="secondary" onClick={handleGenratePDF} autoFocus>
+                Genrate PDF
+            </Button>
+        </DialogActions>
+      </Dialog>
       </div>
     )
 }

@@ -1,4 +1,4 @@
-import { Grid, makeStyles, Typography } from '@material-ui/core'
+import { Grid, Typography } from '@material-ui/core'
 import React, { useState, useEffect } from 'react'
 import Selecter from '../../components/Selecter'
 import DateFnsUtils from '@date-io/date-fns';
@@ -35,16 +35,6 @@ const StyledTableRow = withStyles((theme) => ({
   }))(TableRow);
     
 
-const useStyles = makeStyles((theme) => ({
-    table:{
-        marginTop:'20px',
-        '& .MuiPaper-root':{
-            '@media only screen and (max-width: 600px)': {
-                width:'70vh%',
-            },
-        }
-    }
-}))
 
 const columns = ['Date','Description','Freight','Debit','Credit','Net Balance']
 
@@ -56,7 +46,6 @@ export default function PartyLedger() {
         ToDate: date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate(),
     }
     
-    const classes = useStyles();
     const [fields,setFields] = useState(initialFields);    
     const [parties,setParties] = useState([]);    
     const [loading,setLoading] = useState(false);    
@@ -171,17 +160,13 @@ export default function PartyLedger() {
 
     return (
         <>
-        <Grid
-            container
-            alignItems="center"
-            spacing={2}
-        >
+        <Grid container alignItems="center" spacing={2}>
            {/* Title */}
            <Grid item xs={12} >     
                 <Typography variant="h4" gutterBottom  color='primary'>Parties Ledger</Typography>
             </Grid>
             
-           <Grid item  xs={12} md={3} lg={2} >
+           <Grid item  xs={12} md={1} >
                 <Selecter
                      title={partyTitle}
                      handleChange={FiledChange}
@@ -192,7 +177,7 @@ export default function PartyLedger() {
                 />
            </Grid>
            
-           <Grid item xs={4} md={3} lg={2}>
+           <Grid item xs={4} md={2}>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 <KeyboardDatePicker
                     autoOk
@@ -208,7 +193,7 @@ export default function PartyLedger() {
                 </MuiPickersUtilsProvider>
            </Grid>
           
-           <Grid item xs={4} md={3} lg={2}>
+           <Grid item xs={4} md={2}>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                     <KeyboardDatePicker
                         autoOk
@@ -224,9 +209,8 @@ export default function PartyLedger() {
                 </MuiPickersUtilsProvider>
            </Grid>
             
-            <Grid item xs={12} md={3} lg={2}>
+            <Grid item xs={12}>
                     <SpineerButton
-                    className={classes.selecter}
                      handleButtonClick={handleButtonClick} 
                      label={(loading?'Loadning':'Get Data')}
                      loading={loading}
@@ -235,10 +219,9 @@ export default function PartyLedger() {
                      startIcon={(loading? <HourglassFullRoundedIcon/>:<StorageRoundedIcon />)}
                     />
             </Grid>
-       </Grid>
-    {/* TAble */}
-    <TableContainer component={Paper} className={classes.table} >
-            <Table  aria-label="customized table">
+            <Grid item xs={10} md={12}>
+            <TableContainer component={Paper} >
+            <Table  aria-label="customized table" >
                 <TableHead>
                 <TableRow>
                     {columns.map((column) => (
@@ -272,8 +255,12 @@ export default function PartyLedger() {
                     </StyledTableRow>
                 ))}
                 </TableBody>
-        </Table>
-    </TableContainer>
+                </Table>
+            </TableContainer>
+            </Grid>
+       </Grid>
+    {/* TAble */}
+   
     </>
     )
 }

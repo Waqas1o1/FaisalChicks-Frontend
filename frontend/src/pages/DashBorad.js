@@ -2,7 +2,6 @@ import { Grid, makeStyles, Paper, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import HomeRoundedIcon from '@material-ui/icons/HomeRounded';
-// import SettingsBackupRestoreRoundedIcon from '@material-ui/icons/SettingsBackupRestoreRounded';
 import VisibilityRoundedIcon from '@material-ui/icons/VisibilityRounded';
 import PersonPinCircleRoundedIcon from '@material-ui/icons/PersonPinCircleRounded';
 import PersonAddRoundedIcon from '@material-ui/icons/PersonAddRounded';
@@ -333,8 +332,8 @@ const DashBorad = (props) => {
         </Grid>:undefined
         }
         <Divider variant="middle" />
+        {isAdmin?
         <Grid container style={{padding:'30px'}} spacing={2} justifyContent='center'  alignItems="center" >          
-          
           <Grid item xs={12} >
             <Typography variant="h4" display="block" color='textSecondary' align='center'>
                 Adjustments
@@ -351,6 +350,7 @@ const DashBorad = (props) => {
             </Link>
           </Grid>
         </Grid>
+        :undefined}
     </div>
     );
 }

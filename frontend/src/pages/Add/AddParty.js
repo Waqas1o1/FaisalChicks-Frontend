@@ -14,7 +14,8 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import EditIcon from '@material-ui/icons/Edit';
-// import axios from 'axios';
+
+
 const useStyles = makeStyles((theme) => ({
     formRoot: {
       flexGrow: 1,
@@ -192,7 +193,7 @@ const AddParty = () => {
                 form_data.append(i, fields[i]);
             };
             return await axiosInstance.post('apis/Party/',form_data,
-            { headers: {
+            {headers: {
                 'content-type': 'multipart/form-data',
                 'Authorization': `Token ${localStorage.getItem('token')}`
               }})
@@ -459,7 +460,6 @@ const AddParty = () => {
                                 value={fields.name}
                                 onChange={FiledChange}
                                 inputProps={{ style: {textTransform: "uppercase" }}}
-                            
                             />
                         </Grid>
                         <Grid item xs={6}>

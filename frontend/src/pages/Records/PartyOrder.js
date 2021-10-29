@@ -8,8 +8,8 @@ import InputField from '../../components/InputField';
 import AutoSuggestField from '../../components/AutoSuggestField';
 import ReceiptIcon from '@material-ui/icons/Receipt';
 import MenuItems from '../../components/MenuItems';
-
-
+import ChipInput from 'material-ui-chip-input';
+import '../../static/css/partyorder.css';
 
 const useStyles = makeStyles((theme) => ({
   formRoot: {
@@ -47,6 +47,7 @@ xsFull:{
 }
 }))
 
+
 const StyledTableCell = withStyles((theme) => ({
   head: {
     backgroundColor: theme.palette.primary.dark,
@@ -63,6 +64,7 @@ export default function PartyOrder(props) {
     freight:0,
     total_amount:'',
     gross_total:'',
+    locations:'',
   }
   
   const [fields,setFields] = useState(initialFields);   
@@ -81,10 +83,25 @@ export default function PartyOrder(props) {
     rate:'',
     freight:0,
   }
+  const [locations,setLocations] = useState([]); 
   const [products,setProducts] = useState([]); 
   const [productsRows,setProductsRows] = useState([]); 
   const [productFields,setProductFields] = useState(initialProductFields); 
   const [selectedProduct,setSelectedProduct] = useState(initialProductFields); 
+  // Locations
+  function handleLocationSet(items) {
+    let newItem = items.replace(/"/g, '\'');
+    setLocations([
+      ...locations,
+      newItem
+    ]);
+  }
+  function handleLocationDelete(name) {
+    let array = locations.filter(item=>item !== name);
+    setLocations([
+      ...array
+    ]);
+  }
   // Total CalCulate
   const [totalAmount,setTotalAmount] = useState(fields.total_amount); 
   // Discount
@@ -292,7 +309,7 @@ const [bankDisabled,setBankDisabled] = useState(true);
   }
 
   const handleGenrateOrder = async e =>{
-    let sendfileds = {...fields,sale_officer:selectedSalesOfficer}
+    let sendfileds = {...fields,sale_officer:selectedSalesOfficer,locations:JSON.stringify(locations)}
     const send_dict = {
       'party_order': sendfileds,
       'products': productsRows,
@@ -313,6 +330,7 @@ const [bankDisabled,setBankDisabled] = useState(true);
           setDiscount(0);
           setRecoveryFields(initialRecoveryFields);
           setOpenRecovery(false);
+          setLocations([]);
       }
       })
       .catch(error=>{
@@ -383,10 +401,23 @@ const [bankDisabled,setBankDisabled] = useState(true);
                     algin='left'
                         />
                   </Grid>
-                  <Grid item xs={12}>
-                    <Typography variant='button' color='textSecondary'>Description </Typography>
-                    <br/>       
-                    <TextareaAutosize value={fields.description} onChange={FieldsCahange} name='description' placeholder="Enter Order Discription" maxRows={12} className={classes.textArea}/>
+                  <Grid item xs={12} container>
+                    <Grid item>
+                      <Typography variant='button' color='textSecondary'>Dispatch Locations</Typography>
+                      <br/>  
+                      <ChipInput
+                        placeholder='Locations'
+                        value={locations}
+                        onAdd={(chip) => handleLocationSet(chip)}
+                        onDelete={(chip) => handleLocationDelete(chip)}
+                        fullWidth
+                    />
+                  </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant='button' color='textSecondary'>Description </Typography>
+                      <br/>       
+                      <TextareaAutosize value={fields.description} onChange={FieldsCahange} name='description' placeholder="Enter Order Discription" maxRows={12} className={classes.textArea}/>
+                    </Grid>
                   </Grid>
               </Grid>
             {/* Right CONATINER */}
@@ -583,7 +614,7 @@ const [bankDisabled,setBankDisabled] = useState(true);
             </Button>
         </DialogActions>
       </Dialog>
-  
+   
     </div>
   )
 }

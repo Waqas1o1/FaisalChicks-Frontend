@@ -1,4 +1,4 @@
-import { Grid, makeStyles, Typography } from '@material-ui/core'
+import { Grid, Typography } from '@material-ui/core'
 import React, { useState } from 'react'
 import DateFnsUtils from '@date-io/date-fns';
 import axiosInstance  from '../../apisConfig'
@@ -34,20 +34,6 @@ const StyledTableRow = withStyles((theme) => ({
   }))(TableRow);
     
 
-const useStyles = makeStyles((theme) => ({
-    formRoot: {
-      flexGrow: 1,
-      padding : theme.spacing(2),
-    },
-    selecter:{
-        marginTop:'20px',
-        maxWidth:'200px',
-    },
-    table: {
-        minWidth: 700,
-    }
-}))
-
 const columns = ['Date','Description','Debit','Credit','Net Balance']
 
 export default function DiscountLedger() {
@@ -56,8 +42,6 @@ export default function DiscountLedger() {
         FromDate: date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate(),
         ToDate: date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate(),
     }
-    
-    const classes = useStyles();
     const [fields,setFields] = useState(initialFields);        
     const [loading,setLoading] = useState(false);    
     const [rows,setRows] = useState([]);
@@ -117,8 +101,6 @@ export default function DiscountLedger() {
     return (
         <Grid
             container
-            direction="row"
-            justifyContent="center"
             alignItems="center"
             spacing={2}
         >
@@ -128,7 +110,7 @@ export default function DiscountLedger() {
             </Grid>
             
            
-           <Grid item xs={4} md={3} lg={2}>
+           <Grid item xs={5}  md={2}>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 <KeyboardDatePicker
                     autoOk
@@ -144,7 +126,7 @@ export default function DiscountLedger() {
                 </MuiPickersUtilsProvider>
            </Grid>
           
-           <Grid item xs={4} md={3} lg={2}>
+           <Grid item xs={5}  md={2}>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                     <KeyboardDatePicker
                         autoOk
@@ -160,9 +142,8 @@ export default function DiscountLedger() {
                 </MuiPickersUtilsProvider>
            </Grid>
             
-            <Grid item xs={4} md={3} lg={2}>
+            <Grid item >
                     <SpineerButton
-                    className={classes.selecter}
                      handleButtonClick={handleButtonClick} 
                      label={(loading?'Loadning':'Get Data')}
                      loading={loading}
@@ -172,9 +153,9 @@ export default function DiscountLedger() {
                     />
             </Grid>
             {/* TAble */}
-            <Grid item xs={12}>
+            <Grid item xs={10} md={12}>
                 <TableContainer component={Paper}>
-                        <Table className={classes.table} aria-label="customized table">
+                        <Table  aria-label="customized table">
                             <TableHead>
                             <TableRow>
                                 {columns.map((column) => (

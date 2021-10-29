@@ -229,12 +229,14 @@ const AddDispatchperson = () => {
                             onChange={FiledChange}
                             autoFocus
                             fullWidth
+                            inputProps={{ style: {textTransform: "uppercase" }}}
                         />
                     </Grid>
                     <Grid item xs={6}>
                         <InputField  label='Email @' type='string' 
                             name='email'
                             value={fields.email}
+                            inputProps={{ style: {textTransform: "uppercase" }}}
                             onChange={FiledChange}
                         />
                     </Grid>
@@ -242,6 +244,7 @@ const AddDispatchperson = () => {
                         <InputField  label='User Name' type='string' 
                             name='username'
                             value={fields.username}
+                            inputProps={{ style: {textTransform: "lowercase" }}}
                             onChange={FiledChange}
                         />
                     </Grid>

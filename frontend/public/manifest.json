@@ -4,6 +4,7 @@
     "lang": "en-US",
     "orientation": "any",
     "start_url": "/",
+    "purpose": "any maskable",
     "background_color": "#fff",
     "theme_color": "#fff",
     "display": "standalone",
@@ -14,7 +15,7 @@
         "sizes": "192x192"
       },
       {
-        "src": "playstore-icon.png",
+        "src": "iTunesArtwork@3x.png",
         "sizes": "512x512"
       }
     ]

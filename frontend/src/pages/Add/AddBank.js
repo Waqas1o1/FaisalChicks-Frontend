@@ -226,6 +226,7 @@ const AddBank = () => {
                         required={true} 
                         value={fields.name}
                         onChange={FiledChange}
+                        inputProps={{ style: {textTransform: "uppercase" }}}
                         autoFocus
                         />
                     </Grid>
@@ -233,6 +234,7 @@ const AddBank = () => {
                         <InputField  size='small' label="Account #"
                         type="string"
                         name='account_no'
+                        inputProps={{ style: {textTransform: "uppercase" }}}
                         required={true}
                         value={fields.account_no}
                         onChange={FiledChange}

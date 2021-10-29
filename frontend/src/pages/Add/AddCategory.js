@@ -218,6 +218,7 @@ const AddCategory = () => {
                             name='name'
                             value={fields.name}
                             onChange={FiledChange}
+                            inputProps={{ style: {textTransform: "uppercase" }}}
                             autoFocus
                         />
                     </Grid>

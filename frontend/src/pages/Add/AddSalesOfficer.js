@@ -14,10 +14,9 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import EditIcon from '@material-ui/icons/Edit';
 const useStyles = makeStyles((theme) => ({
-    formRoot: {
-        flexGrow: 1,
+    formRoot: {        
         '@media only screen and (max-width: 600px)': {
-          width:'340px',
+          width:'315px',
          },
       },
     table:{
@@ -162,13 +161,13 @@ const AddSalesOfficer = () => {
                 alert(`Error Occures ${data['message']}`);
             }
             else{
-                console.log(data.data)
                 let setData = {
                     name:data.data.name,
                     contact:data.data.contact,
                     email:data.data.user.email,
                     commission:data.data.commission,
-                    username:data.data.user.first_name
+                    username:data.data.user.username,
+                    opening_Balance:data.data.opening_Balance,
                 }
                 setFields(setData);
                 setIsUpdate(true);
@@ -238,6 +237,7 @@ const AddSalesOfficer = () => {
                         <InputField  label='Name' type='string'  
                             name='name'
                             value={fields.name}
+                            inputProps={{ style: {textTransform: "uppercase" }}}
                             onChange={FiledChange}
                             autoFocus
                             fullWidth
@@ -284,7 +284,6 @@ const AddSalesOfficer = () => {
                     <Grid item xs={6}>
                         <InputField  label='Password' type='password'  
                             name='password'
-                            disabled={isUpdate}
                             value={fields.password}
                             onChange={FiledChange}
                         />
@@ -314,7 +313,7 @@ const AddSalesOfficer = () => {
            <Grid item xs={12} md={9} lg={9} className={classes.table}>
                 <GetTable 
                     rows={rows} 
-                    columns={['ID','Name','Contact','Commission (%)','Opening Balance','Username','Last Login']}
+                    columns={['ID','Name','Commission (%)','Contact','Opening Balance','Username','Last Login']}
                     onDelete={onDelete}
                     onUpdate={onUpdate}
                 />
@@ -327,7 +326,7 @@ const AddSalesOfficer = () => {
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
                 >
-                <DialogTitle id="alert-dialog-title">{"Use Google's location service?"}</DialogTitle>
+                <DialogTitle id="alert-dialog-title">{"Are You Sure?"}</DialogTitle>
                 <DialogContent>
                 <DialogContentText id="alert-dialog-description">
                     Are you sure want to Delete {selectedObjId}
