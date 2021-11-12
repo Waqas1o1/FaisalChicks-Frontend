@@ -13,18 +13,15 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import EditIcon from '@material-ui/icons/Edit';
+import { toast } from 'react-toastify';
+
 const useStyles = makeStyles((theme) => ({
-    formRoot: {        
-        '@media only screen and (max-width: 600px)': {
-          width:'315px',
-         },
-      },
     table:{
-          width:'100vh',
-          '@media only screen and (max-width: 600px)': {
-              width:'100%',
-          },
-      },
+        width:'200px',
+        '@media only screen and (max-width: 600px)': {
+            width:'100px',
+        },
+    }
 }))
 
 const AddSalesOfficer = () => {
@@ -49,35 +46,30 @@ const AddSalesOfficer = () => {
 
 
     async function fetchSalesOfficer(){
-        if (navigator.onLine){
-            return await axiosInstance.get('apis/SalesOfficer/')
-            .then(res=>{
-                let data  = res.data;
-                if (data['error'] === true){
-                alert(`Error Occures ${data['message']}`);
+        return await axiosInstance.get('apis/SalesOfficer/')
+        .then(res=>{
+            let data  = res.data;
+            if (data['error'] === true){
+                toast.error(`Error Occures ${data['message']}`);
+            }
+            else{
+                let d = data['data'];
+                for (var i in d){
+                    d[i].username = d[i].user.username
+                    delete d[i].current_Balance
+                    delete d[i].date
+                    d[i].last_login = new Date(d[i].user.last_login).toLocaleString()
+                    delete d[i].user
                 }
-                else{
-                    let d = data['data'];
-                    for (var i in d){
-                        d[i].username = d[i].user.username
-                        delete d[i].current_Balance
-                        delete d[i].date
-                        d[i].last_login = new Date(d[i].user.last_login).toLocaleString()
-                        delete d[i].user
-                    }
-                    setRows(d);
-                    localStorage.removeItem('Category');
-                    localStorage.setItem('Category',JSON.stringify(data['data']));
-                }
-            })
-            .catch(error=>{
-                alert(`Somethin wrong: ${error}`);
-            })
+                setRows(d);
+            }
+        })
+        .catch(error=>{
+            toast.error(`Somethin wrong: ${error}`);
+        })
         }
-        else{
-            // setChoices(JSON.parse(localStorage.getItem('Discounts')));
-        }
-    }
+       
+
 
 
     async function saveSalesOfficer(){
@@ -99,7 +91,6 @@ const AddSalesOfficer = () => {
                         setLoading(false);
                         fetchSalesOfficer();
                         setFields(initialFields);
-                        // setFields(initialFields);
                     }
                 })
                 .catch(error=>{
@@ -181,7 +172,8 @@ const AddSalesOfficer = () => {
         })
     }
 
-    const handleButtonClick = () => {
+    const handleButtonClick = (e) => {
+        e.preventDefault();
         if (!loading) {
         setSuccess(false);
         setLoading(true);
@@ -232,14 +224,15 @@ const AddSalesOfficer = () => {
             </Grid>
             
             <Grid item xs={12} md={3} lg={3}>
+            <form onSubmit={handleButtonClick}style={{display:'contents'}}>
                 <Grid container item  spacing={3}>
                     <Grid item xs={12}>
                         <InputField  label='Name' type='string'  
                             name='name'
                             value={fields.name}
+                            required={true}
                             inputProps={{ style: {textTransform: "uppercase" }}}
                             onChange={FiledChange}
-                            autoFocus
                             fullWidth
                         />
                     </Grid>
@@ -247,12 +240,14 @@ const AddSalesOfficer = () => {
                         <InputField  label='Email @' type='string' 
                             name='email'
                             value={fields.email}
+                            required={true}
                             onChange={FiledChange}
                         />
                     </Grid>
                     <Grid item xs={6}>
                         <InputField  label='User Name' type='string' 
                             name='username'
+                            required={true}
                             value={fields.username}
                             onChange={FiledChange}
                             inputProps={{ style: {textTransform: "lowercase" }}}
@@ -261,6 +256,7 @@ const AddSalesOfficer = () => {
                     <Grid item xs={6}>
                         <InputField  label='Contact' type='string'  
                             name='contact'
+                            required={true}
                             value={fields.contact}
                             onChange={FiledChange}
                         />
@@ -268,6 +264,7 @@ const AddSalesOfficer = () => {
                     <Grid item xs={6}>
                         <InputField  label='Commission (%)' type='number'  
                             name='commission'
+                            required={true}
                             value={fields.commission}
                             onChange={FiledChange}
                         />
@@ -276,6 +273,7 @@ const AddSalesOfficer = () => {
                     <Grid item xs={12}>
                         <InputField  label='Opening Balance' type='number'  
                             name='opening_Balance'
+                            required={true}
                             value={fields.opening_Balance}
                             disabled={isUpdate}
                             onChange={FiledChange}
@@ -284,6 +282,7 @@ const AddSalesOfficer = () => {
                     <Grid item xs={6}>
                         <InputField  label='Password' type='password'  
                             name='password'
+                            required={true}
                             value={fields.password}
                             onChange={FiledChange}
                         />
@@ -291,6 +290,7 @@ const AddSalesOfficer = () => {
                     <Grid item xs={6}>
                         <InputField  label='Confirm Password' type='password'  
                             name='repassword'
+                            required={true}
                             value={fields.repassword}
                             disabled={isUpdate}
                             onChange={FiledChange}
@@ -299,7 +299,7 @@ const AddSalesOfficer = () => {
                     
                     <Grid item container  >
                         <SpineerButton
-                        handleButtonClick={handleButtonClick} 
+                        type='submit' 
                         label={(isUpdate?'Update':'Save')}
                         loading={loading}
                         success={success}
@@ -308,6 +308,7 @@ const AddSalesOfficer = () => {
                         />
                     </Grid>
                 </Grid>
+            </form>
            </Grid>
             {/* Right */}
            <Grid item xs={12} md={9} lg={9} className={classes.table}>

@@ -18,7 +18,7 @@ export default function Import() {
     const classes = useStyles();
 
     const [file,setFile] = useState('');
-    const [fileTitle,setFileTitle] = useState('Party CSV');
+    const [fileTitle,setFileTitle] = useState('CSV');
     const [uploadingType,setUploadingType] = useState('Party CSV');
     const [open, setOpen] = React.useState(false);
     const HandleFileChange = (e)=>{

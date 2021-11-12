@@ -13,18 +13,16 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import EditIcon from '@material-ui/icons/Edit';
+import { toast } from 'react-toastify';
+
+
 
 const useStyles = makeStyles((theme) => ({
-    formRoot: {
-        flexGrow: 1,
-        '@media only screen and (max-width: 600px)': {
-          width:'340px',
-         },
-      },
+    
       table:{
-          width:'100vh',
+        
           '@media only screen and (max-width: 600px)': {
-              width:'100%',
+              width:'100px',
           },
       },
 }))
@@ -52,7 +50,9 @@ const AddBank = () => {
             .then(res=>{
                 let data  = res.data;
                 if (data['error'] === true){
-                    alert(`Error Occures ${data['message']}`);
+                    for (let err in data['message']){
+                        toast.error(data['message'][err]);
+                    }
                 }
                 else{
                     let bank = data['data'];
@@ -80,41 +80,48 @@ const AddBank = () => {
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
-                        alert(`Error Occures ${data['message']}`);
+                        for (let err in data['message']){    
+                            toast.error(data['message'][err]);
+                        }
                         setSuccess(false);
                         setLoading(false);
+
                     }
                     else{
                         setLoading(false);
                         fetchBank();
                         setFields(initialFields);
+                        toast.success(data['message']);
                     }
                 })
                 .catch(error=>{
-                    alert(`Somethin wrong: ${error}`);
+                    toast.error(error);
                     setSuccess(false);
                     setLoading(false);
                 })
             }
         else{
-            console.log(fields);
             return await axiosInstance.put(`apis/Bank/${selectedObjId}/`,{...fields})
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
-                        alert(`Error Occures ${data['message']}`);
+                        for (let err in data['message']){
+                            toast.error(data['message'][err]);
+                        }
                         setSuccess(false);
                         setLoading(false);
                     }
                     else{
+                        toast.success(data['message']);
                         fetchBank();
                         setFields(initialFields);
                         setLoading(false);
                         setIsUpdate(false);
+
                     }
                 })
                 .catch(error=>{
-                    alert(`Somethin wrong: ${error}`);
+                    toast.error(error);
                     setSuccess(false);
                     setLoading(false);
                 })
@@ -122,21 +129,23 @@ const AddBank = () => {
     }
 
     async function ConfirmDelete(e){
-        console.log(selectedObjId);
         return await axiosInstance.delete(`apis/Bank/${selectedObjId}/`)
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
-                alert(`Error Occures ${data['message']}`);
+                for (let err in data['message']){
+                    toast.error(data['message'][err]);
+                }
             }
             else{
+                toast.success(data['message']);
                 fetchBank();
                 setFields(initialFields);
                 setOpenDialog(false);
             }
         })
         .catch(error=>{
-            alert(`Somethin wrong: ${error}`);
+            toast.error(error);
             setOpenDialog(false);
         })
         
@@ -148,9 +157,12 @@ const AddBank = () => {
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
-                alert(`Error Occures ${data['message']}`);
+                for (let err in data['message']){
+                    toast.error(data['message'][err]);
+                }
             }
             else{
+                toast.success(data['message']);
                 let setData = {
                     name:data.data.name,
                     account_no:data.data.account_no,
@@ -164,12 +176,13 @@ const AddBank = () => {
             alert(`Somethin wrong: ${error}`);
             setSuccess(false);
             setLoading(false);
-
+            toast.error(error);
         })
     }
 
 
-    const handleButtonClick = () => {
+    const handleButtonClick = (e) => {
+        e.preventDefault();
         if (!loading) {
         setSuccess(false);
         setLoading(true);
@@ -206,61 +219,63 @@ const AddBank = () => {
         }, []);
     
     return (
-        <Grid container spacing={2} className={classes.formRoot}>
+        <Grid container spacing={2} >
             {/* Title */}
-            <Grid item xs={11} >     
+            <Grid item xs={10} >     
                 <Typography variant="h4" gutterBottom  color='primary'>Add Bank</Typography>
             </Grid>
             {/* Left */}
-            <Grid item xs={1}>
+            <Grid item xs={2}>
                 <Button onClick={fetchBank}>
                     <CachedIcon ></CachedIcon>
                 </Button>     
             </Grid>
             
             <Grid item xs={12} md={3} lg={3}>
-                <Grid container item direction='column' spacing={3}>
-                    <Grid item xs>
-                        <InputField  label='Name' tyep='string' size='small' 
-                        name='name' type="string" 
-                        required={true} 
-                        value={fields.name}
-                        onChange={FiledChange}
-                        inputProps={{ style: {textTransform: "uppercase" }}}
-                        autoFocus
-                        />
+                <form onSubmit={handleButtonClick} style={{display:'contents'}}>
+                    <Grid container item direction='column' spacing={3}>
+                        <Grid item xs>
+                            <InputField  label='Name' tyep='string' size='small' 
+                            name='name' type="string" 
+                            required={true} 
+                            value={fields.name}
+                            onChange={FiledChange}
+                            inputProps={{ style: {textTransform: "uppercase" }}}
+                            autoFocus
+                            />
+                        </Grid>
+                        <Grid item xs>
+                            <InputField  size='small' label="Account #"
+                            type="string"
+                            name='account_no'
+                            inputProps={{ style: {textTransform: "uppercase" }}}
+                            required={true}
+                            value={fields.account_no}
+                            onChange={FiledChange}
+                            />  
+                        </Grid>
+                        <Grid item xs>
+                            <InputField  size='small' label="Opening Balance" 
+                            type="number" required={true}
+                            onChange={FiledChange} 
+                            name='opening_Balance'
+                            value={(isUpdate?0:fields.opening_Balance)}
+                            disabled={(isUpdate? true:false)}
+                            />
+                        </Grid>
+                    
+                        <Grid item container  >
+                            <SpineerButton
+                            label={(isUpdate?'Update':'Save')}
+                            loading={loading}
+                            success={success}
+                            type='submit'
+                            size="large"
+                            startIcon={(isUpdate? <EditIcon/>:<AddBoxOutlinedIcon />)}
+                            />
+                        </Grid>
                     </Grid>
-                    <Grid item xs>
-                        <InputField  size='small' label="Account #"
-                        type="string"
-                        name='account_no'
-                        inputProps={{ style: {textTransform: "uppercase" }}}
-                        required={true}
-                        value={fields.account_no}
-                        onChange={FiledChange}
-                        />  
-                    </Grid>
-                    <Grid item xs>
-                        <InputField  size='small' label="Opening Balance" 
-                        type="number" required={true}
-                        onChange={FiledChange} 
-                        name='opening_Balance'
-                        value={(isUpdate?0:fields.opening_Balance)}
-                        disabled={(isUpdate? true:false)}
-                        />
-                    </Grid>
-                
-                    <Grid item container  >
-                        <SpineerButton
-                        handleButtonClick={handleButtonClick} 
-                        label={(isUpdate?'Update':'Save')}
-                        loading={loading}
-                        success={success}
-                        size="large"
-                        startIcon={(isUpdate? <EditIcon/>:<AddBoxOutlinedIcon />)}
-                        />
-                    </Grid>
-                </Grid>
+                </form>
            </Grid>
             {/* Right */}
            <Grid item xs={12} md={9} lg={9} className={classes.table}>

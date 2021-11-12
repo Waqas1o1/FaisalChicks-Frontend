@@ -1,3 +1,4 @@
+from copy import error
 from django.contrib.auth.models import User
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, render
@@ -36,72 +37,52 @@ class PartyViewSet(viewsets.ViewSet):
         return Response(response_dict)
 
     def create(self, request):
-        # if request.user.is_superuser:
-        try:
-            serializer = s.PartySerializer(data=request.data)
-            serializer.is_valid(raise_exception=False)
-            print(serializer.errors)
+        serializer = s.PartySerializer(data=request.data)
+        serializer.is_valid()
+        if serializer.errors:
+            dict_response = {"error": True, "message": serializer.errors['name']}
+        else:
             serializer.save()
             dict_response = {"error": False,
                             "message": "Data Save Successfully"}
-        except ValueError as err:
-            dict_response = {"error": True, "message": err}
-        except:
-            dict_response = {"error": True,
-                            "message": "Error During Saving Data"}
-        # else:
-        #     dict_response = {
-        #         "error": True, "message": 'UnAuthenticated Person'}
+
+      
         return JsonResponse(dict_response)
 
     def retrieve(self, request, pk=None):
-        if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant :
-            queryset = m.Party.objects.all()
-            query = get_object_or_404(queryset, pk=pk)
-            serializer = s.PartySerializer(
-                query, context={"request": request})
-            serializer_data = serializer.data
+        queryset = m.Party.objects.all()
+        query = get_object_or_404(queryset, pk=pk)
+        serializer = s.PartySerializer(
+            query, context={"request": request})
+        serializer_data = serializer.data
         
-            return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
-        else:
-            response_dict = {
-                "error": False, "message": 'UnAuthenticated Person'}
-        return Response(response_dict)
+        return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
+    
     def update(self, request, pk=None):
-        # if request.user.is_superuser:
-        if request:
-            try:
-                queryset = m.Party.objects.all()
-                query = get_object_or_404(queryset, pk=pk)
-                serializer = s.PartySerializer(
-                    query, data=request.data, context={"request": request})
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
-                dict_response = {"error": False,
-                                "message": "Successfully Updated Data"}
-            except:
-                dict_response = {"error": True,
-                                "message": "Error During Updating Data"}
-
-            return Response(dict_response)
+        queryset = m.Party.objects.all()
+        query = get_object_or_404(queryset, pk=pk)
+        serializer = s.PartySerializer(
+            query, data=request.data, context={"request": request})
+        serializer.is_valid()
+        if serializer.errors:
+            dict_response = {"error": True,
+                            "message": serializer.errors['name']}
         else:
-            response_dict = {
-                "error": True, "message": 'UnAuthenticated Person'}
+            serializer.save()
+            dict_response = {"error": False,
+                            "message": "Successfully Updated Data"}
+        return Response(dict_response)
+       
         return Response(response_dict)
 
     def delete(self, request, pk=None):
-        # if request.user.is_superuser :
-        if request:
-            try:
-                m.Party.objects.get(id=pk).delete()
-                response_dict = {"error": False,
-                                "message": "Successfully Deleted"}
-            except:
-                response_dict = {"error": True,
-                                "message": "Error During Deleted Data "}
-        else:
-            response_dict = {
-                "error": True, "message": 'UnAuthenticated Person'}
+        try:
+            m.Party.objects.get(id=pk).delete()
+            response_dict = {"error": False,
+                            "message": "Successfully Deleted"}
+        except:
+            response_dict = {"error": True,
+                            "message": "Error During Deleted Data "}
         return Response(response_dict)
 
 class SalesOfficerViewSet(viewsets.ViewSet):
@@ -152,7 +133,6 @@ class SalesOfficerViewSet(viewsets.ViewSet):
         serializer_data = serializer.data
         return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
        
-
     def update(self, request, pk=None):
         try:
             queryset = m.SalesOfficer.objects.all()
@@ -162,7 +142,6 @@ class SalesOfficerViewSet(viewsets.ViewSet):
             query.user.email =  request.data['email']
             if 'password' in request.data:
                 query.user.set_password(request.data['password'])
-                print('Here')
             query.user.save() 
             serializer = s.SalesOfficerSerializer(
                 query, data=request.data, context={"request": request})
@@ -193,159 +172,115 @@ class SalesOfficerViewSet(viewsets.ViewSet):
 
 class BankViewSet(viewsets.ViewSet):
     def list(self, request):
-        # if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant :
-        if request:
-            data = m.Bank.objects.all()
-            serializer = s.BankSerializer(
-                data, many=True, context={"request": request})
-            response_dict = {
-                "error": False, "message": "All List Data", "data": serializer.data}
-        else:
-            response_dict = {
-                "error": False, "message": 'UnAuthenticated Person'}
+        data = m.Bank.objects.all()
+        serializer = s.BankSerializer(data, many=True, context={"request": request})
+        response_dict = {"error": False, "message": "All List Data", "data": serializer.data}
         return Response(response_dict)
 
     def create(self, request):
-        # if request.user.is_superuser :
-        if request:
-            try:
-                serializer = s.BankSerializer(
-                    data=request.data, context={"request": request})
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
-                dict_response = {"error": False,
-                                "message": "Data Save Successfully"}
-            except ValueError as err:
-                dict_response = {"error": True, "message": err}
-            except:
-                dict_response = {"error": True,
-                                "message": "Error During Saving Data"}
+        serializer = s.BankSerializer(
+            data=request.data, context={"request": request})
+        serializer.is_valid()
+        if serializer.errors:
+            dict_response = {"error": True, "message": serializer.errors['name']}
         else:
-            response_dict = {
-                "error": False, "message": 'UnAuthenticated Person'}
+            serializer.save()
+            dict_response = {"error": False,
+                            "message": "Data Save Successfully"}
         return JsonResponse(dict_response)
 
     def retrieve(self, request, pk=None):
-        # if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant :
-        if request:
-            queryset = m.Bank.objects.all()
-            query = get_object_or_404(queryset, pk=pk)
-            serializer = s.BankSerializer(
-                query, context={"request": request})
-            serializer_data = serializer.data
-        
-            return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
-        else:
-            response_dict = {
-                "error": False, "message": 'UnAuthenticated Person'}
-        return Response(response_dict)
+        queryset = m.Bank.objects.all()
+        query = get_object_or_404(queryset, pk=pk)
+        serializer = s.BankSerializer(
+            query, context={"request": request})
+        serializer_data = serializer.data
+    
+        return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
     
     def update(self, request, pk=None):
-        # if request.user.is_superuser:
-        if request:
-            try:
-                queryset = m.Bank.objects.all()
-                query = get_object_or_404(queryset, pk=pk)
-                serializer = s.BankSerializer(
-                    query, data=request.data, context={"request": request})
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
-                dict_response = {"error": False,
-                                "message": "Successfully Updated Data"}
-            except:
-                dict_response = {"error": True,
-                                "message": "Error During Updating Data"}
-
-            return Response(dict_response)
+           
+        queryset = m.Bank.objects.all()
+        query = get_object_or_404(queryset, pk=pk)
+        serializer = s.BankSerializer(
+            query, data=request.data, context={"request": request})
+        serializer.is_valid()
+        if serializer.errors:
+            dict_response = {"error": True, "message": serializer.errors['name']}
         else:
-            response_dict = {
-                "error": False, "message": 'UnAuthenticated Person'}
-        return Response(response_dict)
+            serializer.save()
+            dict_response = {"error": False,
+                            "message": "Data Save Successfully"}
+            
+
+        return Response(dict_response)
+       
 
     def delete(self, request, pk=None):
-        # if request.user.is_superuser :
-        if request:
-            try:
-                m.Bank.objects.get(id=pk).delete()
-                response_dict = {"error": False,
-                                "message": "Successfully Deleted"}
-            except:
-                response_dict = {"error": True,
-                                "message": "Error During Deleted Data "}
-        else:
-            response_dict = {
-                "error": False, "message": 'UnAuthenticated Person'}
+        try:
+            m.Bank.objects.get(id=pk).delete()
+            response_dict = {"error": False,
+                            "message": "Successfully Deleted"}
+        except:
+            response_dict = {"error": True,
+                            "message": "Error During Deleted Data "}
+            
         return Response(response_dict)
-
 
 class CategoryViewSet(viewsets.ViewSet):
 
     def list(self, request):
-        # if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
-        if request:
-            data = m.Category.objects.all()
-            serializer = s.CategorySerializer(
-                data, many=True, context={"request": request})
-            response_dict = {
-                "error": False, "message": "All List Data", "data": serializer.data}
-            return Response(response_dict)
+        data = m.Category.objects.all()
+        serializer = s.CategorySerializer(
+            data, many=True, context={"request": request})
+        response_dict = {
+            "error": False, "message": "All List Data", "data": serializer.data}
+        return Response(response_dict)
         
     def create(self, request):
-        # if request.user.is_superuser :
-        if request:
-            try:
-                serializer = s.CategorySerializer(
-                    data=request.data, context={"request": request})
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
-                dict_response = {"error": False,
-                                "message": "Data Save Successfully"}
-            except ValueError as err:
-                dict_response = {"error": True, "message": err}
-            except:
-                dict_response = {"error": True,
-                                "message": "Error During Saving Data"}
-
+        serializer = s.CategorySerializer(
+            data=request.data, context={"request": request})
+        serializer.is_valid()
+        if serializer.errors:
+            dict_response = {"error": True, "message": serializer.errors['name']}
+        else:
+            serializer.save()
+            dict_response = {"error": False,
+                            "message": "Data Save Successfully"}
+            
         return JsonResponse(dict_response)
 
     def retrieve(self, request, pk=None):
-        # if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
-        if request:
-            queryset = m.Category.objects.all()
-            query = get_object_or_404(queryset, pk=pk)
-            serializer = s.CategorySerializer(
-                query, context={"request": request})
-            serializer_data = serializer.data
-            return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
+        queryset = m.Category.objects.all()
+        query = get_object_or_404(queryset, pk=pk)
+        serializer = s.CategorySerializer(
+            query, context={"request": request})
+        serializer_data = serializer.data
+        return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
 
     def update(self, request, pk=None):
-        # if request.user.is_superuser :
-        if request:
-            try:
-                queryset = m.Category.objects.all()
-                query = get_object_or_404(queryset, pk=pk)
-                serializer = s.CategorySerializer(
-                    query, data=request.data, context={"request": request})
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
-                dict_response = {"error": False,
-                                "message": "Successfully Updated Data"}
-            except:
-                dict_response = {"error": True,
-                                "message": "Error During Updating Data"}
-
+        queryset = m.Category.objects.all()
+        query = get_object_or_404(queryset, pk=pk)
+        serializer = s.CategorySerializer(
+            query, data=request.data, context={"request": request})
+        serializer.is_valid()
+        if serializer.errors:
+            dict_response = {"error": True, "message": serializer.errors['name']}
+        else:
+            serializer.save()
+            dict_response = {"error": False,
+                            "message": "Data Update Successfully"}
+       
         return Response(dict_response)
 
     def delete(self, request, pk=None):
-        # if request.user.is_superuser:
-        if request:
-            try:
-                m.Category.objects.get(id=pk).delete()
-                dict_response = {"error": False,
-                                "message": "Successfully Deleted"}
-            except:
-                dict_response = {"error": True,
-                                "message": "Error During Deleted Data "}
+        try:
+            m.Category.objects.get(id=pk).delete()
+            dict_response = {"error": False,
+                            "message": "Successfully Deleted"}
+        except:
+            dict_response = {"error": True,
+                            "message": "Error During Deleted Data "}
 
         return Response(dict_response)
 
@@ -358,45 +293,41 @@ class ProductViewSet(viewsets.ViewSet):
         return Response(response_dict)
 
     def create(self, request):
-        if request:
-            try:
-                serializer = s.ProductSerializer(
-                    data=request.data, context={"request": request})
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
-                dict_response = {"error": False,
-                                "message": "Data Save Successfully"}
-            except ValueError as err:
-                dict_response = {"error": True, "message": err}
-            except:
-                dict_response = {"error": True,
-                                "message": "Error During Saving Data"}
-
-        return JsonResponse(dict_response)
-
-    def retrieve(self, request, pk=None):
-        if request:  
-            queryset = m.Product.objects.all()
-            query = get_object_or_404(queryset, pk=pk)
-            serializer = s.ProductSerializer(
-                query, context={"request": request})
-            serializer_data = serializer.data
-            return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
-
-    def update(self, request, pk=None):
-        try:
-            queryset = m.Product.objects.all()
-            query = get_object_or_404(queryset, pk=pk)
-            serializer = s.ProductSerializer(
-                query, data=request.data, context={"request": request})
-            serializer.is_valid(raise_exception=True)
+        serializer = s.ProductSerializer(
+            data=request.data, context={"request": request})
+        serializer.is_valid()
+        if serializer.errors:
+            dict_response = {"error": True,
+                            "message": serializer.errors['name']}
+        else:
             serializer.save()
             dict_response = {"error": False,
-                            "message": "Successfully Updated Data"}
-        except:
-            dict_response = {"error": True,
-                            "message": "Error During Updating Data"}
+                            "message": "Data Save Successfully"}
+        
+        return JsonResponse(dict_response)
 
+    def retrieve(self, request, pk=None): 
+        queryset = m.Product.objects.all()
+        query = get_object_or_404(queryset, pk=pk)
+        serializer = s.ProductSerializer(
+            query, context={"request": request})
+        serializer_data = serializer.data
+        return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
+
+    def update(self, request, pk=None):
+
+        queryset = m.Product.objects.all()
+        query = get_object_or_404(queryset, pk=pk)
+        serializer = s.ProductSerializer(
+            query, data=request.data, context={"request": request})
+        serializer.is_valid()
+        if serializer.errors:
+            dict_response = {"error": True,
+                            "message": serializer.errors['name']}
+        else:
+            serializer.save()
+            dict_response = {"error": False,
+                            "message": "Data Updated Successfully"}
         return Response(dict_response)
 
     def delete(self, request, pk=None):
@@ -419,61 +350,58 @@ class DiscountCategoryViewSet(viewsets.ViewSet):
         return Response(response_dict)
     
     def create(self, request):
-        try:
-            serializer = s.DiscountCategorySerializer(
-                data=request.data, context={"request": request})
-            serializer.is_valid(raise_exception=True)
+       
+        serializer = s.DiscountCategorySerializer(
+            data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        if serializer.errors:
+            dict_response = {"error": True,
+                            "message": serializer.errors['name']}
+        else:
             serializer.save()
             dict_response = {"error": False,
                             "message": "Data Save Successfully"}
-        except ValueError as err:
-            dict_response = {"error": True, "message": err}
-        except:
-            dict_response = {"error": True,
-                            "message": "Error During Saving Data"}
 
         return JsonResponse(dict_response)
 
     def retrieve(self, request, pk=None):
-        # if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
-        if request:
-            queryset = m.DiscountCategory.objects.all()
-            query = get_object_or_404(queryset, pk=pk)
-            serializer = s.DiscountCategorySerializer(
-                query, context={"request": request})
-            serializer_data = serializer.data
-            return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
+
+        queryset = m.DiscountCategory.objects.all()
+        query = get_object_or_404(queryset, pk=pk)
+        serializer = s.DiscountCategorySerializer(
+            query, context={"request": request})
+        serializer_data = serializer.data
+        return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
 
     def update(self, request, pk=None):
-        # if request.user.is_superuser:
-        if request:
-            try:
-                queryset = m.DiscountCategory.objects.all()
-                query = get_object_or_404(queryset, pk=pk)
-                serializer = s.DiscountCategorySerializer(
-                    query, data=request.data, context={"request": request})
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
-                dict_response = {"error": False,
-                                "message": "Successfully Updated Data"}
-            except:
-                dict_response = {"error": True,
-                                "message": "Error During Updating Data"}
+           
+        queryset = m.DiscountCategory.objects.all()
+        query = get_object_or_404(queryset, pk=pk)
+        serializer = s.DiscountCategorySerializer(
+            query, data=request.data, context={"request": request})
+        serializer.is_valid()
+        if serializer.errors:
+            dict_response = {"error": True,
+                            "message": serializer.errors['name']}
+        else:
+            serializer.save()
+            dict_response = {"error": False,
+                            "message": "Data Updated Successfully"}
+           
 
             return Response(dict_response)
 
     def delete(self, request, pk=None):
-        # if request.user.is_superuser:
-        if request:
-            try:
-                m.DiscountCategory.objects.get(id=pk).delete()
-                dict_response = {"error": False,
-                                "message": "Successfully Deleted"}
-            except:
-                dict_response = {"error": True,
-                                "message": "Error During Deleted Data "}
 
-            return Response(dict_response)
+        try:
+            m.DiscountCategory.objects.get(id=pk).delete()
+            dict_response = {"error": False,
+                            "message": "Successfully Deleted"}
+        except:
+            dict_response = {"error": True,
+                            "message": "Error During Deleted Data "}
+
+        return Response(dict_response)
 
 class PartyOrderViewSet(viewsets.ViewSet):
 
@@ -491,23 +419,21 @@ class PartyOrderViewSet(viewsets.ViewSet):
         return Response(response_dict)
 
     def create(self, request):
-        try:
-            serializer = s.PartyOrderSerializer(
-                data=request.data, context={"request": request})
-            serializer.is_valid(raise_exception=True)
+        serializer = s.PartyOrderSerializer(
+            data=request.data, context={"request": request})
+        serializer.is_valid()
+        if serializer.errors:
+            dict_response = {"error": True,
+                            "message": serializer.errors['name']}
+        else:
             serializer.save()
             dict_response = {"error": False,
                             "message": "Data Save Successfully","data":serializer.data}
-        except ValueError as err:
-            dict_response = {"error": True, "message": err}
-        except:
-            dict_response = {"error": True,
-                            "message": "Error During Saving Data"}
+
 
         return JsonResponse(dict_response)
 
     def retrieve(self, request, pk=None):
-        # if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
         queryset = m.PartyOrder.objects.all()
         query = get_object_or_404(queryset, pk=pk)
         serializer = s.PartyOrderSerializer(
@@ -516,30 +442,31 @@ class PartyOrderViewSet(viewsets.ViewSet):
         return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
 
     def update(self, request, pk=None):
-        try:
-            if (request.user.groups.first().name == g.Dispatcher.value):
-                return Response({"error": True,
-                                "message": "Un Athneticated"})
-            queryset = m.PartyOrder.objects.all()
-            query = get_object_or_404(queryset, pk=pk)
-           
-            m.PartyOrderProduct.objects.filter(party_order__id=pk).delete()
+        if (request.user.groups.first().name == g.Dispatcher.value):
+            return Response({"error": True,
+                            "message": "Un Athneticated"})
+        queryset = m.PartyOrder.objects.all()
+        query = get_object_or_404(queryset, pk=pk)
+        
+        m.PartyOrderProduct.objects.filter(party_order__id=pk).delete()
 
-            for p in request.data['products']:
-                m.PartyOrderProduct(party_order=query,
-                                    product=m.Product.objects.get(name=p['product']['name']),
-                                    qty=p['qty'],
-                                    rate=p['rate']).save()
-            
-            serializer = s.PartyOrderSerializer(
-                query, data=request.data, context={"request": request})
-            serializer.is_valid()    
+        for p in request.data['products']:
+            m.PartyOrderProduct(party_order=query,
+                                product=m.Product.objects.get(name=p['product']['name']),
+                                qty=p['qty'],
+                                rate=p['rate']).save()
+        
+        serializer = s.PartyOrderSerializer(
+            query, data=request.data, context={"request": request})
+        serializer.is_valid()    
+        if serializer.errors:
+            dict_response = {"error": True,
+                        "message": serializer.errors['name']}
+        else:
             serializer.save()
             dict_response = {"error": False,
-                            "message": "Successfully Updated Data"}
-        except:
-            dict_response = {"error": True,
-                            "message": "Error During Updating Data"}
+                        "message": "Successfully Updated Data"}
+
 
         return Response(dict_response)
 
@@ -569,7 +496,6 @@ class DispatchTableViewSet(viewsets.ViewSet):
         return Response(response_dict)
 
     def create(self, request):
-        # if request.user.is_superuser or p.SalesOfficer(request):
         try:
             bulty_no = request.data['bulty_no']
             cell_no = request.data['cell_no']
@@ -606,29 +532,26 @@ class DispatchTableViewSet(viewsets.ViewSet):
 
     def update(self, request, pk=None):
         if request.user.is_superuser or p.SalesOfficer(request):
-            try:
                 query = m.DispatchTable.objects.get(party_order__id=pk)
                 serializer = s.DispatchTableSerializer(
                     query, data=request.data, context={"request": request})
-                serializer.is_valid()
-                serializer.save()
-                dict_response = {"error": False,
+                if serializer.errors:
+                    dict_response = {"error": True,
+                        "message": serializer.errors['name']}
+                else:
+                    serializer.save()
+                    dict_response = {"error": False,
                                 "message": "Successfully Updated Data"}
-            except:
-                dict_response = {"error": True,
-                                "message": "Error During Updating Data"}
-
-            return Response(dict_response)
+        return Response(dict_response)
 
     def delete(self, request, pk=None):
-        # if request.user.is_superuser or p.SalesOfficer(request):
-        # try:
-        m.DispatchTable.objects.get(id=pk).delete()
-        dict_response = {"error": False,
+        try:
+            m.DispatchTable.objects.get(id=pk).delete()
+            dict_response = {"error": False,
                         "message": "Successfully Deleted"}
-        # except:
-        #     dict_response = {"error": True,
-        #                     "message": "Error During Deleted Data "}
+        except:
+            dict_response = {"error": True,
+                            "message": "Error During Deleted Data "}
 
         return Response(dict_response)
 
@@ -644,19 +567,17 @@ class PartyOrderProductViewSet(viewsets.ViewSet):
         return Response(response_dict)
 
     def create(self, request):
-        try:
-            serializer = s.PartyOrderProductSerializer(
-                data=request.data, context={"request": request})
-            serializer.is_valid(raise_exception=True)
-            print(serializer.errors)
+        serializer = s.PartyOrderProductSerializer(
+            data=request.data, context={"request": request})
+        serializer.is_valid()
+        if serializer.errors:
+            dict_response = {"error": True,
+                            "message": serializer.errors['name']}
+        else:
             serializer.save()
             dict_response = {"error": False,
-                            "message": "Data Save Successfully"}
-        except ValueError as err:
-            dict_response = {"error": True, "message": err}
-        except:
-            dict_response = {"error": True,
-                            "message": "Error During Saving Data"}
+                            "message": "Successfully Saved Data"}
+    
 
         return JsonResponse(dict_response)
 
@@ -670,19 +591,19 @@ class PartyOrderProductViewSet(viewsets.ViewSet):
             return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
 
     def update(self, request, pk=None):
-            try:
-                queryset = m.PartyOrderProduct.objects.all()
-                query = get_object_or_404(queryset, pk=pk)
-                serializer = s.PartyOrderProductSerializer(
-                    query, data=request.data, context={"request": request})
-                serializer.is_valid(raise_exception=True)
+            queryset = m.PartyOrderProduct.objects.all()
+            query = get_object_or_404(queryset, pk=pk)
+            serializer = s.PartyOrderProductSerializer(
+                query, data=request.data, context={"request": request})
+            serializer.is_valid()
+            if serializer.errors:
+                dict_response = {"error": True,
+                        "message": serializer.errors['name']}
+            else:
                 serializer.save()
                 dict_response = {"error": False,
-                                "message": "Successfully Updated Data"}
-            except:
-                dict_response = {"error": True,
-                                "message": "Error During Updating Data"}
-
+                        "message": "Successfully Updated Data"}
+           
             return Response(dict_response)
 
     def delete(self, request, pk=None):
@@ -711,33 +632,25 @@ class RecoveryViewSet(viewsets.ViewSet):
         return Response(response_dict)
 
     def create(self, request):
-        try:
-            serializer = s.RecoverySerializer(
-                data=request.data, context={"request": request})
-            print(request.data)
-            serializer.is_valid(raise_exception=True)
-            # print(serializer.errors)
+        serializer = s.RecoverySerializer(data=request.data, context={"request": request})
+        serializer.is_valid()
+        if serializer.errors:
+            dict_response = {"error": True,
+                            "message": serializer.errors['name']}
+        else:
             serializer.save()
-            print(serializer.errors)
             dict_response = {"error": False,
                             "message": "Data Save Successfully"}
-        except ValueError as err:
-            dict_response = {"error": True, "message": err}
-        except:
-            dict_response = {"error": True,
-                            "message": "Error During Saving Data"}
-
-        return JsonResponse(dict_response)
+      
+        return Response(dict_response)
 
     def retrieve(self, request, pk=None):
-        # if request.user.is_superuser or p.SalesOfficer(request) or p.Accountant(request):
-        if request:
-            queryset = m.Recovery.objects.all()
-            query = get_object_or_404(queryset, pk=pk)
-            serializer = s.RecoverySerializer(
-                query, context={"request": request})
-            serializer_data = serializer.data
-            return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
+        queryset = m.Recovery.objects.all()
+        query = get_object_or_404(queryset, pk=pk)
+        serializer = s.RecoverySerializer(
+            query, context={"request": request})
+        serializer_data = serializer.data
+        return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
 
     def update(self, request, pk=None):
         queryset = m.Recovery.objects.all()
@@ -745,24 +658,24 @@ class RecoveryViewSet(viewsets.ViewSet):
         serializer = s.RecoverySerializer(
             query, data=request.data, context={"request": request})
         serializer.is_valid()
-        print(serializer.errors)
-        serializer.save()
-        dict_response = {"error": False,
+        if serializer.errors:
+            dict_response = {"error": True,
+                        "message": serializer.errors['name']}
+        else:
+            serializer.save()
+            dict_response = {"error": False,
                         "message": "Successfully Updated Data"}
-        # except:
-        #     dict_response = {"error": True,
-        #                     "message": "Error During Updating Data"}
-
+    
         return Response(dict_response)
 
     def delete(self, request, pk=None):
-        # try:
-        m.Recovery.objects.get(id=pk).delete()
-        dict_response = {"error": False,
-                        "message": "Successfully Deleted"}
-        # except:
-        #     dict_response = {"error": True,
-        #                     "message": "Error During Deleted Data "}
+        try:
+            m.Recovery.objects.get(id=pk).delete()
+            dict_response = {"error": False,
+                            "message": "Successfully Deleted"}
+        except:
+            dict_response = {"error": True,
+                            "message": "Error During Deleted Data "}
 
         return Response(dict_response)
 
@@ -779,18 +692,17 @@ class SalesOfficerReceivingViewSet(viewsets.ViewSet):
 
     def create(self, request):
         if request.user.is_superuser :
-            try:
-                serializer = s.SalesOfficerReceivingSerializer(
-                    data=request.data, context={"request": request})
-                serializer.is_valid(raise_exception=True)
+            serializer = s.SalesOfficerReceivingSerializer(
+                data=request.data, context={"request": request})
+            serializer.is_valid()
+            if serializer.errors:
+                dict_response = {"error": True,
+                                "message": serializer.errors['name']}
+            else:
                 serializer.save()
                 dict_response = {"error": False,
                                 "message": "Data Save Successfully"}
-            except ValueError as err:
-                dict_response = {"error": True, "message": err}
-            except:
-                dict_response = {"error": True,
-                                "message": "Error During Saving Data"}
+           
 
         return JsonResponse(dict_response)
 
@@ -805,19 +717,19 @@ class SalesOfficerReceivingViewSet(viewsets.ViewSet):
 
     def update(self, request, pk=None):
         if request.user.is_superuser :
-            try:
-                queryset = m.SalesOfficerReceiving.objects.all()
-                query = get_object_or_404(queryset, pk=pk)
-                serializer = s.SalesOfficerReceivingSerializer(
-                    query, data=request.data, context={"request": request})
-                serializer.is_valid(raise_exception=True)
+            queryset = m.SalesOfficerReceiving.objects.all()
+            query = get_object_or_404(queryset, pk=pk)
+            serializer = s.SalesOfficerReceivingSerializer(
+                query, data=request.data, context={"request": request})
+            serializer.is_valid(raise_exception=True)
+            if serializer.errors:
+                dict_response = {"error": True,
+                            "message": serializer.errors['name']}
+            else:
                 serializer.save()
                 dict_response = {"error": False,
-                                "message": "Successfully Updated Data"}
-            except:
-                dict_response = {"error": True,
-                                "message": "Error During Updating Data"}
-
+                                "message": "Data Update Successfully"}
+           
             return Response(dict_response)
 
     def delete(self, request, pk=None):
@@ -872,20 +784,20 @@ class DispatchViewSet(viewsets.ViewSet):
         
         return Response({"error": False, "message": "Single Data Fetch", "data": serializer_data})
         
-    
     def update(self, request, pk=None):
-        try:
-            queryset = User.objects.all()
-            query = get_object_or_404(queryset, pk=pk)
-            serializer = s.UsersSerializer(
-                query, data=request.data, context={"request": request})
-            serializer.is_valid(raise_exception=True)
+        queryset = User.objects.all()
+        query = get_object_or_404(queryset, pk=pk)
+        serializer = s.UsersSerializer(
+            query, data=request.data, context={"request": request})
+        serializer.is_valid()
+        if serializer.errors:
+            dict_response = {"error": True,
+                            "message": f"{serializer.errors}"}
+        else:
             serializer.save()
             dict_response = {"error": False,
                             "message": "Successfully Updated Data"}
-        except:
-            dict_response = {"error": True,
-                            "message": "Error During Updating Data"}
+       
 
         return Response(dict_response)
 
@@ -903,50 +815,53 @@ class DispatchViewSet(viewsets.ViewSet):
 # Post 
 class GenratePartOrder(viewsets.ViewSet):
     def create(self, request):
-        try:
-            party_order = request.data['party_order']
-            serializer = s.PartyOrderSerializer(
-                    data=party_order, context={"request": request})
-            serializer.is_valid()
+        products = request.data['products']
+        if not products:
+            return Response({"error": True,
+                            "message": {'Product': 'Add atlest 1 Product'}})
+        party_order = request.data['party_order']
+        serializer = s.PartyOrderSerializer(
+                data=party_order, context={"request": request})
+        serializer.is_valid()
+        if serializer.errors:
+            return Response({"error": True,
+                            "message": serializer.errors})
+        else: 
             pt = serializer.save()
-            products = request.data['products']
-            for product in products:
-                save_dict = {
-                    'party_order': pt.id,
-                    'product': product['product_id'],
-                    'qty':  product['qty'],
-                    'rate': product['rate']
-                }
-                try:
-                    serializer = s.PartyOrderProductSerializer(
-                            data=save_dict, context={"request": request})
-                    serializer.is_valid(raise_exception=True)
+        
+        for product in products:
+            save_dict = {
+                'party_order': pt.id,
+                'product': product['product_id'],
+                'qty':  product['qty'],
+                'rate': product['rate']
+            }
+            serializer = s.PartyOrderProductSerializer(
+                    data=save_dict, context={"request": request})
+            serializer.is_valid()
+            if serializer.errors:
+                m.PartyOrderProduct.objects.get(party_order__id=save_dict['party_order']).delete()
+                return Response({"error": True,
+                                "message": serializer.errors['name']})
+            else:
+                serializer.save()
+
+        recovery = request.data['recovery']
+        if recovery['amount']:
+            if (int(recovery['amount']) > 0 or recovery['amount'] != None):
+                recovery['party_order'] = pt.id
+                serializer = s.RecoverySerializer(
+                    data=recovery, context={"request": request})
+                serializer.is_valid()
+                if serializer.errors:
+                    pt.delete()
+                    return Response({"error": True,
+                            "message": serializer.errors['name']})
+                else:
                     serializer.save()
-                except:
-                    m.PartyOrderProduct.objects.get(party_order__id=save_dict['party_order']).delete()
-                    dict_response = {"error": True,
-                            "message": "Error in Saving Product"}
-    
-            recovery = request.data['recovery']
-            if recovery['amount']:
-                if (int(recovery['amount']) > 0 or recovery['amount'] != None):
-                    recovery['party_order'] = pt.id
-                    print(recovery)
-                    try:
-                        serializer = s.RecoverySerializer(
-                            data=recovery, context={"request": request})
-                        serializer.is_valid()
-                        serializer.save()
-                    except:
-                        pt.delete()
-                   
-            dict_response = {"error": False,
-                                "message": "Data Save Successfully"}
-        except ValueError as err:
-            dict_response = {"error": True, "message": err}
-        except:
-            dict_response = {"error": True,
-                            "message": "Error During Saving Data"}
+                
+        dict_response = {"error": False,"message": "Data Save Successfully"}
+   
 
         return Response(dict_response)
 
@@ -1158,20 +1073,22 @@ def Import(request):
         type = request.POST['type']
         df = pd.read_csv(request.FILES['file'])
         for index, row in df.iterrows():
-            if type == 'Discount':
-                m.DiscountCategory(name=row['name'],discount=row['discount']).save()
-            if type == 'Party':
-                so = m.SalesOfficer.objects.get(id=row['SalesOfficer id'])
-                dt = m.DiscountCategory.objects.get(id=row['discount id'])
-                ct = m.Category.objects.get(id=row['category id'])
-                m.Party(name=row['name'],email=row['email'],contact=row['contact'],creditLimit=row['creditLimit'],salesTarget=row['salesTarget'],area=row['area'],sale_officer=so,discount=dt,category=ct,opening_Balance=row['opening_Balance'],ref_id=row['ref_id']).save()
-            if type == 'Category':
-                m.Category(name=row['name']).save()
-            if type == 'Bank':
-                m.Bank(name=row['name'],account_no=row['account_no'],opening_Balance=row['opening_Balance']).save()
-            if type == 'Product':
-                ct = m.Category.objects.get(id=row['category id'])
-                m.Product(name=row['name'],type=row['type'],unit=row['unit'],pakage_weight=row['pakage_weight'],sales_price=row['sales_price'],cost_price=row['cost_price'],category=ct).save()
-    
+            try:
+                if type == 'Discount':
+                    m.DiscountCategory(name=row['name'],discount=row['discount']).save()
+                if type == 'Party':
+                    so = m.SalesOfficer.objects.get(id=row['SalesOfficer id'])
+                    dt = m.DiscountCategory.objects.get(id=row['discount id'])
+                    ct = m.Category.objects.get(id=row['category id'])
+                    m.Party(name=row['name'],email=row['email'],contact=row['contact'],creditLimit=row['creditLimit'],salesTarget=row['salesTarget'],area=row['area'],region=row['region'],zone=row['zone'],sale_officer=so,discount=dt,category=ct,opening_Balance=row['opening_Balance'],ref_id=row['ref_id']).save()
+                if type == 'Category':
+                    m.Category(name=row['name']).save()
+                if type == 'Bank':
+                    m.Bank(name=row['name'],account_no=row['account_no'],opening_Balance=row['opening_Balance']).save()
+                if type == 'Product':
+                    ct = m.Category.objects.get(id=row['category id'])
+                    m.Product(name=row['name'],type=row['type'],unit=row['unit'],pakage_weight=row['pakage_weight'],sales_price=row['sales_price'],cost_price=row['cost_price'],category=ct).save()
+            except:
+                pass
     return JsonResponse('Ok',safe=False)
 

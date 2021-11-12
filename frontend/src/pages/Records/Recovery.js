@@ -19,18 +19,22 @@ import GroupStatus from '../../utils/status';
 import DeleteIcon from '@material-ui/icons/Delete';
 import CreateIcon from '@material-ui/icons/Create';
 import DoneAllIcon from '@material-ui/icons/DoneAll';
+import GetAppIcon from '@material-ui/icons/GetApp';
 import { connect } from 'react-redux';
+
 
 const useStyles = makeStyles((theme) => ({
     formRoot: {
-      flexGrow: 1,
-      padding : theme.spacing(2),
+      marginRight:theme.spacing(-8)
     },
     table: {
         '& .MuiDataGrid-columnHeader': {
             backgroundColor: theme.palette.primary.dark,
             cursor: 'pointer',
         },
+    },
+    input: {
+        display: 'none',
     },
 }))
 
@@ -41,6 +45,7 @@ const Recovery = (props) => {
         party_order:'',
         sale_officer:'',
         payment_method:'Clearing',
+        attachments:'',
         bank: '',
         amount: 0,
         description: ''
@@ -69,7 +74,7 @@ const Recovery = (props) => {
     const [selectedObjId, setSelectedObjId] = useState(0);
     const [bankDisabled,setBankDisabled] = useState(true);
     const [selectedOption,setSelectedOption] = useState(fields.payment_method);
-
+    const [fileTitle,setFileTitle] = useState('Attachment');
 
     const resetFields = ()=>{
         setFields(initialFields);
@@ -81,6 +86,7 @@ const Recovery = (props) => {
         setBankDisabled(true);
         fetchRecovery();
         checkIsAdmin();
+        setFileTitle('Attachmensts');
     }
 
     async function fetchParties(){
@@ -229,7 +235,15 @@ const Recovery = (props) => {
 
     async function saveRecovery(){
         if (!isUpdate){
-            return await axiosInstance.post('apis/Recovery/',{...fields})
+            let form_data = new FormData();
+            for (let i in fields){
+                form_data.append(i, fields[i]);
+            };
+            return await axiosInstance.post('apis/Recovery/',form_data,
+            {headers: {
+                'content-type': 'multipart/form-data',
+                'Authorization': `Token ${localStorage.getItem('token')}`
+            }})
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
@@ -252,7 +266,15 @@ const Recovery = (props) => {
                 })
             }
         else{
-            return await axiosInstance.put(`apis/Recovery/${selectedObjId}/`,{...fields})
+            let form_data = new FormData();
+            for (let i in fields){
+                form_data.append(i, fields[i]);
+            };
+            return await axiosInstance.put(`apis/Recovery/${selectedObjId}/`,form_data,
+            {headers: {
+                'content-type': 'multipart/form-data',
+                'Authorization': `Token ${localStorage.getItem('token')}`
+            }})
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
@@ -410,7 +432,10 @@ const Recovery = (props) => {
         setSelectedObjId(id);
         GetRecoveryForUpdate(id);
     }
-
+    const HandleFileChange = (e)=>{
+        setFields({...fields,attachments:e.target.files[0]});
+        setFileTitle(e.target.files[0].name);
+    }
     const onActive = async (event)=>{
         let id  = event.currentTarget.getAttribute('id');
         setSelectedObjId(id);
@@ -491,6 +516,17 @@ const Recovery = (props) => {
               editable: false,
             },
             {
+              field: 'attachments',
+              headerName: 'File',
+              width: 100,
+              editable: false,
+              renderCell: (row)=>(
+                <IconButton aria-label="download" size='small' key={row.id} href={row.row.attachments} download target='blank'>
+                    <GetAppIcon />
+                </IconButton>
+              )
+            },
+            {
               field: 'party_order',
               headerName: 'Party Order #',
               type: 'number',
@@ -561,17 +597,17 @@ const Recovery = (props) => {
     return (
         <Grid container spacing={2} className={classes.formRoot}>
             {/* Title */}
-            <Grid item xs={11} >     
+            <Grid item xs={10} >     
                 <Typography variant="h4" gutterBottom  color='primary'>Recovery</Typography>
             </Grid>
             {/* Left */}
-            <Grid item xs={1}>
+            <Grid item xs={2}>
                 <Button onClick={fetchRecovery}>
                     <CachedIcon ></CachedIcon>
                 </Button>     
             </Grid>
             
-            <Grid item xs={12} md={3} lg={3}>
+            <Grid item xs={12} md={3} >
                 <Grid container item direction='column' spacing={3}>
                     <Grid item container  spacing={3}>
                         <Grid item xs>
@@ -623,7 +659,21 @@ const Recovery = (props) => {
                             value={fields.description}
                             />
                     </Grid>
-                    
+                    <Grid item xs={12}>
+                        <input
+                            accept="csv/*"
+                            className={classes.input}
+                            id="contained-button-file"
+                            name='attachments'
+                            type="file"
+                            onChange={HandleFileChange}
+                        />
+                        <label htmlFor="contained-button-file">
+                            <Button variant="contained" color="primary" fullWidth component="span" >
+                                {fileTitle}
+                            </Button>
+                        </label>
+                    </Grid>
                     {/* Payment Method */}
                     <Grid item xs>
                         <MenuItems
@@ -673,7 +723,7 @@ const Recovery = (props) => {
                 </Grid>
            </Grid>
             {/* Right */}
-           <Grid item xs={12} md={9} lg={9}>
+           <Grid item xs={12} md={9} >
             <div style={{ height: 500, width: '100%'}}>
                 <DataGrid
                     rows={rows}

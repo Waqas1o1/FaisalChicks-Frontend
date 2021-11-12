@@ -1,5 +1,4 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -12,22 +11,9 @@ import { Button, Grid, IconButton, TablePagination } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import CreateIcon from '@material-ui/icons/Create';
 import GetAppIcon from '@material-ui/icons/GetApp';
-const useStyles = makeStyles(theme=>({
-  root: {
-    flexGrow:1,
-    '@media only screen and (max-width: 600px)': {
-      width:'47vh',
-      marginLeft:'-15px'
-     },
-  },
-  container: {
-    maxHeight: 440,
-  },
-  
-}));
+
 
 export default function GetTable(props) {
-  const classes = useStyles();
   const {rows,columns,onDelete, onUpdate} = props;
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -50,8 +36,8 @@ export default function GetTable(props) {
     return !!pattern.test(str);
   }
   return (
-    <Paper className={classes.root} elevation={3}>
-      <TableContainer className={classes.container}>
+    <Paper elevation={3}>
+      <TableContainer >
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>

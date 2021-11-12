@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
-// import swDev from './swDev';
+import swDev from './swDev';
 import "react-toastify/dist/ReactToastify.css";
 import reducer from './store/reducers/auth';
 import {createStore, applyMiddleware, compose} from 'redux';
@@ -18,4 +18,4 @@ ReactDOM.render(
     document.getElementById('root')
 );
 
-// swDev();
+swDev();

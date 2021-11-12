@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import Avatar from "@material-ui/core/Avatar";
-import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
 import Link from "@material-ui/core/Link";
@@ -12,6 +11,7 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import { connect } from 'react-redux';
 import { authLogin } from '../../store/actions/auth';
+import SpineerButton from "../../components/SpineerButton";
 
 const MadeWithLove = () => (
   <Typography variant="body2" color="textSecondary" align="center">
@@ -32,7 +32,6 @@ const useStyles = makeStyles(theme => ({
   },
   image: {
     backgroundImage: "url(http://faisalfeeds.com/wp-content/uploads/2018/03/novogen.png)",
-    // backgroundImage: "url(https://i.dawn.com/large/2021/10/615bb710d3f9f.jpg)",
     backgroundRepeat: "no-repeat",
     backgroundSize: "350px",
     backgroundPosition: "center"
@@ -63,18 +62,18 @@ const Login = (props) => {
     password:''
   }
   const [fields,setFiedls] = useState(initialFields);
-
-    const handleOnChange = (e) =>{
+  
+  const handleOnChange = (e) =>{
         setFiedls({
             ...fields,
             [e.target.name] : e.target.value
         })
     }
-    const handleSubmit = (e) =>{
-        e.preventDefault();
-        props.login(fields.username, fields.password);
-        
-    }
+  const handleSubmit = (e) =>{
+      e.preventDefault();
+      props.login(fields.username, fields.password);
+      
+  }
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
@@ -112,15 +111,16 @@ const Login = (props) => {
               onChange={handleOnChange}
             />
            
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              color="primary"
-              className={classes.submit}
-            >
-              Sign In
-            </Button>
+            <SpineerButton
+                  handleButtonClick={()=>{}} 
+                  label={(props.loading?'Wait':'Get Data')}
+                  loading={props.loading}
+                  success={false}
+                  size="large"
+                  type="submit"
+                  fullWidth
+                  className={classes.submit}
+                />
            
             <Box mt={5}>
               <MadeWithLove />

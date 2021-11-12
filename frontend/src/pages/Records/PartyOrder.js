@@ -10,7 +10,7 @@ import ReceiptIcon from '@material-ui/icons/Receipt';
 import MenuItems from '../../components/MenuItems';
 import ChipInput from 'material-ui-chip-input';
 import '../../static/css/partyorder.css';
-
+import { toast } from 'react-toastify';
 const useStyles = makeStyles((theme) => ({
   formRoot: {
     flexGrow: 1,
@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
   },
   textArea:{
     width: '100%',
-    maxWidth:'100%',
+    maxWidth:'95%',
     minHeight:'150px',
     maxHeight:'350px',
     border: '1px solid rgba(0, 0, 0, 0.23)',
@@ -46,8 +46,6 @@ xsFull:{
   }
 }
 }))
-
-
 const StyledTableCell = withStyles((theme) => ({
   head: {
     backgroundColor: theme.palette.primary.dark,
@@ -315,14 +313,17 @@ const [bankDisabled,setBankDisabled] = useState(true);
       'products': productsRows,
       'recovery': {...recoveryFields}
     }
+    
     await axiosInstance.post('apis/GenratePartyOrder/',send_dict)
     .then(res=>{
       let data  = res.data;
       if (data['error'] === true){
-          alert(`Error Occures ${data['message']}`);
+        for (let err in data['message']){    
+          toast.error(`${err} : ${data['message'][err]}`);
+        }
       }
       else{
-          alert('Order Genrated');
+          toast.success(data['message']);
           clearProduct();
           setFields(initialFields);
           setPartyTitle('Select Party');
@@ -334,7 +335,7 @@ const [bankDisabled,setBankDisabled] = useState(true);
       }
       })
       .catch(error=>{
-          alert(`Somethin wrong: ${error}`);
+          toast.error(`Somethin wrong: ${error}`);
       }) 
   }
   const productValueChange = (_,value)=>{
@@ -373,10 +374,10 @@ const [bankDisabled,setBankDisabled] = useState(true);
     setFields({
       ...fields,
       total_amount : grand_total,
-      gross_total : totalAmount
+      gross_total : count
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[productsRows, fields.freight])
+  },[productsRows, fields.freight, fields.party])
   
   return (
     <div className={classes.formRoot}>
@@ -388,7 +389,7 @@ const [bankDisabled,setBankDisabled] = useState(true);
               <Typography variant='body2' color='primary'>Genrate Party Order </Typography>
             </Grid>
             {/* Left CONTAINER */}
-              <Grid item xs={12} md={8} container spacing={2}>
+              <Grid item xs={12} md={8} container spacing={2}>         
                 <Grid item xs={12}>
                   <Typography variant='button' color='textSecondary'>Party </Typography>       
                   <Selecter
@@ -464,7 +465,6 @@ const [bankDisabled,setBankDisabled] = useState(true);
                   </Button>
                 </Grid>
             </Grid>
-              
           </Grid>
           <Divider variant="middle" className={classes.gultter}/>
           {/* Add Products */}
@@ -487,7 +487,7 @@ const [bankDisabled,setBankDisabled] = useState(true);
                     <Grid item>
                       <AutoSuggestField 
                         options={products}
-                        selectedOption={(option)=>{return (option.name)}}
+                        selectedOption={(option)=>option.name || ""}
                         label={'Select Product'}
                         id={'id'}
                         value={selectedProduct}

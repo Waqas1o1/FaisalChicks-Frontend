@@ -1,5 +1,4 @@
 import { Button, Grid, Typography } from '@material-ui/core';
-import { makeStyles } from '@material-ui/styles';
 import React, { useEffect, useState } from 'react';
 import GetTable from '../../components/GetTable';
 import CachedIcon from '@material-ui/icons/Cached';
@@ -13,19 +12,22 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import EditIcon from '@material-ui/icons/Edit';
-
+import { makeStyles } from '@material-ui/styles';
+import { toast } from 'react-toastify';
 const useStyles = makeStyles((theme) => ({
-      table:{
-          width:'100vh',
-      },
+    root:{
+        marginRight:theme.spacing(-8)
+    },
+    
 }))
 
+
 const AddPartyDiscount = () => {
+    const classes = useStyles();
     const initialFields = {
         name:'',
        discount:'0'
     };
-    const classes = useStyles();
     const [rows,setRows] = useState([]);
     const [fields,setFields] = useState(initialFields);
     const [isUpdate,setIsUpdate] = useState(false);
@@ -62,7 +64,9 @@ const AddPartyDiscount = () => {
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
-                        alert(`Error Occures ${data['message']}`);
+                        for (let err in data['message']){    
+                            toast.error(data['message'][err]);
+                        }
                         setSuccess(false);
                         setLoading(false);
                     }
@@ -70,10 +74,11 @@ const AddPartyDiscount = () => {
                         setLoading(false);
                         fetchDiscounts();
                         setFields(initialFields);
+                        toast.success(data['message']);
                     }
                 })
                 .catch(error=>{
-                    alert(`Somethin wrong: ${error}`);
+                    toast.error(`Somethin wrong: ${error}`);
                     setSuccess(false);
                     setLoading(false);
                 })
@@ -84,7 +89,9 @@ const AddPartyDiscount = () => {
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
-                        alert(`Error Occures ${data['message']}`);
+                        for (let err in data['message']){    
+                            toast.error(data['message'][err]);
+                        }
                         setSuccess(false);
                         setLoading(false);
                     }
@@ -108,16 +115,17 @@ const AddPartyDiscount = () => {
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
-                alert(`Error Occures ${data['message']}`);
+                toast.error(`Error Occures ${data['message']}`);
             }
             else{
+                toast.info(data['message']);
                 fetchDiscounts();
                 setFields(initialFields);
                 setOpenDialog(false);
             }
         })
         .catch(error=>{
-            alert(`Somethin wrong: ${error}`);
+            toast.error(`Somethin wrong: ${error}`);
             setOpenDialog(false);
         })
         
@@ -129,7 +137,7 @@ const AddPartyDiscount = () => {
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
-                alert(`Error Occures ${data['message']}`);
+                toast.error(`Error Occures ${data['message']}`);
             }
             else{
                 let setData = {
@@ -141,15 +149,15 @@ const AddPartyDiscount = () => {
             }
         })
         .catch(error=>{
-            alert(`Somethin wrong: ${error}`);
+            toast.error(`Somethin wrong: ${error}`);
             setSuccess(false);
             setLoading(false);
 
         })
     }
 
-
-    const handleButtonClick = () => {
+    const handleButtonClick = (e) => {
+        e.preventDefault();
         if (!loading) {
         setSuccess(false);
         setLoading(true);
@@ -187,27 +195,28 @@ const AddPartyDiscount = () => {
         }, []);
     
     return (
-        <Grid container spacing={2} >
+        <Grid container spacing={2} className={classes.root}>
             {/* Title */}
-            <Grid item md={11}>     
+            <Grid item xs={10}>     
                 <Typography variant="h4" gutterBottom  color='primary'>Add Discount Category</Typography>
             </Grid>
             {/* Left */}
-            <Grid item md={1}>
+            <Grid item xs={2}>
                 <Button onClick={fetchDiscounts}>
                     <CachedIcon ></CachedIcon>
                 </Button>     
             </Grid>
             
-            <Grid item xs={12} md={3} lg={3}>
+            <Grid item xs={12} md={2}>
+            <form onSubmit={handleButtonClick}style={{display:'contents'}}>
                 <Grid container item direction='column' spacing={3}>
                     <Grid item xs>
                         <InputField  label='Name' type='string' size='small' 
                             name='name'
                             value={fields.name}
                             onChange={FiledChange}
+                            required={true}
                             inputProps={{ style: {textTransform: "uppercase" }}}
-                            autoFocus
                         />
                     </Grid>
             
@@ -217,6 +226,7 @@ const AddPartyDiscount = () => {
                         type='number' 
                         size='small' 
                         name='discount'   
+                        required={true}
                         value={fields.discount}
                         onChange={FiledChange}
                         />
@@ -224,7 +234,7 @@ const AddPartyDiscount = () => {
 
                     <Grid item container  >
                         <SpineerButton
-                        handleButtonClick={handleButtonClick} 
+                        type="submit" 
                         label={(isUpdate?'Update':'Save')}
                         loading={loading}
                         success={success}
@@ -233,9 +243,10 @@ const AddPartyDiscount = () => {
                         />
                     </Grid>
                 </Grid>
+            </form>
            </Grid>
             {/* Right */}
-           <Grid item xs={12} md={9} lg={9} className={classes.table}>
+           <Grid item xs={12} md={10} >
                 <GetTable 
                     rows={rows} 
                     columns={['ID','Name','Discount(%)']}

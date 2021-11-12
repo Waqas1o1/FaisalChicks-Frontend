@@ -13,6 +13,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import EditIcon from '@material-ui/icons/Edit';
+import { toast } from 'react-toastify';
 const useStyles = makeStyles((theme) => ({
     formRoot: {
         flexGrow: 1,
@@ -52,7 +53,7 @@ const AddDispatchperson = () => {
             .then(res=>{
                 let data  = res.data;
                 if (data['error'] === true){
-                alert(`Error Occures ${data['message']}`);
+                toast.error(`Error Occures ${data['message']}`);
                 }
                 else{
                     let d = data['data'];
@@ -64,17 +65,15 @@ const AddDispatchperson = () => {
                 }
             })
             .catch(error=>{
-                alert(`Somethin wrong: ${error}`);
+                toast.error(`Somethin wrong: ${error}`);
             })
         }
        
     }
-
-
     async function saveDispatcher(){
         if (!isUpdate){
             if (fields.password !== fields.repassword){
-                alert('Password Not Match');
+                toast.warning('Password Not Match');
                 setLoading(false);
                 return
             }
@@ -82,29 +81,29 @@ const AddDispatchperson = () => {
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
-                        alert(`Error Occures ${data['message']}`);
+                        toast.error(`Error Occures ${data['message']}`);
                         setSuccess(false);
                         setLoading(false);
                     }
                     else{
+                        toast.success(data['message']);
                         setLoading(false);
                         fetchDispatcher();
                         setFields(initialFields);
-                        // setFields(initialFields);
                     }
                 })
                 .catch(error=>{
-                    alert(`Somethin wrong: ${error}`);
+                    toast.error(`Somethin wrong: ${error}`);
                     setSuccess(false);
                     setLoading(false);
                 })
             }
         else{
-            return await axiosInstance.put(`apis/SalesOfficer/${selectedObjId}/`,{...fields})
+            return await axiosInstance.put(`apis/Dispatcher/${selectedObjId}/`,{...fields})
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
-                        alert(`Error Occures ${data['message']}`);
+                        toast.error(`Error Occures ${data['message']}`);
                         setSuccess(false);
                         setLoading(false);
                     }
@@ -116,7 +115,7 @@ const AddDispatchperson = () => {
                     }
                 })
                 .catch(error=>{
-                    alert(`Somethin wrong: ${error}`);
+                    toast.error(`Somethin wrong: ${error}`);
                     setSuccess(false);
                     setLoading(false);
                 })
@@ -128,16 +127,17 @@ const AddDispatchperson = () => {
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
-                alert(`Error Occures ${data['message']}`);
+                toast.error(`Error Occures ${data['message']}`);
             }
             else{
                 fetchDispatcher();
                 setFields(initialFields);
                 setOpenDialog(false);
+                toast.info(data['message'])
             }
         })
         .catch(error=>{
-            alert(`Somethin wrong: ${error}`);
+            toast.error(`Somethin wrong: ${error}`);
             setOpenDialog(false);
         })
         
@@ -149,10 +149,9 @@ const AddDispatchperson = () => {
         .then(res=>{
             let data  = res.data.data;
             if (data['error'] === true){
-                alert(`Error Occures ${data['message']}`);
+                toast.error(`Error Occures ${data['message']}`);
             }
             else{
-                console.log(data);
                 let setData = {
                     name:data.first_name,
                     email:data.email,
@@ -163,14 +162,15 @@ const AddDispatchperson = () => {
             }
         })
         .catch(error=>{
-            alert(`Somethin wrong: ${error}`);
+            toast.error(`Somethin wrong: ${error}`);
             setSuccess(false);
             setLoading(false);
 
         })
     }
 
-    const handleButtonClick = () => {
+    const handleButtonClick = (e) => {
+        e.preventDefault();
         if (!loading) {
         setSuccess(false);
         setLoading(true);
@@ -221,13 +221,14 @@ const AddDispatchperson = () => {
             </Grid>
             
             <Grid item xs={12} md={3} lg={3}>
+            <form onSubmit={handleButtonClick}style={{display:'contents'}}>
                 <Grid container item  spacing={3}>
                     <Grid item xs={12}>
                         <InputField  label='Name' type='string'  
                             name='name'
                             value={fields.name}
                             onChange={FiledChange}
-                            autoFocus
+                            required={true}
                             fullWidth
                             inputProps={{ style: {textTransform: "uppercase" }}}
                         />
@@ -236,6 +237,7 @@ const AddDispatchperson = () => {
                         <InputField  label='Email @' type='string' 
                             name='email'
                             value={fields.email}
+                            required={true}
                             inputProps={{ style: {textTransform: "uppercase" }}}
                             onChange={FiledChange}
                         />
@@ -243,6 +245,7 @@ const AddDispatchperson = () => {
                     <Grid item xs={6}>
                         <InputField  label='User Name' type='string' 
                             name='username'
+                            required={true}
                             value={fields.username}
                             inputProps={{ style: {textTransform: "lowercase" }}}
                             onChange={FiledChange}
@@ -252,7 +255,7 @@ const AddDispatchperson = () => {
                     <Grid item xs={6}>
                         <InputField  label='Password' type='password'  
                             name='password'
-                            disabled={isUpdate}
+                            required={true}
                             value={fields.password}
                             onChange={FiledChange}
                         />
@@ -260,6 +263,7 @@ const AddDispatchperson = () => {
                     <Grid item xs={6}>
                         <InputField  label='Confirm Password' type='password'  
                             name='repassword'
+                            required={true}
                             value={fields.repassword}
                             disabled={isUpdate}
                             onChange={FiledChange}
@@ -268,15 +272,16 @@ const AddDispatchperson = () => {
                     
                     <Grid item container  >
                         <SpineerButton
-                        handleButtonClick={handleButtonClick} 
                         label={(isUpdate?'Update':'Save')}
                         loading={loading}
                         success={success}
                         size="large"
+                        type='submit'
                         startIcon={(isUpdate? <EditIcon/>:<AddBoxOutlinedIcon />)}
                         />
                     </Grid>
                 </Grid>
+            </form>
            </Grid>
             {/* Right */}
            <Grid item xs={12} md={9} lg={9} className={classes.table}>

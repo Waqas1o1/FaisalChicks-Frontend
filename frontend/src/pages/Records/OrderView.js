@@ -30,6 +30,9 @@ const useStyles = makeStyles(theme => ({
             cursor: 'pointer',
         },
     },
+    pdf:{
+      minWidth:'300px'
+    }
 }))
 
 
@@ -263,7 +266,6 @@ function DataTable(props) {
   
   }
 
-
   async function ConfirmChange(){
     setLoading(true);
     return await axiosInstance.get(`apis/ChangePartyOrderStatus/${selectedObjId}/`)
@@ -331,10 +333,14 @@ function DataTable(props) {
       count += products[row].qty * products[row].rate;
     }
     var grand_total = 0;
-    console.log(editFields.freight);
-    grand_total = count - (count /100) * editFields.discount;
+    grand_total = count -( (count /100) * editFields.discount);
     grand_total = grand_total - editFields.freight;
     setGrandTotal(grand_total);
+    setEditFields({
+      ...editFields,
+      discounted_amount:0,
+      gross_total:count,
+    });
   }
   const handleProductFieldChange = (e)=>{
     setProductsFields({
@@ -376,8 +382,6 @@ function DataTable(props) {
     }
     
 }
-
-
   function handleLocationSet(items) {
     let newItem = items.replace(/"/g, '\'');
     setLocaions([
@@ -560,11 +564,7 @@ function DataTable(props) {
     html2canvas(input,{scale: 3})
       .then((canvas) => {
         const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF({
-          // orientation: "landscape",
-          unit: "in",
-          format: [4, 2]
-        });
+        const pdf = new jsPDF();
         var width = pdf.internal.pageSize.getWidth();
         var height = pdf.internal.pageSize.getHeight();
         pdf.addImage(imgData, 'JPEG', 0, 0,width,height);
@@ -765,6 +765,10 @@ function DataTable(props) {
   useEffect(() => {
       fetchOrders();
   }, [])
+  useEffect(() => {
+    Calculate();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [products])
   
     return (
        <div style={{ height: 500, width: '100%'}}>
@@ -1198,6 +1202,7 @@ function DataTable(props) {
         <Dialog
           open={invoiceDialogBox}
           onClose={()=>{setInvoiceGenrate(false);setInvoiceDialogBox(false)}}
+          className={classes.pdf}
         >
         <DialogTitle id="Dialog">Invoice View</DialogTitle>
         <DialogContent >
@@ -1205,7 +1210,7 @@ function DataTable(props) {
           <div className="invoice-box" id='PDFinvoice'>
             <table>
               <tr className="top"  key='top'>
-                <td colSpan='5'>
+                <td colSpan={4}>
                   <table>
                     <tr key='InvoiceImage'>
                       <td className="title">
@@ -1222,7 +1227,7 @@ function DataTable(props) {
               </tr>
 
               <tr className="information" key='information'>
-                <td colSpan="5">
+                <td colSpan={4}>
                   <table>
                     <tr key='table'>
                       <td>
@@ -1242,21 +1247,23 @@ function DataTable(props) {
         
 
               <tr className="heading" key='heading'>
-                <td colSpan={3}>Product</td>
+                <td>Product</td>
                 <td>Qty</td>
                 <td>Rate</td>
+                <td>Total</td>
               </tr>
           {!selectedPartyOrder?undefined:selectedPartyOrder.products.map((pdt,index, arr)=>{
             return (
             <>
               {index === arr.length - 1 ?
                 <tr className="item last" key={pdt.product.name}>
-                  <td colSpan={3}>{pdt.product.name}</td>
+                  <td>{pdt.product.name}</td>
                   <td>{pdt.qty}</td>
                   <td>{pdt.rate}</td>
+                  <td>{pdt.rate * pdt.qty}</td>
                 </tr> :
                 <tr className="item"  key={pdt.product.name}>
-                  <td colSpan={3}>{pdt.product.name}</td>
+                  <td >{pdt.product.name}</td>
                   <td>{pdt.qty}</td>
                   <td>{pdt.rate}</td>
                 </tr>
@@ -1265,6 +1272,11 @@ function DataTable(props) {
           })}
 
 
+        <tr className="total"  key='Grossstotal'>
+					<td></td>
+
+					<td colSpan={4}>Bags Total: {selectedPartyOrder.pdt_qty__sum}</td>
+				</tr>
         <tr className="total"  key='Grossstotal'>
 					<td></td>
 

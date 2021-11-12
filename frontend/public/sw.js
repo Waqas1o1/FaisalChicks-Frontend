@@ -4,12 +4,12 @@ const dynamicCach = 'site-static-dynamic';
 const assets = [
     '/',
     '/static/js/bundle.js',
-    '/favicon.ico',
+    '/playstore-icon.png',
     '/manifest.json',
     '/index.html',
 ];
 
-self.addEventListener('install',e=>{
+this.addEventListener('install',e=>{
     e.waitUntil(
         caches.open(staticCacheName).then(cache=>{
             console.log('Caching shell assets');
@@ -18,7 +18,7 @@ self.addEventListener('install',e=>{
     );
 });
 // acivate service worker
-self.addEventListener('activate',e=>{
+this.addEventListener('activate',e=>{
     // Delete all the previous caches so new will loaded
     e.waitUntil(
         caches.keys().then(keys=>{
@@ -31,8 +31,7 @@ self.addEventListener('activate',e=>{
     )
 });
 // fetch  event
-self.addEventListener('fetch',e=>{
-    //  console.log('fetch event ',e);
+this.addEventListener('fetch',e=>{
     e.respondWith(
         caches.match(e.request)
         .then(cacheRes=>{

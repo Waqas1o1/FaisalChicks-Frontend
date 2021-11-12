@@ -14,24 +14,19 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import EditIcon from '@material-ui/icons/Edit';
+import { toast } from 'react-toastify';
 
 
 const useStyles = makeStyles((theme) => ({
-    formRoot: {
-      flexGrow: 1,
-      '@media only screen and (max-width: 600px)': {
-        width:'340px',
-       },
-    },
-    table:{
-        width:'100vh',
-        '@media only screen and (max-width: 600px)': {
-            width:'100%',
-        },
-    },
     upperCase:{
         textTransform : 'uppercase'
     },
+    table:{
+        width:'200px',
+        '@media only screen and (max-width: 600px)': {
+            width:'100px',
+        },
+    }
 }))
 
 const AddParty = () => {
@@ -200,15 +195,19 @@ const AddParty = () => {
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
-                        alert(`Error Occures ${data['message']}`);
-                        Reset();
+                        for (let err in data['message']){
+                            toast.error(data['message'][err]);
+                        }
+                        setLoading(false);
                     }
                     else{
+                        toast.success(data['message'])
                         Reset();
                     }
                 })
                 .catch(error=>{
-                    alert(`Somethin wrong: ${error}`);
+                    toast.error(`Somethin wrong: ${error}`);
+                    setLoading(false);
                     Reset();
                 })
             }
@@ -226,7 +225,9 @@ const AddParty = () => {
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
-                        alert(`Error Occures ${data['message']}`);
+                        for (let i in fields){
+                            form_data.append(i, fields[i]);
+                        };
                         Reset();
                     }
                     else{
@@ -234,7 +235,7 @@ const AddParty = () => {
                     }
                 })
                 .catch(error=>{
-                    alert(`Somethin wrong: ${error}`);
+                    toast.error(`Somethin wrong: ${error}`);
                     Reset();
                 })
             }
@@ -245,15 +246,16 @@ const AddParty = () => {
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
-                alert(`Error Occures ${data['message']}`);
+                toast.error(`Error Occures ${data['message']}`);
             }
             else{
+                toast.info(data['message']);
                 Reset();
                 setOpenDialog(false);
             }
         })
         .catch(error=>{
-            alert(`Somethin wrong: ${error}`);
+            toast.error(`Somethin wrong: ${error}`);
             setOpenDialog(false);
             Reset();
         })
@@ -266,10 +268,9 @@ const AddParty = () => {
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
-                alert(`Error Occures ${data['message']}`);
+                toast.error(`Error Occures ${data['message']}`);
             }
             else{
-                console.log(data.data);
                 let setData = {
                     creditLimit:data.data.creditLimit,
                     salesTarget:data.data.salesTarget,
@@ -282,6 +283,7 @@ const AddParty = () => {
                     region:data.data.region,
                     zone:data.data.zone,
                     contact:data.data.contact,
+                    sale_officer:data.data.sale_officer.id,
                     opening_Balance:data.data.opening_Balance,
                     discount:data.data.discount.id,
                 }
@@ -293,7 +295,7 @@ const AddParty = () => {
             }
         })
         .catch(error=>{
-            alert(`Somethin wrong: ${error}`);
+            toast.error(`Somethin wrong: ${error}`);
             setSuccess(false);
             setLoading(false);
         })
@@ -304,7 +306,8 @@ const AddParty = () => {
         
     }
 
-    const handleButtonClick = () => {
+    const handleButtonClick = (e) => {
+        e.preventDefault();
         if (!loading) {
         setSuccess(false);
         setLoading(true);
@@ -373,25 +376,27 @@ const AddParty = () => {
         }, []);
     
     return (
-        <Grid container spacing={2} className={classes.formRoot}>
+        <Grid container spacing={2} >
             {/* Title */}
-            <Grid item xs={10} lg={11}>     
+            <Grid item xs={10} >     
                 <Typography variant="h4" gutterBottom  color='primary'>Add Party</Typography>
             </Grid>
             {/* Left */}
-            <Grid item xs={2} lg={1}>
+            <Grid item xs={2} >
                 <Button onClick={fetchParties}>
                     <CachedIcon ></CachedIcon>
                 </Button>     
             </Grid>
             
-            <Grid item xs={12} md={3} lg={3}>
+            <Grid item xs={12} md={3} >
+            <form onSubmit={handleButtonClick}style={{display:'contents'}}>
                 <Grid container item direction='column' spacing={3}>
                     <Grid item container spacing={1}>
                         <Grid item xs >
                             <Selecter
                                 title={discountTitle}
                                 handleChange={FiledChange}
+                                required={true}
                                 value={fields.discount}
                                 onOpen={selecterOpen}
                                 choises={discount}
@@ -402,6 +407,7 @@ const AddParty = () => {
                         <Grid item xs >
                             <Selecter
                             title={salesOfficerTitle}
+                            required={true}
                             handleChange={FiledChange}
                             value={fields.sale_officer}
                             onOpen={selecterOpen}
@@ -413,6 +419,7 @@ const AddParty = () => {
                         <Grid item xs >
                             <Selecter
                             title={categoryTitle}
+                            required={true}
                             handleChange={FiledChange}
                             value={fields.catagory}
                             onOpen={selecterOpen}
@@ -533,7 +540,7 @@ const AddParty = () => {
                     </Grid>         
                     <Grid item container  >
                         <SpineerButton
-                        handleButtonClick={handleButtonClick} 
+                        type="submit" 
                         label={(isUpdate?'Update':'Save')}
                         loading={loading}
                         success={success}
@@ -542,9 +549,10 @@ const AddParty = () => {
                         />
                     </Grid>
                 </Grid>
+            </form>
             </Grid>
             {/* Right */}
-            <Grid item xs={12} md={9} lg={9} className={classes.table}>
+            <Grid item xs={12} md={9} className={classes.table}>
                 <GetTable 
                     rows={rows} 
                     columns={['ID','Ref Id','Name','Email','Area','Zone','Region','Contact','Credit Limit','Sales Target','Opening Balance','SCI','TOR','Discount','Sales Officer','Category']}

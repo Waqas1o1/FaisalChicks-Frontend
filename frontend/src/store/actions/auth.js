@@ -1,7 +1,6 @@
 import *  as actionTypes from "./actionTypes";
 import axiosInstance from '../../apisConfig';
 
-
 export const authStart = () =>{
     return {
         type:actionTypes.AUTH_START

@@ -36,6 +36,9 @@ const useStyles = makeStyles((theme) => ({
     chip: {
     margin: 2,
     },
+    input: {
+        display: 'none',
+    },
 }))
 
 var selectedvalue= [];
@@ -43,6 +46,7 @@ const GroupRecovery = () => {
     const initialFields = {
         party_orders:[],
         sale_officer:'',
+        attachments:'',
         payment_method:'Cash',
         bank: '',
         party:'',
@@ -72,7 +76,8 @@ const GroupRecovery = () => {
     const [openDialog, setOpenDialog] = useState(false);
     const [bankDisabled,setBankDisabled] = useState(true);
     const [selectedOption,setSelectedOption] = useState(fields.payment_method);
-        
+    
+    const [fileTitle,setFileTitle] = useState('Attachment');
 
     const handleSelect = (event) => {
         let item = JSON.parse(event.target.name);
@@ -310,7 +315,10 @@ const GroupRecovery = () => {
     const hanldeAmountChange = (e)=>{
         console.log(e.target.name)
     }
-
+    const HandleFileChange = (e)=>{
+        setFields({...fields,attachments:e.target.files[0]});
+        setFileTitle(e.target.files[0].name);
+    }
     function checkIsAdmin(){
         let u = localStorage.getItem('salesofficer');
         if(u === 'undefined' || u !== null ){
@@ -340,6 +348,8 @@ const GroupRecovery = () => {
             setBankDisabled(true);
         }
       };
+
+
     const handleSubmit = async (event) =>{
         if (selectedvalue.length === 0){
             alert('Please select one of the "Order"')
@@ -348,7 +358,7 @@ const GroupRecovery = () => {
         let payment_method = fields.payment_method;
         let bank = fields.bank;
         let sale_officer = fields.sale_officer;
-        
+        let attachments = fields.attachments;
         for (let i in selectedvalue){
             let party = '';
             let send_amount = 0;
@@ -364,10 +374,19 @@ const GroupRecovery = () => {
                 'sale_officer':sale_officer,
                 'payment_method':payment_method,
                 'bank':bank,
+                'attachments':attachments,
                 'amount':send_amount,
                 'description':'Group Recovery'
             }
-            await axiosInstance.post('apis/Recovery/',{...send_dict})
+            let form_data = new FormData();
+            for (let i in send_dict){
+                form_data.append(i, send_dict[i]);
+            };
+            await axiosInstance.post('apis/Recovery/',form_data,
+            {headers: {
+                'content-type': 'multipart/form-data',
+                'Authorization': `Token ${localStorage.getItem('token')}`
+            }})
             .then(res=>{
                 let data = res.data;
                 if (data['error'] === true){
@@ -434,7 +453,21 @@ const GroupRecovery = () => {
                                 />
                         </Grid>
                     </Grid>
-                    
+                    <Grid item xs={12}>
+                        <input
+                            accept="csv/*"
+                            className={classes.input}
+                            id="contained-button-file"
+                            name='attachments'
+                            type="file"
+                            onChange={HandleFileChange}
+                        />
+                        <label htmlFor="contained-button-file">
+                            <Button variant="contained" color="primary" fullWidth component="span" >
+                                {fileTitle}
+                            </Button>
+                        </label>
+                    </Grid>
                     <Grid item xs>
                         <InputField  size='small'
                             label="Recovery Amount" 

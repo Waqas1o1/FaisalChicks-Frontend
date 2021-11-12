@@ -160,7 +160,7 @@ export default function PartyLedger() {
 
     return (
         <>
-        <Grid container alignItems="center" spacing={2}>
+        <Grid container spacing={2}>
            {/* Title */}
            <Grid item xs={12} >     
                 <Typography variant="h4" gutterBottom  color='primary'>Parties Ledger</Typography>
@@ -210,53 +210,53 @@ export default function PartyLedger() {
            </Grid>
             
             <Grid item xs={12}>
-                    <SpineerButton
-                     handleButtonClick={handleButtonClick} 
-                     label={(loading?'Loadning':'Get Data')}
-                     loading={loading}
-                     success={false}
-                     size="large"
-                     startIcon={(loading? <HourglassFullRoundedIcon/>:<StorageRoundedIcon />)}
-                    />
+                <SpineerButton
+                    handleButtonClick={handleButtonClick} 
+                    label={(loading?'Loadning':'Get Data')}
+                    loading={loading}
+                    success={false}
+                    size="large"
+                    startIcon={(loading? <HourglassFullRoundedIcon/>:<StorageRoundedIcon />)}
+                />
             </Grid>
-            <Grid item xs={10} md={12}>
-            <TableContainer component={Paper} >
-            <Table  aria-label="customized table" >
-                <TableHead>
-                <TableRow>
-                    {columns.map((column) => (
-                            <StyledTableCell
-                                key={column}
-                                align="center"
-                                >
-                                {column}
-                            </StyledTableCell>
-                        ))}
-                </TableRow>
-                </TableHead>
-                <TableBody>
-                {rows.map((row) => (
-                    <StyledTableRow key={row.id}>
-                        <StyledTableCell component="th" scope="row">{row.date}</StyledTableCell>
-                        <StyledTableCell align='center' >{row.description}</StyledTableCell>
-                        <StyledTableCell align='center' >{row.freight}</StyledTableCell>
-                        {row.transaction_type === 'Credit'?
-                        <>
-                        <StyledTableCell align='center' ></StyledTableCell>
-                        <StyledTableCell align='center' >{row.total_amount}</StyledTableCell>
-                        </>
-                        :
-                        <>
-                        <StyledTableCell align='center' >{row.total_amount}</StyledTableCell>
-                        <StyledTableCell align='center' ></StyledTableCell>
-                        </>
-                        }
-                        <StyledTableCell align='center' >{row.net_balance}</StyledTableCell>
-                    </StyledTableRow>
-                ))}
-                </TableBody>
-                </Table>
-            </TableContainer>
+            <Grid item xs={9} md={12}>
+                <TableContainer component={Paper} >
+                <Table  aria-label="customized table" >
+                    <TableHead>
+                    <TableRow>
+                        {columns.map((column) => (
+                                <StyledTableCell
+                                    key={column}
+                                    align="center"
+                                    >
+                                    {column}
+                                </StyledTableCell>
+                            ))}
+                    </TableRow>
+                    </TableHead>
+                    <TableBody>
+                    {rows.map((row) => (
+                        <StyledTableRow key={row.id}>
+                            <StyledTableCell component="th" scope="row">{row.date}</StyledTableCell>
+                            <StyledTableCell align='center' >{row.description}</StyledTableCell>
+                            <StyledTableCell align='center' >{row.freight}</StyledTableCell>
+                            {row.transaction_type === 'Credit'?
+                            <>
+                            <StyledTableCell align='center' ></StyledTableCell>
+                            <StyledTableCell align='center' >{row.total_amount}</StyledTableCell>
+                            </>
+                            :
+                            <>
+                            <StyledTableCell align='center' >{row.total_amount}</StyledTableCell>
+                            <StyledTableCell align='center' ></StyledTableCell>
+                            </>
+                            }
+                            <StyledTableCell align='center' >{row.net_balance}</StyledTableCell>
+                        </StyledTableRow>
+                    ))}
+                    </TableBody>
+                    </Table>
+                </TableContainer>
             </Grid>
        </Grid>
     {/* TAble */}

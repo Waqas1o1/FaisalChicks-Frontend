@@ -14,14 +14,14 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import EditIcon from '@material-ui/icons/Edit';
+import { toast } from 'react-toastify';
 
 const useStyles = makeStyles((theme) => ({
-      table:{
-          width:'100vh',
-          '@media only screen and (max-width: 600px)': {
-              width:'100%',
-          },
-      },
+    table:{
+        '@media only screen and (max-width: 600px)': {
+            width:'100px',
+        },
+    }
 }))
 
 const AddProduct = () => {
@@ -60,16 +60,16 @@ const AddProduct = () => {
             .then(res=>{
                 let data  = res.data;
                 if (data['error'] === true){
-                alert(`Error Occures ${data['message']}`);
+                for (let err in data['message']){
+                    toast.error(data['message'][err]);
+                }
             }
             else{
                 setCategory(data['data']);
-                localStorage.removeItem('Category');
-                localStorage.setItem('Category',JSON.stringify(data['data']));
             }
             })
             .catch(error=>{
-                alert(`Somethin wrong: ${error}`);
+                toast.error(error);
             })
         }
         else{
@@ -83,7 +83,9 @@ const AddProduct = () => {
             .then(res=>{
                 let data  = res.data;
                 if (data['error'] === true){
-                    alert(`Error Occures ${data['message']}`);
+                    for (let err in data['message']){
+                        toast.error(data['message'][err]);
+                    }
                 }
                 else{
                     let product = data['data'];
@@ -111,15 +113,18 @@ const AddProduct = () => {
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
-                        alert(`Error Occures ${data['message']}`);
-                        Reset();
+                        for (let err in data['message']){
+                            toast.error(data['message'][err]);
+                        }
+                        setLoading(false);
                     }
                     else{
+                        toast.success(data['message']);
                         Reset();
                     }
                 })
                 .catch(error=>{
-                    alert(`Somethin wrong: ${error}`);
+                    toast.success(`Somethin wrong: ${error}`);
                     Reset();
                     setSuccess(true);
                 })
@@ -129,37 +134,42 @@ const AddProduct = () => {
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
-                        alert(`Error Occures ${data['message']}`);
+                        for (let err in data['message']){
+                            toast.error(data['message'][err]);
+                        }
                         Reset();
                     }
                     else{
                        Reset();
                        setSuccess(true);
+                       toast.success(data['message']);
                     }
                 })
                 .catch(error=>{
-                    alert(`Somethin wrong: ${error}`);
+                    toast.error(`Somethin wrong: ${error}`);
                     Reset();
                 })
             }
     }
 
     async function ConfirmDelete(e){
-        console.log(selectedObjId);
         return await axiosInstance.delete(`apis/Product/${selectedObjId}/`)
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
-                alert(`Error Occures ${data['message']}`);
+                for (let err in data['message']){    
+                    toast.error(data['message'][err]);
+                }
             }
             else{
+                toast.info(data['message']);
                 fetchProduct();
                 setFields(initialFields);
                 setOpenDialog(false);
             }
         })
         .catch(error=>{
-            alert(`Somethin wrong: ${error}`);
+            toast.error(`Somethin wrong: ${error}`);
             setOpenDialog(false);
         })
         
@@ -171,7 +181,7 @@ const AddProduct = () => {
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
-                alert(`Error Occures ${data['message']}`);
+               toast.error(data['error']);
             }
             else{
                 let setData = {
@@ -189,19 +199,15 @@ const AddProduct = () => {
             }
         })
         .catch(error=>{
-            alert(`Somethin wrong: ${error}`);
+            toast.error(`Somethin wrong: ${error}`);
             setSuccess(false);
             setLoading(false);
 
         })
     }
 
-    const selecterOpen = (event)=>{
-        // fetchCategory();
-        
-    }
-
-    const handleButtonClick = () => {
+    const handleButtonClick = (e) => {
+        e.preventDefault();
         if (!loading) {
         setSuccess(false);
         setLoading(true);
@@ -244,7 +250,6 @@ const AddProduct = () => {
         
     useEffect(() => {
             fetchProduct();
-            fetchCategory();
         }, []);
     
     return (
@@ -261,14 +266,16 @@ const AddProduct = () => {
             </Grid>
             
             <Grid item xs={12} md={3} lg={3}>
+            <form onSubmit={handleButtonClick}style={{display:'contents'}}>
                 <Grid container item  spacing={3}>
                     <Grid item xs={12}>
                         <Selecter
                             title={categoryTitle}
                             handleChange={FiledChange}
                             value={fields.category}
-                            onOpen={selecterOpen}
+                            onOpen={fetchCategory}
                             choises={category}
+                            required={true}
                             name='category'
                         />
                     </Grid>
@@ -279,6 +286,7 @@ const AddProduct = () => {
                             <Select
                                 labelId="Type"
                                 name='type'
+                                required={true}
                                 value={fields.type}
                                 onChange={FiledChange}
                             >
@@ -300,6 +308,7 @@ const AddProduct = () => {
                     <Grid item xs={8}>
                         <InputField  label='Package Weight'  
                             size='small'
+                            required={true}
                             name='pakage_weight' type="number" 
                             value={fields.pakage_weight}
                             inputProps={{ style: {textTransform: "uppercase" }}}
@@ -309,6 +318,7 @@ const AddProduct = () => {
                     <Grid item xs={4}>
                         <InputField  label='Unit'  
                             size='small'
+                            required={true}
                             inputProps={{ style: {textTransform: "uppercase" }}}
                             name='unit' type="string" 
                             value={fields.unit}
@@ -339,7 +349,7 @@ const AddProduct = () => {
 
                     <Grid item container  >
                         <SpineerButton
-                            handleButtonClick={handleButtonClick} 
+                            type="submit" 
                             label={(isUpdate?'Update':'Save')}
                             loading={loading}
                             success={success}
@@ -348,6 +358,7 @@ const AddProduct = () => {
                         />
                     </Grid>
                 </Grid>
+            </form>
            </Grid>
             {/* Right */}
            <Grid item xs={12} md={9} lg={9} className={classes.table}>
