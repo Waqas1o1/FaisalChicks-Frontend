@@ -11,11 +11,11 @@
     "description": "A App Developed By Technoventive Solutions.This app is developed under the conditions of Hafiz (ptv.limited) company.Copy right reserved by Technoventive solutions 2021",
     "icons": [
       {
-        "src": "playstore-icon.png",
+        "src": "fc.png",
         "sizes": "192x192"
       },
       {
-        "src": "playstore-icon.png",
+        "src": "fc.png",
         "sizes": "512x512"
       }
     ]

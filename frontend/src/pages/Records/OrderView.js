@@ -21,6 +21,8 @@ import PictureAsPdfOutlinedIcon from '@material-ui/icons/PictureAsPdfOutlined';
 import logo from '../../static/img/logo.png';
 import { jsPDF } from "jspdf";
 import html2canvas from 'html2canvas';
+import { toast } from 'react-toastify';
+
 
 const useStyles = makeStyles(theme => ({
     table: {
@@ -404,15 +406,16 @@ function DataTable(props) {
     await axiosInstance.post('apis/DispatchTable/',send)
       .then(res=>{
         if (res['error'] === true){
-            alert(`Error Occures ${res['message']}`);
+            toast.error(`Error Occures ${res['message']}`);
         }
         else{
             let data  = res.data;
                   if (data['error'] === true){
-                      alert(`Error Occures ${data['message']}`);
+                      toast.error(`Error Occures ${data['message']}`);
                       setLoading(false);
                   }
                   else{
+                    toast.success('Successfuly Dipatched');
                       setLoading(false);
                       fetchOrders();
                       setFields(initialFields);
@@ -422,7 +425,7 @@ function DataTable(props) {
         }
     })
     .catch(error=>{
-        alert(`Somethin wrong: ${error}`);
+        toast.error(`Somethin wrong: ${error}`);
     })
   
   }
@@ -431,7 +434,7 @@ function DataTable(props) {
       await axiosInstance.get('apis/PartyOrder/')
       .then(res=>{
         if (res['error'] === true){
-            alert(`Error Occures ${res['message']}`);
+            toast.error(`Error Occures ${res['message']}`);
         }
         else{
             var d = res['data']['data'];
@@ -444,7 +447,7 @@ function DataTable(props) {
         }
     })
     .catch(error=>{
-        alert(`Somethin wrong: ${error}`);
+        toast.error(`Somethin wrong: ${error}`);
     })
   }
 
@@ -452,7 +455,7 @@ function DataTable(props) {
       await axiosInstance.get(`apis/DispatchTable/${id}`)
       .then(res=>{
         if (res['error'] === true){
-            alert(`Error Occures ${res['message']}`);
+            toast.error(`Error Occures ${res['message']}`);
         }
         else{
             var d = res['data']['data'];
@@ -469,7 +472,7 @@ function DataTable(props) {
         }
     })
     .catch(error=>{
-        alert(`Somethin wrong: ${error}`);
+        toast.error(`Somethin wrong: ${error}`);
     })
   }
 
@@ -477,9 +480,10 @@ function DataTable(props) {
       await axiosInstance.put(`apis/DispatchTable/${selecteddispatch}/`,{...dispatchFields,party_order:selecteddispatch,locations:JSON.stringify(locations)})
       .then(res=>{
         if (res['error'] === true){
-            alert(`Error Occures ${res['message']}`);
+            toast.error(`Error Occures ${res['message']}`);
         }
         else{
+          toast.success(res['message'])
             setLoading(false);
             setDispatchFields(initialdispcthFields);
             setOpenDispatchDialog(false);
@@ -489,7 +493,7 @@ function DataTable(props) {
       setLoading(false);
       setDispatchFields(initialdispcthFields);
       setOpenDispatchDialog(false);
-      alert(`Somethin wrong: ${error}`);
+      toast.error(`Somethin wrong: ${error}`);
     })
   }
 
@@ -698,7 +702,8 @@ function DataTable(props) {
       editable: false,
       renderCell: (row)=>{
         if (row.row.status === 'Pending')
-        return (
+        {
+          return (
           <>
           {props.group === GroupStatus.SALESOFFICER?undefined:
           <Button aria-label="delete" color="secondary" onClick={ChangeStatus} size='small' id={row.row.id}>
@@ -716,6 +721,7 @@ function DataTable(props) {
           
           </>
         )
+      }
         if (row.row.status === 'Delivered'){
           return (
           <>
@@ -729,7 +735,7 @@ function DataTable(props) {
               <DeleteIcon color='primary'/>
             </IconButton>
           }
-          {props.group === GroupStatus.DISPATCHER?undefined:
+          {props.group === GroupStatus.DISPATCHER || props.group === GroupStatus.SALESOFFICER?undefined:
             <IconButton onClick={()=>{openEditBox(row.row.id)}}>
               <EditIcon color='primary'/>
             </IconButton>
@@ -750,7 +756,7 @@ function DataTable(props) {
                 <DeleteIcon color='primary'/>
               </IconButton>
               }
-              {props.group === GroupStatus.DISPATCHER?undefined:
+              {props.group === GroupStatus.DISPATCHER || props.group === GroupStatus.SALESOFFICER?undefined:
               <IconButton onClick={()=>{openEditBox(row.row.id)}}>
                 <EditIcon color='primary'/>
               </IconButton>
@@ -763,8 +769,11 @@ function DataTable(props) {
   ];
 
   useEffect(() => {
+    if (props.group === GroupStatus.SALESOFFICER){
+      setSalesOfficerDisabled(true);
+    }
       fetchOrders();
-  }, [])
+  }, [props.group])
   useEffect(() => {
     Calculate();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1011,7 +1020,7 @@ function DataTable(props) {
                         <Table className={classes.table} size="small" >
                           <TableHead>
                             <TableRow>
-                              <TableCell >Name</TableCell>
+                              <TableCell colSpan={2}>Name</TableCell>
                               <TableCell >Quantity</TableCell>
                               <TableCell >Rate</TableCell>
                               <TableCell >Delete</TableCell>
@@ -1020,17 +1029,8 @@ function DataTable(props) {
                           <TableBody>
                             {products.map((pdt)=>(
                               <TableRow key={pdt.id}>
-                                <TableCell >
-                                  <InputField  size='small'
-                                    label="Name" 
-                                    disabled={true}
-                                    type="string" 
-                                    id={JSON.stringify(pdt)}
-                                    onChange={EditProduct} 
-                                    name='name'
-                                    value={pdt.product.name}
-                                    />
-                                
+                                <TableCell colSpan={2}>
+                                  <Typography variant='overline'>{pdt.product.name}</Typography>        
                                 </TableCell>
                                 <TableCell >
                                   <InputField  size='small'
@@ -1266,6 +1266,7 @@ function DataTable(props) {
                   <td >{pdt.product.name}</td>
                   <td>{pdt.qty}</td>
                   <td>{pdt.rate}</td>
+                  <td>{pdt.rate * pdt.qty}</td>
                 </tr>
               }
             </>)

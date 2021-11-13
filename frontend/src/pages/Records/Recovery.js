@@ -573,12 +573,13 @@ const Recovery = (props) => {
                         </Button>
                     </Grid>:undefined
                     }
-                    
+                    {props.group === GroupStatus.SALESOFFICER & row.row.status !== 'Pending'?undefined:
                     <Grid item xs={4} onClick={onUpdate} id={row.id}>
                         <IconButton aria-label="edit" size='small' key={row.id}>
                             <CreateIcon />
                         </IconButton>
                     </Grid>
+                    }      
                     <Grid item xs={4}>
                         {(props.group !== GroupStatus.SALESOFFICER && row.row.status === 'Pending'?
                         <IconButton  onClick={onActive} id={row.id} aria-label="active" color='primary' size='small' key={row.id}>

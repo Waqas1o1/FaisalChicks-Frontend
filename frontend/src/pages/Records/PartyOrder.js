@@ -130,7 +130,7 @@ const [bankDisabled,setBankDisabled] = useState(true);
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
-                alert(`Error Occures ${data['message']}`);
+                toast.error(`Error Occures ${data['message']}`);
             }
             else{
                 let parties = data['data'];
@@ -145,7 +145,7 @@ const [bankDisabled,setBankDisabled] = useState(true);
             }
         })
         .catch(error=>{
-            // alert(`Somethin wrong: ${error}`);
+            toast.error(`Somethin wrong: ${error}`);
         })
     }
     else{
@@ -159,7 +159,7 @@ const [bankDisabled,setBankDisabled] = useState(true);
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
-                alert(`Error Occures ${data['message']}`);
+                toast.error(`Error Occures ${data['message']}`);
             }
             else{
                 let pdts = data['data'];
@@ -169,7 +169,7 @@ const [bankDisabled,setBankDisabled] = useState(true);
             }
         })
         .catch(error=>{
-            alert(`Somethin wrong: ${error}`);
+            toast.error(`Somethin wrong: ${error}`);
         })
     }
     else{
@@ -184,7 +184,7 @@ const [bankDisabled,setBankDisabled] = useState(true);
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
-                alert(`Error Occures ${data['message']}`);
+                toast.error(`Error Occures ${data['message']}`);
             }
             else{
                 var d = data['data'];
@@ -198,7 +198,7 @@ const [bankDisabled,setBankDisabled] = useState(true);
             }
         })
         .catch(error=>{
-            // alert(`Somethin wrong: ${error}`);
+            toast.error(`Somethin wrong: ${error}`);
         })
     }
     else{
@@ -212,7 +212,7 @@ const [bankDisabled,setBankDisabled] = useState(true);
         .then(res=>{
             let data  = res.data;
             if (data['error'] === true){
-                alert(`Error Occures ${data['message']}`);
+                toast.error(`Error Occures ${data['message']}`);
             }
             else{
                 let bank = data['data'];
@@ -224,7 +224,7 @@ const [bankDisabled,setBankDisabled] = useState(true);
             }
         })
         .catch(error=>{
-            alert(`Somethin wrong: ${error}`);
+            toast.error(`Somethin wrong: ${error}`);
         })
     }
 }
