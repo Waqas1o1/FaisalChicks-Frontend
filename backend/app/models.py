@@ -41,7 +41,7 @@ class Category(models.Model):
 class Party(models.Model):
     ref_id = models.IntegerField(blank=True,null=True)  
     name = models.CharField(max_length=30, unique=True)
-    email = models.EmailField(max_length=30, unique=True)
+    email = models.EmailField(max_length=30)
     area = models.CharField(max_length=300)
     zone = models.CharField(max_length=300)
     region = models.CharField(max_length=300)
@@ -221,7 +221,7 @@ class IncentivePerson(models.Model):
 # Ledgers
 class Ledger(models.Model):
     date = models.DateField(default=timezone.now, blank=True)
-    description = models.CharField(max_length=50, null=True)
+    description = models.CharField(max_length=300000, null=True)
     transaction_type = models.CharField(max_length=50, choices=(
         ('Debit', 'Debit'), ('Credit', 'Credit')))
     total_amount = models.FloatField(null=True)
@@ -327,9 +327,9 @@ class BankLedger(Ledger):
     def delete(self, *args, **kwargs):
         up = kwargs.pop('updating', {})
         if up == {}:
-            DeleteLeadgers(self, DiscountLedger, 'Bank', True)
+            DeleteLeadgers(self, BankLedger, 'Bank', True)
         else:
-            super(DiscountLedger, self).delete()   
+            super(BankLedger, self).delete()   
 
 class SalesLedger(Ledger):
     sales_person = models.ForeignKey(SalesPerson,on_delete=models.CASCADE)
@@ -536,7 +536,7 @@ class PartyOrder(models.Model):
     party = models.ForeignKey(Party,on_delete=models.CASCADE)
     sale_officer = models.ForeignKey(SalesOfficer,on_delete=models.CASCADE)
     status = models.CharField(max_length=50, choices=[('Pending', 'Pending'), ('Confirmed','Confirmed'),('Delivered','Delivered')], default='Pending')
-    description = models.CharField(max_length=50,blank=True,null=True)
+    description = models.CharField(max_length=30000,blank=True,null=True)
     freight = models.FloatField(default=0)
     locations = models.TextField(default='')
     
@@ -560,7 +560,7 @@ class PartyOrder(models.Model):
     
 
     def save(self, *args, **kwargs):
-        self.discounted_amount = self.gross_total -  self.total_amount 
+        self.discounted_amount = self.gross_total *  (self.party.discount.discount/100) 
         if self.id == None:
             self.pandding_amount = self.total_amount
             super(PartyOrder, self).save(*args, **kwargs)
@@ -701,7 +701,7 @@ class Recovery(models.Model):
     payment_method = models.CharField(max_length=20,choices=(('SalesOfficer','SalesOfficer'),('Cash','Cash'),('Bank','Bank'),('Clearing','Clearing'))) 
     bank = models.ForeignKey(Bank,on_delete=models.CASCADE,null=True,blank=True)
     amount = models.FloatField()
-    description = models.CharField(blank=True,null=True,max_length=50)
+    description = models.CharField(blank=True,null=True,max_length=30000)
     # Images 
     attachments = models.FileField(null=True,blank=True,upload_to='Recovery Attachments')
     # Ledgers

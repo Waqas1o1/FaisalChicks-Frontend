@@ -307,7 +307,7 @@ const [bankDisabled,setBankDisabled] = useState(true);
   }
 
   const handleGenrateOrder = async e =>{
-    let sendfileds = {...fields,sale_officer:selectedSalesOfficer,locations:JSON.stringify(locations)}
+    let sendfileds = {...fields,gross_total:totalAmount,sale_officer:selectedSalesOfficer,locations:JSON.stringify(locations)}
     const send_dict = {
       'party_order': sendfileds,
       'products': productsRows,
@@ -374,7 +374,6 @@ const [bankDisabled,setBankDisabled] = useState(true);
     setFields({
       ...fields,
       total_amount : grand_total,
-      gross_total : count
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[productsRows, fields.freight, fields.party])
