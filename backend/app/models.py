@@ -671,10 +671,14 @@ class PartyOrder(models.Model):
 
     def delete(self, *args, **kwargs):
         if self.status == 'Delivered':
-            self.pl.delete();
-            self.plc1.delete();
-            self.plc2.delete();
+            self.pl.delete()
+            self.plc1.delete()
+            self.plc2.delete()
             self.dl.delete()
+            self.sol.delete()
+            self.sl.delete()
+            self.il.delete()
+            self.fl.delete()
         elif self.status == 'Confirmed':
             self.sol.delete()
             self.sl.delete()
