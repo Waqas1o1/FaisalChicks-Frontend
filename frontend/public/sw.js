@@ -4,7 +4,6 @@ const dynamicCach = 'site-static-dynamic';
 const assets = [
     '/',
     '/static/js/bundle.js',
-    '/playstore-icon.png',
     '/manifest.json',
     '/index.html',
 ];

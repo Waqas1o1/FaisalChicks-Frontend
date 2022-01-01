@@ -21,6 +21,7 @@ import CreateIcon from '@material-ui/icons/Create';
 import DoneAllIcon from '@material-ui/icons/DoneAll';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { connect } from 'react-redux';
+import { toast } from 'react-toastify';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -157,20 +158,16 @@ const Recovery = (props) => {
                         recovery[r].party = recovery[r].party.name
                         recovery[r].sale_officer = recovery[r].sale_officer.name
                         recovery[r].party_order = recovery[r].party_order.id
-                        recovery[r].bank = recovery[r].party.bank   
+                        recovery[r].bank = recovery[r].bank.name   
                     }
                     setRows(recovery);
-                    localStorage.removeItem('Recovery');
-                    localStorage.setItem('Recovery',JSON.stringify(recovery));
                 }
             })
             .catch(error=>{
                 alert(`Somethin wrong: ${error}`);
             })
         }
-        else{
-            setRows(JSON.parse(localStorage.getItem('Recovery')));
-        }
+        
     }
     async function fetchPartyOrders(){
         if (navigator.onLine){
@@ -247,10 +244,11 @@ const Recovery = (props) => {
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
-                        alert(`Error Occures ${data['message']}`);
+                        for (let err in data['errors']){
+                            toast.error(`${err} -> ${data['errors'][err]}`);
+                        }
                         setSuccess(false);
                         setLoading(false);
-                        resetFields();
                     }
                     else{
                         setLoading(false);
@@ -278,7 +276,9 @@ const Recovery = (props) => {
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
-                        alert(`Error Occures ${data['message']}`);
+                        for (let err in data['message']){
+                            toast.error(`${err} -> ${data['message'][err]}`);
+                        }
                         setSuccess(false);
                         setLoading(false);
                         resetFields();
@@ -343,7 +343,8 @@ const Recovery = (props) => {
                     setBankDisabled(true);
                 }
                 var party_order = '';
-                if (data.data.party_order){
+                if (data.data.party_order.id){
+                    console.log('Here');
                     party_order = data.data.party_order.id;
                 }
                 let setData = {
@@ -539,6 +540,7 @@ const Recovery = (props) => {
               type: 'string',
               width: 200,
               editable: false,
+              renderCell: (row)=>(<b>{row.row.payment_method === 'Bank'?row.row.bank:row.row.payment_method}</b>)
             },
             {
               field: 'amount',

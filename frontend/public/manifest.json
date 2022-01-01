@@ -5,8 +5,8 @@
     "orientation": "any",
     "start_url": "/",
     "purpose": "any maskable",
-    "background_color": "#fff",
-    "theme_color": "#fff",
+    "background_color": "#131212",
+    "theme_color" : "#f69435",
     "display": "standalone",
     "description": "A App Developed By Technoventive Solutions.This app is developed under the conditions of Hafiz (ptv.limited) company.Copy right reserved by Technoventive solutions 2021",
     "icons": [

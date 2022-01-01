@@ -187,11 +187,7 @@ const AddParty = () => {
             for (let i in fields){
                 form_data.append(i, fields[i]);
             };
-            return await axiosInstance.post('apis/Party/',form_data,
-            {headers: {
-                'content-type': 'multipart/form-data',
-                'Authorization': `Token ${localStorage.getItem('token')}`
-              }})
+            return await axiosInstance.post('apis/Party/',form_data)
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
@@ -214,14 +210,13 @@ const AddParty = () => {
         else{
             let form_data = new FormData();
             for (let i in fields){
-                if (i === 'sales_Officer' || i === 'SCI' || i === 'TOR'){
-                    
-                }
-                else{
-                    form_data.append(i, fields[i]);
-                }
+                form_data.append(i, fields[i]);
             }
-            return await axiosInstance.put(`apis/Party/${selectedObjId}/`,form_data)
+            return await axiosInstance.put(`apis/Party/${selectedObjId}/`,form_data,
+            {headers: {
+                'content-type': 'multipart/form-data',
+                'Authorization': `Token ${localStorage.getItem('token')}`
+            }})
                 .then(res=>{
                     let data  = res.data;
                     if (data['error'] === true){
@@ -531,11 +526,11 @@ const AddParty = () => {
                     <Grid item container spacing={3}>
                         <Grid item xs={6}>
                             <Typography variant='body2'>Security Check Image</Typography>
-                            <input type="file" disabled={(isUpdate?true:false)} name='SCI' onChange={handleInputChange}/>
+                            <input type="file" name='SCI' onChange={handleInputChange}/>
                         </Grid>
                         <Grid item xs={6}>
                         <Typography variant='body2'>Terms Of Service Image</Typography>
-                            <input type="file"  disabled={(isUpdate?true:false)} name='TOR' onChange={handleInputChange}/>
+                            <input type="file"   name='TOR' onChange={handleInputChange}/>
                         </Grid>
                     </Grid>         
                     <Grid item container  >

@@ -39,7 +39,28 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: theme.palette.primary.dark,
         cursor: 'pointer',
     },
+    
 },
+// attachmets:{
+//   width: 0.1,
+// 	height: 0.1,
+// 	opacity: 0,
+// 	overflow: "hidden",
+// 	position: "absolute",
+  
+// 	// z-index: -1,
+// },
+// lable:{
+//   fontsize: 1.25,
+//     fontweight: 700,
+//     color: 'white',
+//     backgroundColor: theme.palette.primary.main,
+//     display:'inline-flex',
+//     height:'30px',
+//     alignItems: 'center',
+//     borderRadius:'3%',
+   
+// },
 xsFull:{
   '@media only screen and (max-width: 600px)': {
     width:'35vh'
@@ -114,7 +135,10 @@ export default function PartyOrder(props) {
     description: fields.description,
     bank: '',
     amount: '',
+    attachments:'',
 };
+const [recoveryTitle,setRecoveryTitle] = useState('Attachments');
+// const [recoveryAttachment,setRecoveryAttachment] = useState(initialRecoveryFields);
 const [recoveryFields,setRecoveryFields] = useState(initialRecoveryFields);
 const [OpenRecovery,setOpenRecovery] = useState(false);
 // Bank
@@ -308,11 +332,12 @@ const [bankDisabled,setBankDisabled] = useState(true);
 
   const handleGenrateOrder = async e =>{
     let sendfileds = {...fields,gross_total:totalAmount,sale_officer:selectedSalesOfficer,locations:JSON.stringify(locations)}
+    
     const send_dict = {
       'party_order': sendfileds,
       'products': productsRows,
       'recovery': {...recoveryFields}
-    }
+    }    
     
     await axiosInstance.post('apis/GenratePartyOrder/',send_dict)
     .then(res=>{
@@ -351,6 +376,10 @@ const [bankDisabled,setBankDisabled] = useState(true);
       setSalesOfficerTitle(so.name);
       setSelectedSalesOfficer(so.id);
     }
+  } 
+  const HandleFileChange = (e)=>{
+    setRecoveryTitle(e.target.files[0].name);
+    // setRecoveryFields({...recoveryFields,attachments:e.target.files[0]});
   }
 
   useEffect(() => {
@@ -570,7 +599,7 @@ const [bankDisabled,setBankDisabled] = useState(true);
         <DialogContent >
           <Typography color='secondary'>Leave Empty or 0 if you dont want to add Recovery</Typography>
         <DialogContentText id="DialogText">
-            <Grid container justifyContent='center'>
+            <Grid container justifyContent='center' spacing={2}>
                  {/* Payment Method */}
                  <Grid item xs={12}>
                     <MenuItems
@@ -580,7 +609,21 @@ const [bankDisabled,setBankDisabled] = useState(true);
                         selectedOption={recoveryFields.payment_method}
                       />
                 </Grid>
-                <Grid item xs>
+                <Grid item  >
+                <Button
+                    variant="contained"
+                    component="label"
+                  >
+                    {recoveryTitle}
+                    <input
+                      type="file"
+                      onChange={HandleFileChange}
+                      hidden
+                    />
+                  </Button>
+                    
+                </Grid>
+                <Grid item >
                   <Selecter
                       title={bankTitle}
                       handleChange={handleRecoveryFieldsChange}
@@ -591,7 +634,7 @@ const [bankDisabled,setBankDisabled] = useState(true);
                       disabled={bankDisabled}
                   />
                 </Grid>
-                <Grid item>
+                <Grid item >
                   <InputField  size='small'
                       label="Recovery Amount" 
                       type="number" 

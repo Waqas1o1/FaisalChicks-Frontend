@@ -186,7 +186,7 @@ const DashBorad = (props) => {
                 </Paper>
               </Link>
           </Grid>
-
+          {isAdmin?
           <Grid item xs={6} sm={4} md={3} lg={2} container justifyContent='center'>
               <Link className={classes.link} to='/Recovery'>
               <Paper className={`${classes.paper} ${classes.bgBlue}`}>
@@ -197,6 +197,7 @@ const DashBorad = (props) => {
               </Paper>
               </Link>
           </Grid>
+          :undefined}
 
           <Grid item xs={6} sm={4} md={3} lg={2} container justifyContent='center'>
               <Link className={classes.link} to='/GroupRecovery'>

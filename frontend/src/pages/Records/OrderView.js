@@ -596,6 +596,7 @@ function DataTable(props) {
   };
   const columns = [
     { field: "id", headerName: "ID", width: 90 },
+    { field: "date", headerName: "Date", width: 170 },
     {
       field: "sale_officer",
       headerName: "Sales Officer",
